@@ -22,7 +22,10 @@ public sealed partial class UnlockViewModel(ShellViewModel shell) : ObservableOb
     public partial string? Error { get; private set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UnlockLabel))]
     public partial bool IsBusy { get; private set; }
+
+    public string UnlockLabel => IsBusy ? Strings.Unlocking : Strings.Unlock;
 
     partial void OnPasswordChanged(string value) => Error = null;
 

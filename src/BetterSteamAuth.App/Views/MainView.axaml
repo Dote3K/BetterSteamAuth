@@ -39,65 +39,67 @@
     </Border>
 
     <!-- Shared 30 s timer -->
-    <ProgressBar DockPanel.Dock="Top" Height="2" MinHeight="2" CornerRadius="0"
+    <ProgressBar DockPanel.Dock="Top" Height="2" MinHeight="2" CornerRadius="0" IsVisible="{Binding HasAccounts}"
                  Minimum="0" Maximum="30" Value="{Binding SecondsRemaining}" />
 
-    <!-- Empty state -->
-    <StackPanel IsVisible="{Binding !HasAccounts}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-      <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyTitle}" />
-      <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyBody}" />
-      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
-        <Button Theme="{DynamicResource SolidButton}" Classes="Primary"
-                Content="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
-        <Button Content="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
-      </StackPanel>
-    </StackPanel>
-
-    <!-- List + detail -->
-    <Grid IsVisible="{Binding HasAccounts}" ColumnDefinitions="*,1.1*">
-      <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:AccountItemViewModel">
-            <Grid ColumnDefinitions="*,Auto" Height="24" Background="Transparent">
-              <Grid.ContextMenu>
-                <ContextMenu>
-                  <MenuItem Header="{x:Static res:Strings.CopyCode}"
-                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
-                            CommandParameter="{Binding}" />
-                  <MenuItem Header="{x:Static res:Strings.Relogin}"
-                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
-                            CommandParameter="{Binding}" />
-                </ContextMenu>
-              </Grid.ContextMenu>
-              <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-              <TextBlock Grid.Column="1" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-
-      <Border Grid.Column="1" Classes="divider-left" Padding="20,16">
-        <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
-                    IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <TextBlock Classes="title" Text="{Binding Name}" />
-          <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
-            <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
-            <Button Grid.Column="1" VerticalAlignment="Center"
-                    Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
-                    CommandParameter="{Binding}">
-              <StackPanel Orientation="Horizontal" Spacing="6">
-                <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
-                <TextBlock Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyLabel}" />
-              </StackPanel>
-            </Button>
-          </Grid>
-          <TextBlock Classes="caption"
-                     Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
-
-          <TextBlock Classes="title" Margin="0,24,0,4" Text="{x:Static res:Strings.Confirmations}" />
-          <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" />
+    <Panel>
+      <!-- Empty state -->
+      <StackPanel IsVisible="{Binding !HasAccounts}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyTitle}" />
+        <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyBody}" />
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
+          <Button Theme="{DynamicResource SolidButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
+          <Button Content="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
         </StackPanel>
-      </Border>
-    </Grid>
+      </StackPanel>
+
+      <!-- List + detail -->
+      <Grid IsVisible="{Binding HasAccounts}" ColumnDefinitions="*,1.1*">
+        <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:AccountItemViewModel">
+              <Grid ColumnDefinitions="*,Auto" Height="24" Background="Transparent">
+                <Grid.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="{x:Static res:Strings.CopyCode}"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="{x:Static res:Strings.Relogin}"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
+                              CommandParameter="{Binding}" />
+                  </ContextMenu>
+                </Grid.ContextMenu>
+                <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                <TextBlock Grid.Column="1" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Border Grid.Column="1" Classes="divider-left" Padding="20,16">
+          <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
+                      IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Classes="title" Text="{Binding Name}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+              <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
+              <Button Grid.Column="1" VerticalAlignment="Center"
+                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
+                      CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
+                  <TextBlock Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyLabel}" />
+                </StackPanel>
+              </Button>
+            </Grid>
+            <TextBlock Classes="caption"
+                       Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
+
+            <TextBlock Classes="title" Margin="0,24,0,4" Text="{x:Static res:Strings.Confirmations}" />
+            <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Panel>
   </DockPanel>
 </UserControl>

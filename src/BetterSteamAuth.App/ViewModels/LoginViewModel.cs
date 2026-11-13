@@ -44,10 +44,12 @@ public sealed partial class LoginViewModel : ObservableObject
     public partial bool NeedsEmailCode { get; private set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsIdle))]
+    [NotifyPropertyChangedFor(nameof(IsIdle), nameof(SignInLabel))]
     public partial bool IsBusy { get; private set; }
 
     public bool IsIdle => !IsBusy;
+
+    public string SignInLabel => IsBusy ? Strings.SigningIn : Strings.SignIn;
 
     [ObservableProperty]
     public partial string? Error { get; private set; }

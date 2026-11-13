@@ -12,6 +12,6 @@
              PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
     <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <Button HorizontalAlignment="Stretch" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
-            Content="{x:Static res:Strings.Unlock}" Command="{Binding UnlockCommand}" />
+            Content="{Binding UnlockLabel}" Command="{Binding UnlockCommand}" IsEnabled="{Binding !IsBusy}" />
   </StackPanel>
 </UserControl>

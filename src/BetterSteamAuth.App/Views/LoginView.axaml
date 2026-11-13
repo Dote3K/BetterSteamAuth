@@ -19,9 +19,8 @@
                  IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
       <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
         <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
-        <ProgressBar Grid.Column="1" Width="80" IsIndeterminate="True" IsVisible="{Binding IsBusy}" HorizontalAlignment="Right" Margin="0,0,12,0" />
         <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
-                Content="{x:Static res:Strings.SignIn}" Command="{Binding SignInCommand}" IsEnabled="{Binding IsIdle}" />
+                Content="{Binding SignInLabel}" Command="{Binding SignInCommand}" IsEnabled="{Binding IsIdle}" />
       </Grid>
     </StackPanel>
 
