@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="SteamKit2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
   </ItemGroup>
 </Project>
