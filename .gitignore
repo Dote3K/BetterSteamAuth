@@ -480,3 +480,10 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# BetterSteamAuth: never commit real account data
+*.maFile
+maFiles/
+vault.db
+vault.db-*
+proxies.txt
