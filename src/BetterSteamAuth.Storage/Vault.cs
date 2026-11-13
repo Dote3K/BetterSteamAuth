@@ -156,6 +156,26 @@ public sealed class Vault : IDisposable
             new { key, value });
     }
 
+    /// <summary>Records an accepted or rejected confirmation in <c>confirmation_log</c>.</summary>
+    public void LogConfirmation(ulong steamId, ulong confirmationId, int type, string? summary, bool accepted, bool automatic, bool ok)
+    {
+        using var connection = _db.Open();
+        connection.Execute(
+            "INSERT INTO confirmation_log(steam_id, conf_id, conf_type, summary, action, source, ok, at) " +
+            "VALUES (@steamId, @confId, @type, @summary, @action, @source, @ok, @at)",
+            new
+            {
+                steamId = (long)steamId,
+                confId = confirmationId.ToString(CultureInfo.InvariantCulture),
+                type,
+                summary,
+                action = accepted ? "accept" : "deny",
+                source = automatic ? "auto" : "manual",
+                ok = ok ? 1 : 0,
+                at = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            });
+    }
+
     public IReadOnlyList<AccountEntry> ListAccounts()
     {
         using var connection = _db.Open();
