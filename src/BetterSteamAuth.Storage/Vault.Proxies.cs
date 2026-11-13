@@ -107,6 +107,12 @@ public sealed partial class Vault
         return settings with { Password = UnprotectPassword(settings, row.Secret, row.Nonce) };
     }
 
+    public long? GetAccountProxyId(ulong steamId)
+    {
+        using var connection = _db.Open();
+        return connection.ExecuteScalar<long?>("SELECT proxy_id FROM accounts WHERE steam_id = @id", new { id = (long)steamId });
+    }
+
     /// <summary>Assigns a proxy to an account, or null for a direct connection.</summary>
     public void SetAccountProxy(ulong steamId, long? proxyId)
     {
