@@ -48,6 +48,7 @@ public sealed partial class ImportViewModel : ObservableObject
         _onDone = onDone;
         Source = source;
         Title = source == ImportSource.SdaFolder ? Strings.ImportFromSda : Strings.ImportMaFiles;
+        Subtitle = source == ImportSource.SdaFolder ? Strings.ImportFromSdaHint : Strings.ImportMaFilesHint;
     }
 
     public ImportSource Source { get; }
@@ -55,6 +56,8 @@ public sealed partial class ImportViewModel : ObservableObject
     public bool IsSdaSource => Source == ImportSource.SdaFolder;
 
     public string Title { get; }
+
+    public string Subtitle { get; }
 
     public ObservableCollection<ImportItemViewModel> Items { get; } = [];
 

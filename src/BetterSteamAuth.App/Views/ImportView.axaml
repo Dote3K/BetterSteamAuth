@@ -6,35 +6,35 @@
              x:DataType="vm:ImportViewModel">
   <Grid Width="460" Margin="24" VerticalAlignment="Center">
     <!-- Pick and select -->
-    <DockPanel IsVisible="{Binding !IsDone}">
-      <StackPanel DockPanel.Dock="Top" Spacing="8">
-        <TextBlock Classes="heading" Text="{Binding Title}" />
-        <TextBlock Classes="caption" TextTrimming="CharacterEllipsis" Text="{Binding SourceLabel}"
-                   IsVisible="{Binding SourceLabel, Converter={x:Static ObjectConverters.IsNotNull}}" />
-        <Button HorizontalAlignment="Left" Command="{Binding PickCommand}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconFolderOpen}" />
-            <TextBlock Text="{x:Static res:Strings.ChooseFolder}" IsVisible="{Binding IsSdaSource}" />
-            <TextBlock Text="{x:Static res:Strings.ChooseFiles}" IsVisible="{Binding !IsSdaSource}" />
-          </StackPanel>
-        </Button>
+    <StackPanel Spacing="8" IsVisible="{Binding !IsDone}">
+      <TextBlock Classes="heading" Text="{Binding Title}" />
+      <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding Subtitle}" />
 
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding NeedsPasskey}">
-          <TextBox Classes="revealPasswordButton" PasswordChar="•"
-                   PlaceholderText="{x:Static res:Strings.SdaPasskey}" Text="{Binding Passkey}" />
-          <Button Grid.Column="1" Content="{x:Static res:Strings.Unlock}" Command="{Binding UnlockSdaCommand}" IsDefault="True" />
-        </Grid>
-        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}"
-                   IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
-      </StackPanel>
+      <!-- Source picker -->
+      <Border Classes="well" Padding="16">
+        <StackPanel Spacing="8" HorizontalAlignment="Center">
+          <Button HorizontalAlignment="Center" Command="{Binding PickCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconFolderOpen}" />
+              <TextBlock Text="{x:Static res:Strings.ChooseFolder}" IsVisible="{Binding IsSdaSource}" />
+              <TextBlock Text="{x:Static res:Strings.ChooseFiles}" IsVisible="{Binding !IsSdaSource}" />
+            </StackPanel>
+          </Button>
+          <TextBlock Classes="caption" HorizontalAlignment="Center" MaxWidth="400" TextTrimming="CharacterEllipsis"
+                     Text="{Binding SourceLabel}"
+                     IsVisible="{Binding SourceLabel, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </StackPanel>
+      </Border>
 
-      <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto" Margin="0,16,0,0">
-        <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
-        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
-                IsVisible="{Binding HasItems}" Content="{Binding ImportButtonText}" Command="{Binding ImportCommand}" />
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding NeedsPasskey}">
+        <TextBox Classes="revealPasswordButton" PasswordChar="•"
+                 PlaceholderText="{x:Static res:Strings.SdaPasskey}" Text="{Binding Passkey}" />
+        <Button Grid.Column="1" Content="{x:Static res:Strings.Unlock}" Command="{Binding UnlockSdaCommand}" IsDefault="True" />
       </Grid>
+      <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}"
+                 IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
-      <ListBox Margin="0,12,0,0" MaxHeight="280" ItemsSource="{Binding Items}" IsVisible="{Binding HasItems}">
+      <ListBox MaxHeight="260" ItemsSource="{Binding Items}" IsVisible="{Binding HasItems}">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:ImportItemViewModel">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
@@ -46,7 +46,13 @@
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>
-    </DockPanel>
+
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+        <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                IsVisible="{Binding HasItems}" Content="{Binding ImportButtonText}" Command="{Binding ImportCommand}" />
+      </Grid>
+    </StackPanel>
 
     <!-- Done -->
     <StackPanel Spacing="8" HorizontalAlignment="Center" IsVisible="{Binding IsDone}">

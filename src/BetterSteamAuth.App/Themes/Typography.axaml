@@ -53,6 +53,10 @@
     <Setter Property="FontWeight" Value="{StaticResource SemiFontWeightBold}" />
     <Setter Property="LetterSpacing" Value="3" />
   </Style>
+  <Style Selector="Border.well">
+    <Setter Property="Background" Value="{DynamicResource SemiColorFill0}" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+  </Style>
   <Style Selector="Border.divider-left">
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="1,0,0,0" />
