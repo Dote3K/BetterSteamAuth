@@ -20,12 +20,15 @@
             <PathIcon Width="14" Height="14" Margin="10,0,0,0" Data="{StaticResource SemiIconSearch}" />
           </TextBox.InnerLeftContent>
         </TextBox>
-        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8">
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8"
+                AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
           <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
           <Button.Flyout>
             <MenuFlyout Placement="BottomEdgeAlignedRight">
               <MenuItem Header="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
               <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
+              <Separator />
+              <MenuItem Header="{x:Static res:Strings.Settings}" Command="{Binding OpenSettingsCommand}" />
               <Separator IsVisible="{Binding CanLock}" />
               <MenuItem Header="{x:Static res:Strings.LockApp}" InputGesture="Ctrl+L"
                         IsVisible="{Binding CanLock}" Command="{Binding LockCommand}" />

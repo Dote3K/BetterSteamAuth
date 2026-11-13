@@ -51,4 +51,14 @@
   <data name="ChooseFiles" xml:space="preserve"><value>Choose files</value></data>
   <data name="SdaPasskey" xml:space="preserve"><value>SDA passkey</value></data>
   <data name="OpenApp" xml:space="preserve"><value>Open BetterSteamAuth</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="AdvancedNetwork" xml:space="preserve"><value>Advanced · Network</value></data>
+  <data name="BypassSni" xml:space="preserve"><value>Bypass SNI blocking</value></data>
+  <data name="BypassSniBody" xml:space="preserve"><value>Splits the TLS handshake so network filters can't read Steam's server name. Auto turns it on for a server only after a connection to it is reset.</value></data>
+  <data name="EncryptedDns" xml:space="preserve"><value>Encrypted DNS</value></data>
+  <data name="EncryptedDnsBody" xml:space="preserve"><value>Looks up Steam's addresses over HTTPS when your network blocks them. Accounts with a proxy don't need it.</value></data>
+  <data name="Auto" xml:space="preserve"><value>Auto</value></data>
+  <data name="On" xml:space="preserve"><value>On</value></data>
+  <data name="Off" xml:space="preserve"><value>Off</value></data>
+  <data name="More" xml:space="preserve"><value>More</value></data>
 </root>

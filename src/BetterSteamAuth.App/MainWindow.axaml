@@ -12,6 +12,7 @@
     <DataTemplate DataType="vm:UnlockViewModel"><views:UnlockView /></DataTemplate>
     <DataTemplate DataType="vm:ImportViewModel"><views:ImportView /></DataTemplate>
     <DataTemplate DataType="vm:MainViewModel"><views:MainView /></DataTemplate>
+    <DataTemplate DataType="vm:SettingsViewModel"><views:SettingsView /></DataTemplate>
   </Window.DataTemplates>
   <ContentControl Content="{Binding CurrentPage}" />
 </Window>

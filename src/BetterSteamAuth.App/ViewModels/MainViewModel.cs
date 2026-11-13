@@ -102,6 +102,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void Lock() => _shell.LockApp();
 
+    [RelayCommand]
+    private void OpenSettings() => _shell.ShowSettings();
+
     public void Dispose()
     {
         _timer.Stop();

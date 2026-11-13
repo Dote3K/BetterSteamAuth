@@ -89,6 +89,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowUnlock() => SwitchTo(new UnlockViewModel(this));
 
+    public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
+
     public void ShowImport(ImportSource source) => SwitchTo(new ImportViewModel(this, source, onDone: ShowMain));
 
     public void LockApp()
