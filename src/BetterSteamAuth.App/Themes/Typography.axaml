@@ -29,6 +29,15 @@
   <Style Selector="TextBlock.accent">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}" />
   </Style>
+  <Style Selector="TextBlock.danger">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
+  </Style>
+  <Style Selector="PathIcon.secondary">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+  </Style>
+  <Style Selector="PathIcon.success">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorSuccess}" />
+  </Style>
   <Style Selector="PathIcon.warning">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorWarning}" />
   </Style>

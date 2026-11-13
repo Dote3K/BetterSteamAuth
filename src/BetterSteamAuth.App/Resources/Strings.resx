@@ -19,4 +19,36 @@
   <data name="LockApp" xml:space="preserve"><value>Lock app</value></data>
   <data name="EmptyTitle" xml:space="preserve"><value>Add your first Steam account</value></data>
   <data name="EmptyBody" xml:space="preserve"><value>Codes and confirmations will show up here.</value></data>
+  <data name="AccountCountFormat" xml:space="preserve"><value>{0} accounts</value></data>
+  <data name="WrongPassword" xml:space="preserve"><value>Wrong password</value></data>
+  <data name="PasswordTooShort" xml:space="preserve"><value>Use at least 8 characters</value></data>
+  <data name="PasswordsDontMatch" xml:space="preserve"><value>Passwords don't match</value></data>
+  <data name="NotAnSdaFolder" xml:space="preserve"><value>This folder has no SDA manifest.json. Choose SDA's maFiles folder.</value></data>
+  <data name="WrongPasskey" xml:space="preserve"><value>Wrong passkey</value></data>
+  <data name="ImportCountFormat" xml:space="preserve"><value>Import {0} accounts</value></data>
+  <data name="AccountsReadyFormat" xml:space="preserve"><value>{0} accounts ready</value></data>
+  <data name="SkippedFormat" xml:space="preserve"><value>Skipped: {0} already added, {1} unreadable</value></data>
+  <data name="WelcomeTitle" xml:space="preserve"><value>Welcome to BetterSteamAuth</value></data>
+  <data name="WelcomeSubtitle" xml:space="preserve"><value>How do you want to start?</value></data>
+  <data name="ImportFromSdaBody" xml:space="preserve"><value>Bring your maFiles folder, encrypted or not</value></data>
+  <data name="ImportMaFilesBody" xml:space="preserve"><value>Add one or more .maFile files</value></data>
+  <data name="AddLater" xml:space="preserve"><value>I'll add accounts later</value></data>
+  <data name="AddLaterBody" xml:space="preserve"><value>Start with an empty app</value></data>
+  <data name="DataFolderFormat" xml:space="preserve"><value>Data folder: {0}</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continue</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="SetPasswordTitle" xml:space="preserve"><value>Set a password</value></data>
+  <data name="SetPasswordBody" xml:space="preserve"><value>Your Steam accounts are encrypted with this password. It can't be recovered, so keep it safe.</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="SetPassword" xml:space="preserve"><value>Set password</value></data>
+  <data name="ContinueWithoutPassword" xml:space="preserve"><value>Continue without a password</value></data>
+  <data name="NoPasswordNote" xml:space="preserve"><value>Anyone with access to this computer can use your accounts. You can set a password later in Settings. Click again to continue.</value></data>
+  <data name="UnlockTitle" xml:space="preserve"><value>Unlock BetterSteamAuth</value></data>
+  <data name="Unlock" xml:space="preserve"><value>Unlock</value></data>
+  <data name="ChooseFolder" xml:space="preserve"><value>Choose folder</value></data>
+  <data name="ChooseFiles" xml:space="preserve"><value>Choose files</value></data>
+  <data name="SdaPasskey" xml:space="preserve"><value>SDA passkey</value></data>
+  <data name="OpenApp" xml:space="preserve"><value>Open BetterSteamAuth</value></data>
 </root>

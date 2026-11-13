@@ -4,14 +4,13 @@ using System.Text;
 using Avalonia.Threading;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Core.Guard;
-using BetterSteamAuth.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace BetterSteamAuth.App.ViewModels;
 
 /// <summary>Main window: account list, shared timer, and the selected account's code.</summary>
-public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
+public sealed partial class MainViewModel : ObservableObject, IDisposable
 {
     /// <summary>When fewer seconds are left, Copy copies the next code instead.</summary>
     private const int CopyNextThreshold = 5;
@@ -22,11 +21,17 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly DispatcherTimer _timer;
     private long _lastPeriod = -1;
 
-    public MainWindowViewModel(Vault? vault)
+    private readonly ShellViewModel _shell;
+
+    public MainViewModel(ShellViewModel shell)
     {
-        foreach (var entry in vault?.ListAccounts() ?? [])
+        _shell = shell;
+        var vault = shell.Vault ?? throw new InvalidOperationException("No vault is open.");
+        CanLock = vault.IsEncrypted;
+
+        foreach (var entry in vault.ListAccounts())
         {
-            var maFile = vault!.Load(entry.SteamId);
+            var maFile = vault.Load(entry.SteamId);
             if (string.IsNullOrEmpty(maFile.SharedSecret))
             {
                 continue;
@@ -47,8 +52,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         _timer.Start();
     }
 
-    /// <summary>Set by the view: puts text on the clipboard.</summary>
-    public Func<string, Task>? CopyToClipboard { get; set; }
+    public bool CanLock { get; }
 
     public ObservableCollection<AccountItemViewModel> Accounts { get; } = [];
 
@@ -75,7 +79,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private async Task CopyCodeAsync(AccountItemViewModel? account)
     {
         account ??= SelectedAccount;
-        if (account is null || CopyToClipboard is null)
+        if (account is null)
         {
             return;
         }
@@ -83,12 +87,21 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         string code = SteamGuardCode.SecondsRemaining(account.Clock.Now) <= CopyNextThreshold
             ? account.NextCode()
             : account.Code;
-        await CopyToClipboard(code).ConfigureAwait(true);
+        await _shell.Platform.CopyTextAsync(code).ConfigureAwait(true);
 
         CopyLabel = Strings.Copied;
         await Task.Delay(1200).ConfigureAwait(true);
         CopyLabel = Strings.Copy;
     }
+
+    [RelayCommand]
+    private void ImportFromSda() => _shell.ShowImport(ImportSource.SdaFolder);
+
+    [RelayCommand]
+    private void ImportMaFiles() => _shell.ShowImport(ImportSource.MaFiles);
+
+    [RelayCommand]
+    private void Lock() => _shell.LockApp();
 
     public void Dispose()
     {

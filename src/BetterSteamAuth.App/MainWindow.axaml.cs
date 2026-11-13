@@ -1,22 +1,35 @@
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
-using BetterSteamAuth.App.ViewModels;
+using Avalonia.Platform.Storage;
+using BetterSteamAuth.App.Services;
 
 namespace BetterSteamAuth.App;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, IPlatformServices
 {
+    private static readonly FilePickerFileType MaFileType = new("maFile") { Patterns = ["*.maFile"] };
+
     public MainWindow()
     {
         InitializeComponent();
     }
 
-    protected override void OnDataContextChanged(EventArgs e)
+    public Task CopyTextAsync(string text) => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
+
+    public async Task<string?> PickFolderAsync(string title)
     {
-        base.OnDataContextChanged(e);
-        if (DataContext is MainWindowViewModel vm)
+        var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title });
+        return folders.Count > 0 ? folders[0].TryGetLocalPath() : null;
+    }
+
+    public async Task<IReadOnlyList<string>> PickMaFilesAsync(string title)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            vm.CopyToClipboard = text => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
-        }
+            Title = title,
+            AllowMultiple = true,
+            FileTypeFilter = [MaFileType, FilePickerFileTypes.All],
+        });
+        return files.Select(f => f.TryGetLocalPath()).OfType<string>().ToList();
     }
 }

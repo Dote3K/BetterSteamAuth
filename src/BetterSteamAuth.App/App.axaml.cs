@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using BetterSteamAuth.App.ViewModels;
-using BetterSteamAuth.Storage;
 
 namespace BetterSteamAuth.App;
 
@@ -22,14 +21,11 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             string folder = DataFolderFromArgs(desktop.Args) ?? DefaultDataFolder;
-            Vault? vault = Vault.Exists(folder) ? Vault.Open(folder) : null;
-            var vm = new MainWindowViewModel(vault is { IsUnlocked: true } ? vault : null);
-            desktop.MainWindow = new MainWindow { DataContext = vm };
-            desktop.ShutdownRequested += (_, _) =>
-            {
-                vm.Dispose();
-                vault?.Dispose();
-            };
+            var window = new MainWindow();
+            var shell = new ShellViewModel(folder, window);
+            window.DataContext = shell;
+            desktop.MainWindow = window;
+            desktop.ShutdownRequested += (_, _) => shell.Dispose();
         }
 
         base.OnFrameworkInitializationCompleted();

@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.UnlockView"
+             x:DataType="vm:UnlockViewModel">
+  <StackPanel Width="300" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <PathIcon Width="32" Height="32" Classes="secondary" Data="{StaticResource SemiIconLock}" />
+    <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{x:Static res:Strings.UnlockTitle}" />
+    <TextBlock Classes="secondary" HorizontalAlignment="Center" Margin="0,0,0,12" Text="{Binding Subtitle}" />
+    <TextBox x:Name="PasswordBox" Classes="revealPasswordButton" PasswordChar="•"
+             PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
+    <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    <Button HorizontalAlignment="Stretch" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+            Content="{x:Static res:Strings.Unlock}" Command="{Binding UnlockCommand}" />
+  </StackPanel>
+</UserControl>

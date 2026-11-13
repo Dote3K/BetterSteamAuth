@@ -1,89 +1,17 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+        xmlns:views="using:BetterSteamAuth.App.Views"
         xmlns:res="using:BetterSteamAuth.App.Resources"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
         x:Class="BetterSteamAuth.App.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
+        x:DataType="vm:ShellViewModel"
         Title="{x:Static res:Strings.AppName}"
-        Width="900" Height="600" MinWidth="420" MinHeight="360">
-  <DockPanel>
-    <!-- Header -->
-    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
-      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.AllAccounts}" />
-        <TextBox Grid.Column="1" MaxWidth="420" HorizontalAlignment="Stretch"
-                 PlaceholderText="{x:Static res:Strings.Search}"
-                 Text="{Binding SearchText}">
-          <TextBox.InnerLeftContent>
-            <PathIcon Width="14" Height="14" Margin="10,0,0,0" Data="{StaticResource SemiIconSearch}" />
-          </TextBox.InnerLeftContent>
-        </TextBox>
-        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8">
-          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
-          <Button.Flyout>
-            <MenuFlyout Placement="BottomEdgeAlignedRight">
-              <MenuItem Header="{x:Static res:Strings.ImportFromSda}" />
-              <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" />
-              <Separator />
-              <MenuItem Header="{x:Static res:Strings.LockApp}" InputGesture="Ctrl+L" />
-            </MenuFlyout>
-          </Button.Flyout>
-        </Button>
-      </Grid>
-    </Border>
-
-    <!-- Shared 30 s timer -->
-    <ProgressBar DockPanel.Dock="Top" Height="2" MinHeight="2" CornerRadius="0"
-                 Minimum="0" Maximum="30" Value="{Binding SecondsRemaining}" />
-
-    <!-- Empty state -->
-    <StackPanel IsVisible="{Binding !HasAccounts}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-      <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyTitle}" />
-      <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.EmptyBody}" />
-      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
-        <Button Theme="{DynamicResource SolidButton}" Classes="Primary" Content="{x:Static res:Strings.ImportMaFiles}" />
-        <Button Content="{x:Static res:Strings.LinkNewAuthenticator}" />
-      </StackPanel>
-    </StackPanel>
-
-    <!-- List + detail -->
-    <Grid IsVisible="{Binding HasAccounts}" ColumnDefinitions="*,1.1*">
-      <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
-        <ListBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:AccountItemViewModel">
-            <Grid ColumnDefinitions="*,Auto" Height="24">
-              <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-              <TextBlock Grid.Column="1" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-
-      <Border Grid.Column="1" Classes="divider-left" Padding="20,16">
-        <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
-                    IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <TextBlock Classes="title" Text="{Binding Name}" />
-          <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
-            <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
-            <Button Grid.Column="1" VerticalAlignment="Center"
-                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyCodeCommand}"
-                    CommandParameter="{Binding}">
-              <StackPanel Orientation="Horizontal" Spacing="6">
-                <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
-                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyLabel}" />
-              </StackPanel>
-            </Button>
-          </Grid>
-          <TextBlock Classes="caption"
-                     Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).SecondsLeftText}" />
-
-          <TextBlock Classes="title" Margin="0,24,0,4" Text="{x:Static res:Strings.Confirmations}" />
-          <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" />
-        </StackPanel>
-      </Border>
-    </Grid>
-  </DockPanel>
+        Width="900" Height="600" MinWidth="420" MinHeight="420">
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:FirstRunViewModel"><views:FirstRunView /></DataTemplate>
+    <DataTemplate DataType="vm:UnlockViewModel"><views:UnlockView /></DataTemplate>
+    <DataTemplate DataType="vm:ImportViewModel"><views:ImportView /></DataTemplate>
+    <DataTemplate DataType="vm:MainViewModel"><views:MainView /></DataTemplate>
+  </Window.DataTemplates>
+  <ContentControl Content="{Binding CurrentPage}" />
 </Window>

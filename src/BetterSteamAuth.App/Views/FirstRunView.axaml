@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.FirstRunView"
+             x:DataType="vm:FirstRunViewModel">
+  <Grid Width="460" Margin="24" VerticalAlignment="Center">
+    <!-- Step 1: Welcome -->
+    <StackPanel Spacing="8" IsVisible="{Binding IsWelcome}">
+      <TextBlock Classes="heading" Text="{x:Static res:Strings.WelcomeTitle}" />
+      <TextBlock Classes="secondary" Margin="0,0,0,12" Text="{x:Static res:Strings.WelcomeSubtitle}" />
+
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"
+                   IsChecked="{Binding ChoiceIsSda}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ImportFromSda}" />
+          <TextBlock Classes="secondary" Text="{x:Static res:Strings.ImportFromSdaBody}" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"
+                   IsChecked="{Binding ChoiceIsFiles}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ImportMaFiles}" />
+          <TextBlock Classes="secondary" Text="{x:Static res:Strings.ImportMaFilesBody}" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"
+                   IsChecked="{Binding ChoiceIsLater}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AddLater}" />
+          <TextBlock Classes="secondary" Text="{x:Static res:Strings.AddLaterBody}" />
+        </StackPanel>
+      </RadioButton>
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+        <TextBlock Classes="caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                   Text="{Binding DataFolderText}" ToolTip.Tip="{Binding DataFolder}" />
+        <Button Grid.Column="1" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                Content="{x:Static res:Strings.Continue}" Command="{Binding ContinueCommand}" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Step 2: Set a password -->
+    <StackPanel Spacing="8" IsVisible="{Binding IsPassword}">
+      <TextBlock Classes="heading" Text="{x:Static res:Strings.SetPasswordTitle}" />
+      <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.SetPasswordBody}" />
+
+      <TextBox Classes="revealPasswordButton" PasswordChar="•"
+               PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
+      <TextBox Classes="revealPasswordButton" PasswordChar="•"
+               PlaceholderText="{x:Static res:Strings.ConfirmPassword}" Text="{Binding ConfirmPassword}" />
+      <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <TextBlock Classes="secondary" TextWrapping="Wrap" IsVisible="{Binding ShowNoPasswordNote}"
+                 Text="{x:Static res:Strings.NoPasswordNote}" />
+
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" Margin="0,16,0,0">
+        <Button Content="{x:Static res:Strings.Back}" Command="{Binding BackCommand}" />
+        <Button Grid.Column="1" HorizontalAlignment="Right" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                Content="{x:Static res:Strings.ContinueWithoutPassword}" Command="{Binding ContinueWithoutPasswordCommand}" />
+        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                Content="{x:Static res:Strings.SetPassword}" Command="{Binding SetPasswordCommand}" />
+      </Grid>
+    </StackPanel>
+  </Grid>
+</UserControl>
