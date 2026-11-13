@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding CancelCommand}" />
+  </UserControl.KeyBindings>
+  <StackPanel Width="340" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <TextBlock Classes="heading" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+    <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.SignInBody}" />
+
+    <!-- Password -->
+    <StackPanel Spacing="8" IsVisible="{Binding !NeedsEmailCode}">
+      <TextBox Classes="revealPasswordButton" PasswordChar="•" IsEnabled="{Binding IsIdle}"
+               PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
+      <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}"
+                 IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+        <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+        <ProgressBar Grid.Column="1" Width="80" IsIndeterminate="True" IsVisible="{Binding IsBusy}" HorizontalAlignment="Right" Margin="0,0,12,0" />
+        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                Content="{x:Static res:Strings.SignIn}" Command="{Binding SignInCommand}" IsEnabled="{Binding IsIdle}" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Email code -->
+    <StackPanel Spacing="8" IsVisible="{Binding NeedsEmailCode}">
+      <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.EmailCodePrompt}" />
+      <TextBox PlaceholderText="{x:Static res:Strings.EmailCode}" Text="{Binding EmailCode}" />
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+        <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                Content="{x:Static res:Strings.Continue}" Command="{Binding SubmitEmailCodeCommand}" />
+      </Grid>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

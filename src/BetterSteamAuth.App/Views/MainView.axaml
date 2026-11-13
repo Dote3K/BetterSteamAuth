@@ -58,7 +58,17 @@
       <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="vm:AccountItemViewModel">
-            <Grid ColumnDefinitions="*,Auto" Height="24">
+            <Grid ColumnDefinitions="*,Auto" Height="24" Background="Transparent">
+              <Grid.ContextMenu>
+                <ContextMenu>
+                  <MenuItem Header="{x:Static res:Strings.CopyCode}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
+                            CommandParameter="{Binding}" />
+                  <MenuItem Header="{x:Static res:Strings.Relogin}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
+                            CommandParameter="{Binding}" />
+                </ContextMenu>
+              </Grid.ContextMenu>
               <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
               <TextBlock Grid.Column="1" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
             </Grid>

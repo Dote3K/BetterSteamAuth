@@ -105,6 +105,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenSettings() => _shell.ShowSettings();
 
+    [RelayCommand]
+    private void Relogin(AccountItemViewModel? account)
+    {
+        account ??= SelectedAccount;
+        if (account is not null)
+        {
+            _shell.ShowLogin(account.SteamId, account.Name);
+        }
+    }
+
     public void Dispose()
     {
         _timer.Stop();

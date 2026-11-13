@@ -91,6 +91,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
+    public void ShowLogin(ulong steamId, string accountName) => SwitchTo(new LoginViewModel(this, steamId, accountName));
+
     public void ShowImport(ImportSource source) => SwitchTo(new ImportViewModel(this, source, onDone: ShowMain));
 
     public void LockApp()
