@@ -4,6 +4,9 @@
     <PackageReference Include="Dapper" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\*.sql" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
   </ItemGroup>
 </Project>
