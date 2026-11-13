@@ -9,7 +9,11 @@ namespace BetterSteamAuth.Steam;
 /// </summary>
 public static class MobileClient
 {
-    public const string DefaultUserAgent = "okhttp/4.9.2";
+    /// <summary>User-Agent of the mobile app's web views (also what SDA's SteamAuth sends).</summary>
+    public const string DefaultUserAgent = "Dalvik/2.1.0 (Linux; U; Android 9; Valve Steam App Version/3)";
+
+    /// <summary>Value of the <c>mobileClientVersion</c> cookie on community pages.</summary>
+    public const string ClientVersionCookie = "777777 3.6.4";
 
     public const string DefaultDeviceName = "Pixel 7";
 

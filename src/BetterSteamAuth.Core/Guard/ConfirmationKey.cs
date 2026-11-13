@@ -9,9 +9,8 @@ public static class ConfirmationTag
 {
     public const string List = "list";
     public const string Details = "details";
-    public const string Allow = "allow";
-    public const string Cancel = "cancel";
-    public const string Confirm = "conf";
+    public const string Accept = "accept";
+    public const string Reject = "reject";
 }
 
 /// <summary>

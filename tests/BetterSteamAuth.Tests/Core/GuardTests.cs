@@ -24,10 +24,10 @@ public class ConfirmationKeyTests
     private const string IdentitySecret = "V2hhdEFuSWRlbnRpdHlTZWNyZXQ9";
 
     [Theory]
-    [InlineData(1700000000, ConfirmationTag.Confirm, "u5vXC2tDIMx/vDkf8OQt3Yk/j2Y=")]
-    [InlineData(1763030400, ConfirmationTag.List, "Vnxx0QXSuiM9aRuAmRR+vpMjZ6Y=")]
-    [InlineData(1763030400, ConfirmationTag.Allow, "BRBGXjA2amzV5uXvwU86Nuh8FIY=")]
-    [InlineData(1763030400, ConfirmationTag.Cancel, "Ll+c8hFKMr2gVsnFlrIi9eRcjOg=")]
+    [InlineData(1700000000, "conf", "u5vXC2tDIMx/vDkf8OQt3Yk/j2Y=")]
+    [InlineData(1763030400, "list", "Vnxx0QXSuiM9aRuAmRR+vpMjZ6Y=")]
+    [InlineData(1763030400, "allow", "BRBGXjA2amzV5uXvwU86Nuh8FIY=")]
+    [InlineData(1763030400, "cancel", "Ll+c8hFKMr2gVsnFlrIi9eRcjOg=")]
     public void Generate_matches_reference(long time, string tag, string expected)
         => Assert.Equal(expected, ConfirmationKey.Generate(IdentitySecret, time, tag));
 }
