@@ -116,6 +116,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void OpenSettings() => _shell.ShowSettings();
 
     [RelayCommand]
+    private void OpenProxies() => _shell.ShowProxies();
+
+    [RelayCommand]
+    private void ChangeProxy(AccountItemViewModel? account)
+    {
+        account ??= SelectedAccount;
+        if (account is not null)
+        {
+            _shell.ShowChangeProxy(account.SteamId, account.Name);
+        }
+    }
+
+    [RelayCommand]
     private void Relogin(AccountItemViewModel? account)
     {
         account ??= SelectedAccount;
@@ -203,7 +216,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
         {
-            SetProblem(account, Strings.CantReachSteam, needsLogin: false);
+            // Fail-closed: a dead proxy stops the account; say so instead of a generic network error.
+            bool proxyDead = vault.GetAccountProxyId(account.SteamId) is { } proxyId
+                             && vault.ListProxies().FirstOrDefault(p => p.Id == proxyId)?.Status == Storage.ProxyStatus.Dead;
+            SetProblem(account, proxyDead ? Strings.ProxyNotResponding : Strings.CantReachSteam, needsLogin: false);
         }
     }
 

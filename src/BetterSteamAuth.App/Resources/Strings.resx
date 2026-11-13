@@ -95,4 +95,39 @@
   <data name="CantReachSteam" xml:space="preserve"><value>Couldn't reach Steam</value></data>
   <data name="NoConfirmationSecret" xml:space="preserve"><value>This maFile has no identity secret, so confirmations can't load</value></data>
   <data name="ConfirmationFailed" xml:space="preserve"><value>Couldn't send. Try again.</value></data>
+  <data name="Proxies" xml:space="preserve"><value>Proxies</value></data>
+  <data name="CheckAll" xml:space="preserve"><value>Check all</value></data>
+  <data name="Check" xml:space="preserve"><value>Check</value></data>
+  <data name="Checking" xml:space="preserve"><value>Checking…</value></data>
+  <data name="Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="AddProxies" xml:space="preserve"><value>Add proxies</value></data>
+  <data name="AutoAssign" xml:space="preserve"><value>Auto-assign</value></data>
+  <data name="ProxyCountFormat" xml:space="preserve"><value>{0} proxies</value></data>
+  <data name="ProxyDeadFormat" xml:space="preserve"><value>{0} not responding</value></data>
+  <data name="DirectAccountsFormat" xml:space="preserve"><value>{0} accounts use a direct connection</value></data>
+  <data name="SelectedFormat" xml:space="preserve"><value>{0} selected</value></data>
+  <data name="NotAssigned" xml:space="preserve"><value>Not assigned</value></data>
+  <data name="NotResponding" xml:space="preserve"><value>Not responding</value></data>
+  <data name="LatencyFormat" xml:space="preserve"><value>{0} ms</value></data>
+  <data name="PasteProxies" xml:space="preserve"><value>Paste one proxy per line</value></data>
+  <data name="ProxyFormatsHint" xml:space="preserve"><value>host:port · host:port:user:pass · scheme://user:pass@host:port</value></data>
+  <data name="AddCountFormat" xml:space="preserve"><value>Add {0}</value></data>
+  <data name="LineUnreadableFormat" xml:space="preserve"><value>Line {0}: can't read</value></data>
+  <data name="LineDuplicateFormat" xml:space="preserve"><value>Line {0}: already added</value></data>
+  <data name="WithLogin" xml:space="preserve"><value>with login</value></data>
+  <data name="AutoAssignTitleFormat" xml:space="preserve"><value>Assign proxies to {0} accounts?</value></data>
+  <data name="AutoAssignEnough" xml:space="preserve"><value>Each account on a direct connection gets one unused proxy that isn't failing.</value></data>
+  <data name="AutoAssignShortFormat" xml:space="preserve"><value>Each account on a direct connection gets one unused proxy that isn't failing. Only {0} are free, so {1} accounts stay direct.</value></data>
+  <data name="AutoAssignNone" xml:space="preserve"><value>There are no free proxies. Add more proxies first.</value></data>
+  <data name="AssignCountFormat" xml:space="preserve"><value>Assign {0}</value></data>
+  <data name="RemoveInUseFormat" xml:space="preserve"><value>{0} accounts use the selected proxies. Removing them switches those accounts to a direct connection.</value></data>
+  <data name="SwitchToDirect" xml:space="preserve"><value>Switch them to direct connection</value></data>
+  <data name="NoProxiesYet" xml:space="preserve"><value>No proxies yet</value></data>
+  <data name="NoProxiesBody" xml:space="preserve"><value>Add proxies to give each account its own IP address.</value></data>
+  <data name="ChangeProxy" xml:space="preserve"><value>Change proxy…</value></data>
+  <data name="ProxyForFormat" xml:space="preserve"><value>Proxy for {0}</value></data>
+  <data name="DirectConnection" xml:space="preserve"><value>Direct connection</value></data>
+  <data name="UsedByFormat" xml:space="preserve"><value>used by {0} more</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="ProxyNotResponding" xml:space="preserve"><value>Proxy isn't responding</value></data>
 </root>

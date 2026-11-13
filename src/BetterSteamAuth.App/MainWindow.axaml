@@ -14,6 +14,8 @@
     <DataTemplate DataType="vm:MainViewModel"><views:MainView /></DataTemplate>
     <DataTemplate DataType="vm:SettingsViewModel"><views:SettingsView /></DataTemplate>
     <DataTemplate DataType="vm:LoginViewModel"><views:LoginView /></DataTemplate>
+    <DataTemplate DataType="vm:ProxiesViewModel"><views:ProxiesView /></DataTemplate>
+    <DataTemplate DataType="vm:ChangeProxyViewModel"><views:ChangeProxyView /></DataTemplate>
   </Window.DataTemplates>
   <ContentControl Content="{Binding CurrentPage}" />
 </Window>

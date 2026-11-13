@@ -28,6 +28,7 @@
               <MenuItem Header="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
               <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
               <Separator />
+              <MenuItem Header="{x:Static res:Strings.Proxies}" Command="{Binding OpenProxiesCommand}" />
               <MenuItem Header="{x:Static res:Strings.Settings}" Command="{Binding OpenSettingsCommand}" />
               <Separator IsVisible="{Binding CanLock}" />
               <MenuItem Header="{x:Static res:Strings.LockApp}" InputGesture="Ctrl+L"
@@ -67,6 +68,9 @@
                               CommandParameter="{Binding}" />
                     <MenuItem Header="{x:Static res:Strings.Relogin}"
                               Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
+                              CommandParameter="{Binding}" />
+                    <MenuItem Header="{x:Static res:Strings.ChangeProxy}"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ChangeProxyCommand}"
                               CommandParameter="{Binding}" />
                   </ContextMenu>
                 </Grid.ContextMenu>

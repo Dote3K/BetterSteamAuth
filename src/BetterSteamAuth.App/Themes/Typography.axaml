@@ -41,6 +41,9 @@
   <Style Selector="PathIcon.warning">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorWarning}" />
   </Style>
+  <Style Selector="TextBlock.mono">
+    <Setter Property="FontFamily" Value="{StaticResource Bsa.Font.Code}" />
+  </Style>
   <Style Selector="TextBlock.code-large">
     <Setter Property="FontFamily" Value="{StaticResource Bsa.Font.Code}" />
     <Setter Property="FontSize" Value="{StaticResource SemiFontSizeHeader1}" />
@@ -93,6 +96,19 @@
   </Style>
   <Style Selector="Button.quick.reject:pointerover">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
+  </Style>
+  <Style Selector="Border.panel">
+    <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+  </Style>
+  <Style Selector="Border.banner-danger">
+    <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+  </Style>
+  <Style Selector="Border.divider-top">
+    <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
   </Style>
   <Style Selector="Border.divider-left">
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />

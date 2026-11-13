@@ -1,0 +1,151 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.ProxiesView"
+             x:DataType="vm:ProxiesViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <!-- Header -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Grid.Column="1" Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Proxies}" />
+        <Button Grid.Column="2" Content="{x:Static res:Strings.CheckAll}" Command="{Binding CheckAllCommand}"
+                IsEnabled="{Binding !IsCheckingAll}" IsVisible="{Binding HasItems}" />
+        <Button Grid.Column="3" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                Content="{x:Static res:Strings.AddProxies}" Command="{Binding ShowAddCommand}" />
+      </Grid>
+    </Border>
+
+    <!-- Summary: problems only when they exist -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="16">
+        <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding SummaryText}" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" IsVisible="{Binding HasDead}">
+          <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconAlertCircle}" />
+          <TextBlock Classes="caption danger" VerticalAlignment="Center" Text="{Binding DeadText}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" IsVisible="{Binding HasDirect}">
+          <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
+          <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding DirectText}" />
+        </StackPanel>
+        <Button Grid.Column="4" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="6,2"
+                Content="{x:Static res:Strings.AutoAssign}" Command="{Binding ShowAutoAssignCommand}"
+                IsVisible="{Binding HasDirect}" />
+      </Grid>
+    </Border>
+
+    <!-- Selection bar -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top" Padding="16,8" IsVisible="{Binding HasSelection}">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding SelectionText}" />
+        <Button Classes="Small" Content="{x:Static res:Strings.Check}" Command="{Binding CheckSelectedCommand}" />
+        <Button Classes="Small Danger" Content="{x:Static res:Strings.Remove}" Command="{Binding RemoveSelectedCommand}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel>
+        <!-- Add panel -->
+        <Border Classes="panel" Margin="16,12" Padding="14,12" IsVisible="{Binding IsAdding}">
+          <StackPanel Spacing="6">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.PasteProxies}" />
+            <TextBox Classes="TextArea" AcceptsReturn="True" Height="110" FontFamily="{StaticResource Bsa.Font.Code}"
+                     Text="{Binding AddText}" />
+            <ItemsControl ItemsSource="{Binding Preview}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ProxyPreviewLine">
+                  <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
+                    <PathIcon Width="11" Height="11" Classes="success" Data="{StaticResource SemiIconTick}" IsVisible="{Binding IsValid}" />
+                    <PathIcon Width="11" Height="11" Classes="secondary" Data="{StaticResource SemiIconMinus}" IsVisible="{Binding IsDuplicate}" />
+                    <PathIcon Width="11" Height="11" Classes="danger" Data="{StaticResource SemiIconClose}" IsVisible="{Binding IsError}" />
+                    <TextBlock Classes="caption" Classes.danger="{Binding IsError}" Classes.hint="{Binding IsDuplicate}" Text="{Binding Text}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+              <TextBlock Classes="caption hint" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static res:Strings.ProxyFormatsHint}" />
+              <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAddCommand}" />
+              <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                      Content="{Binding AddButtonText}" Command="{Binding AddCommand}" IsEnabled="{Binding CanAdd}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Auto-assign confirmation -->
+        <Border Classes="well" Margin="16,12" Padding="14,12" IsVisible="{Binding IsAutoAssigning}">
+          <StackPanel Spacing="4">
+            <TextBlock FontWeight="SemiBold" Text="{Binding AutoAssignTitle}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding AutoAssignBody}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+              <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAutoAssignCommand}" />
+              <Button Theme="{DynamicResource SolidButton}" Classes="Primary" Content="{Binding AutoAssignButtonText}"
+                      Command="{Binding AutoAssignCommand}" IsVisible="{Binding CanAutoAssign}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Remove-in-use confirmation -->
+        <Border Classes="banner-danger" Margin="16,12" Padding="14,12" IsVisible="{Binding IsConfirmingRemove}">
+          <StackPanel Spacing="4">
+            <TextBlock TextWrapping="Wrap" Text="{Binding RemoveText}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+              <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelRemoveCommand}" />
+              <Button Theme="{DynamicResource SolidButton}" Classes="Danger" Content="{x:Static res:Strings.SwitchToDirect}"
+                      Command="{Binding ConfirmRemoveCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Empty state -->
+        <StackPanel Spacing="6" Margin="0,48,0,0" HorizontalAlignment="Center" IsVisible="{Binding ShowEmpty}">
+          <TextBlock Classes="title" HorizontalAlignment="Center" Text="{x:Static res:Strings.NoProxiesYet}" />
+          <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.NoProxiesBody}" />
+        </StackPanel>
+
+        <!-- Rows -->
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ProxyItemViewModel">
+              <Border Classes="divider-bottom" Padding="16,8">
+                <Grid ColumnDefinitions="Auto,1.3*,*,110,Auto" ColumnSpacing="10">
+                  <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}" AutomationProperties.Name="{Binding Address}" />
+                  <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
+                             TextTrimming="CharacterEllipsis" Text="{Binding Address}" />
+                  <TextBlock Grid.Column="2" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                             Classes.hint="{Binding !IsAssigned}" Text="{Binding AccountsText}" ToolTip.Tip="{Binding AccountsText}" />
+                  <Panel Grid.Column="3" VerticalAlignment="Center">
+                    <TextBlock Classes="caption hint" Text="{x:Static res:Strings.Checking}" IsVisible="{Binding IsChecking}" />
+                    <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding !IsChecking}" ToolTip.Tip="{Binding Error}">
+                      <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconAlertCircle}" IsVisible="{Binding IsDead}" />
+                      <TextBlock Classes="caption" VerticalAlignment="Center" Classes.danger="{Binding IsDead}" Classes.hint="{Binding !IsDead}" Text="{Binding HealthText}" />
+                    </StackPanel>
+                  </Panel>
+                  <Button Grid.Column="4" Theme="{DynamicResource BorderlessButton}" Padding="6"
+                          AutomationProperties.Name="{x:Static res:Strings.More}">
+                    <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconMore}" />
+                    <Button.Flyout>
+                      <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="{x:Static res:Strings.Check}"
+                                  Command="{Binding $parent[UserControl].((vm:ProxiesViewModel)DataContext).CheckCommand}" CommandParameter="{Binding}" />
+                        <MenuItem Header="{x:Static res:Strings.Remove}"
+                                  Command="{Binding $parent[UserControl].((vm:ProxiesViewModel)DataContext).RemoveCommand}" CommandParameter="{Binding}" />
+                      </MenuFlyout>
+                    </Button.Flyout>
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>
