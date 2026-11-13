@@ -20,6 +20,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <GenerateSource>true</GenerateSource>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>BetterSteamAuth.App.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
     <ProjectReference Include="..\BetterSteamAuth.Steam\BetterSteamAuth.Steam.csproj" />
     <ProjectReference Include="..\BetterSteamAuth.Storage\BetterSteamAuth.Storage.csproj" />

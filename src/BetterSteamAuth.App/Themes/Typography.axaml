@@ -1,0 +1,55 @@
+<!--
+  Text styles. The only place (with other Themes/*.axaml) that names Semi color keys.
+  Allowed colors: neutral, primary, success / warning / danger.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <FontFamily x:Key="Bsa.Font.Code">Cascadia Mono, Consolas, monospace</FontFamily>
+  </Styles.Resources>
+
+  <Style Selector="TextBlock.heading">
+    <Setter Property="FontSize" Value="{StaticResource SemiFontSizeHeader4}" />
+    <Setter Property="FontWeight" Value="{StaticResource SemiFontWeightBold}" />
+  </Style>
+  <Style Selector="TextBlock.title">
+    <Setter Property="FontSize" Value="{StaticResource SemiFontSizeHeader6}" />
+    <Setter Property="FontWeight" Value="{StaticResource SemiFontWeightBold}" />
+  </Style>
+  <Style Selector="TextBlock.caption">
+    <Setter Property="FontSize" Value="{StaticResource SemiFontSizeSmall}" />
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+  </Style>
+  <Style Selector="TextBlock.secondary">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
+  </Style>
+  <Style Selector="TextBlock.hint">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorText3}" />
+  </Style>
+  <Style Selector="TextBlock.accent">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorPrimary}" />
+  </Style>
+  <Style Selector="PathIcon.warning">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorWarning}" />
+  </Style>
+  <Style Selector="TextBlock.code-large">
+    <Setter Property="FontFamily" Value="{StaticResource Bsa.Font.Code}" />
+    <Setter Property="FontSize" Value="{StaticResource SemiFontSizeHeader1}" />
+    <Setter Property="FontWeight" Value="{StaticResource SemiFontWeightBold}" />
+    <Setter Property="LetterSpacing" Value="3" />
+  </Style>
+  <Style Selector="TextBlock.code-list">
+    <Setter Property="FontFamily" Value="{StaticResource Bsa.Font.Code}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="FontWeight" Value="{StaticResource SemiFontWeightBold}" />
+    <Setter Property="LetterSpacing" Value="3" />
+  </Style>
+  <Style Selector="Border.divider-left">
+    <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+    <Setter Property="BorderThickness" Value="1,0,0,0" />
+  </Style>
+  <Style Selector="Border.divider-bottom">
+    <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+</Styles>

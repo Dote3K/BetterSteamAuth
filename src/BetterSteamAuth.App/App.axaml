@@ -3,8 +3,16 @@
              xmlns:semi="https://irihi.tech/semi"
              x:Class="BetterSteamAuth.App.App"
              RequestedThemeVariant="Default">
-    <Application.Styles>
-        <semi:SemiTheme Locale="en-US" />
-        <semi:UrsaSemiTheme Locale="en-US" />
-    </Application.Styles>
+  <Application.Styles>
+    <semi:SemiTheme Locale="en-US" />
+    <semi:UrsaSemiTheme Locale="en-US" />
+    <StyleInclude Source="avares://BetterSteamAuth.App/Themes/Typography.axaml" />
+  </Application.Styles>
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <semi:Icons />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
 </Application>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <data name="AppName" xml:space="preserve"><value>BetterSteamAuth</value></data>
+  <data name="AllAccounts" xml:space="preserve"><value>All accounts</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Copied" xml:space="preserve"><value>Copied</value></data>
+  <data name="SecondsLeftFormat" xml:space="preserve"><value>{0}s left</value></data>
+  <data name="Confirmations" xml:space="preserve"><value>Confirmations</value></data>
+  <data name="NothingToConfirm" xml:space="preserve"><value>Nothing to confirm</value></data>
+  <data name="ImportMaFiles" xml:space="preserve"><value>Import maFiles</value></data>
+  <data name="ImportFromSda" xml:space="preserve"><value>Import from SDA</value></data>
+  <data name="LinkNewAuthenticator" xml:space="preserve"><value>Link a new authenticator</value></data>
+  <data name="LockApp" xml:space="preserve"><value>Lock app</value></data>
+  <data name="EmptyTitle" xml:space="preserve"><value>Add your first Steam account</value></data>
+  <data name="EmptyBody" xml:space="preserve"><value>Codes and confirmations will show up here.</value></data>
+</root>
