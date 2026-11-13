@@ -33,19 +33,27 @@ public static class TimeSync
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        await Task.Delay(Jitter(TimeSpan.FromSeconds(10)), cancellationToken).ConfigureAwait(false);
-        while (!cancellationToken.IsCancellationRequested)
+        try
         {
-            try
+            await Task.Delay(Jitter(TimeSpan.FromSeconds(10)), cancellationToken).ConfigureAwait(false);
+            while (true)
             {
-                await SyncAsync(connection, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is HttpRequestException or WebAPIRequestException or SteamException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
-            {
-                onError?.Invoke(ex);
-            }
+                try
+                {
+                    await SyncAsync(connection, cancellationToken).ConfigureAwait(false);
+                }
+                catch (Exception ex) when (ex is HttpRequestException or WebAPIRequestException or SteamException or TaskCanceledException
+                                           && !cancellationToken.IsCancellationRequested)
+                {
+                    onError?.Invoke(ex);
+                }
 
-            await Task.Delay(interval + Jitter(interval / 10), cancellationToken).ConfigureAwait(false);
+                await Task.Delay(interval + Jitter(interval / 10), cancellationToken).ConfigureAwait(false);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Stopped: the app locked or closed.
         }
     }
 
