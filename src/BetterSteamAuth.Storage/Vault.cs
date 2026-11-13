@@ -22,7 +22,7 @@ public sealed record AccountEntry(
 /// The hybrid store: one maFile per account (source of truth for secrets) plus
 /// <c>vault.db</c> (index and metadata).
 /// </summary>
-public sealed class Vault : IDisposable
+public sealed partial class Vault : IDisposable
 {
     private const string MetaState = "encryption_state";
     private const string MetaKdf = "kdf";
