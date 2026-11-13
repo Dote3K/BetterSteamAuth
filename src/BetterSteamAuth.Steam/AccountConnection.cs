@@ -1,6 +1,7 @@
 using System.Net;
 using BetterSteamAuth.Core.Accounts;
 using BetterSteamAuth.Core.Guard;
+using BetterSteamAuth.Steam.Network;
 using SteamKit2;
 
 namespace BetterSteamAuth.Steam;
@@ -11,16 +12,19 @@ namespace BetterSteamAuth.Steam;
 /// </summary>
 public sealed class AccountConnection : IDisposable
 {
-    private readonly SocketsHttpHandler _handler;
+    private readonly HttpMessageHandler _handler;
 
-    public AccountConnection(ulong steamId, ProxySettings? proxy, string userAgent)
+    public AccountConnection(ulong steamId, ProxySettings? proxy, string userAgent, NetworkPolicy network)
     {
+        ArgumentNullException.ThrowIfNull(network);
+
         SteamId = steamId;
         Proxy = proxy;
         UserAgent = userAgent;
 
-        _handler = new SocketsHttpHandler
+        var sockets = new SocketsHttpHandler
         {
+            ConnectCallback = network.ConnectAsync,
             // Proxy assigned: always use it, never fall back to a direct connection (fail-closed).
             // No proxy: connect directly and ignore any system-wide proxy.
             UseProxy = proxy is not null,
@@ -30,6 +34,7 @@ public sealed class AccountConnection : IDisposable
             AutomaticDecompression = DecompressionMethods.All,
             PooledConnectionLifetime = TimeSpan.FromMinutes(5),
         };
+        _handler = new SniRetryHandler(network) { InnerHandler = sockets };
 
         // SteamKit2 disposes the HttpClient it gets after each interface, so hand out
         // fresh clients that share (and never dispose) this account's handler.

@@ -141,6 +141,21 @@ public sealed class Vault : IDisposable
         }
     }
 
+    /// <summary>Reads an app setting. Settings aren't encrypted, so this works while locked.</summary>
+    public string? GetSetting(string key)
+    {
+        using var connection = _db.Open();
+        return connection.ExecuteScalar<string?>("SELECT value FROM settings WHERE key = @key", new { key });
+    }
+
+    public void SetSetting(string key, string value)
+    {
+        using var connection = _db.Open();
+        connection.Execute(
+            "INSERT INTO settings(key, value) VALUES (@key, @value) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+            new { key, value });
+    }
+
     public IReadOnlyList<AccountEntry> ListAccounts()
     {
         using var connection = _db.Open();

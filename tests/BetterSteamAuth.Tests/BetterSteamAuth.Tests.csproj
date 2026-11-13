@@ -18,5 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
     <ProjectReference Include="..\..\src\BetterSteamAuth.Storage\BetterSteamAuth.Storage.csproj" />
+    <ProjectReference Include="..\..\src\BetterSteamAuth.Steam\BetterSteamAuth.Steam.csproj" />
   </ItemGroup>
 </Project>
