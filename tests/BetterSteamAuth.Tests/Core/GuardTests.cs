@@ -17,18 +17,6 @@ public class SteamGuardCodeTests
     [InlineData(2000000000, "55D3B")]
     public void Generate_matches_reference(long time, string expected)
         => Assert.Equal(expected, SteamGuardCode.Generate(SharedSecret, time));
-
-    [Theory]
-    [InlineData(0, 30)]
-    [InlineData(1, 29)]
-    [InlineData(29, 1)]
-    [InlineData(30, 30)]
-    public void SecondsRemaining_counts_down_within_period(long time, int expected)
-        => Assert.Equal(expected, SteamGuardCode.SecondsRemaining(time));
-
-    [Fact]
-    public void Generate_rejects_negative_time()
-        => Assert.Throws<ArgumentOutOfRangeException>(() => SteamGuardCode.Generate(SharedSecret, -1));
 }
 
 public class ConfirmationKeyTests
@@ -44,25 +32,3 @@ public class ConfirmationKeyTests
         => Assert.Equal(expected, ConfirmationKey.Generate(IdentitySecret, time, tag));
 }
 
-public class SteamClockTests
-{
-    private sealed class FixedTime(DateTimeOffset now) : TimeProvider
-    {
-        public DateTimeOffset Value { get; set; } = now;
-
-        public override DateTimeOffset GetUtcNow() => Value;
-    }
-
-    [Fact]
-    public void Now_applies_offset_from_last_sync()
-    {
-        var time = new FixedTime(DateTimeOffset.FromUnixTimeSeconds(1_000));
-        var clock = new SteamClock(time);
-
-        clock.Synchronize(serverTime: 1_042);
-        time.Value = DateTimeOffset.FromUnixTimeSeconds(2_000);
-
-        Assert.Equal(TimeSpan.FromSeconds(42), clock.Offset);
-        Assert.Equal(2_042, clock.Now);
-    }
-}

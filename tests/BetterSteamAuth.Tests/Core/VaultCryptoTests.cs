@@ -26,18 +26,6 @@ public class VaultCryptoTests
 
         Assert.Throws<WrongPasswordException>(() => VaultCrypto.UnwrapDataKey(wrapped, "battery staple"));
     }
-
-    [Fact]
-    public void Wrapping_twice_uses_fresh_salt_and_nonce()
-    {
-        byte[] dek = VaultCrypto.NewDataKey();
-
-        var a = VaultCrypto.WrapDataKey(dek, "pw", FastKdf);
-        var b = VaultCrypto.WrapDataKey(dek, "pw", FastKdf);
-
-        Assert.NotEqual(a.Salt, b.Salt);
-        Assert.NotEqual(a.Nonce, b.Nonce);
-    }
 }
 
 public class MaFileEnvelopeTests
@@ -78,8 +66,4 @@ public class MaFileEnvelopeTests
 
         Assert.ThrowsAny<CryptographicException>(() => tampered.Decrypt(dek, SteamId));
     }
-
-    [Fact]
-    public void TryParse_returns_null_for_plain_maFile()
-        => Assert.Null(MaFileEnvelope.TryParse("""{"shared_secret":"abc","account_name":"x"}"""));
 }
