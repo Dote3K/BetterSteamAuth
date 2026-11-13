@@ -19,7 +19,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private readonly List<AccountItemViewModel> _all = [];
     private readonly DispatcherTimer _timer;
-    private long _lastPeriod = -1;
 
     private readonly ShellViewModel _shell;
 
@@ -41,7 +40,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 entry.SteamId,
                 maFile.AccountName ?? entry.SteamId.ToString(CultureInfo.InvariantCulture),
                 Convert.FromBase64String(maFile.SharedSecret),
-                new SteamClock()));
+                shell.ConnectionFor(entry.SteamId).Clock));
         }
 
         ApplyFilter();
@@ -114,19 +113,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void Tick()
     {
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        foreach (var account in _all)
+        {
+            account.RefreshIfRotated();
+        }
+
+        long now = (SelectedAccount ?? _all.FirstOrDefault())?.Clock.Now ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         SecondsRemaining = SteamGuardCode.SecondsRemaining(now);
         SecondsLeftText = string.Format(CultureInfo.CurrentCulture, SecondsLeftFormat, SecondsRemaining);
-
-        long period = now / SteamGuardCode.PeriodSeconds;
-        if (period != _lastPeriod)
-        {
-            _lastPeriod = period;
-            foreach (var account in _all)
-            {
-                account.Refresh();
-            }
-        }
     }
 
     private void ApplyFilter()

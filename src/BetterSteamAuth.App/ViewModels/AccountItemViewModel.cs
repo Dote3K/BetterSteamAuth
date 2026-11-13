@@ -16,8 +16,19 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
     [ObservableProperty]
     public partial string Code { get; private set; } = "";
 
-    /// <summary>Regenerates the code for the account's current Steam time.</summary>
-    public void Refresh() => Code = SteamGuardCode.Generate(sharedSecret, Clock.Now);
+    private long _period = -1;
+
+    /// <summary>Regenerates the code when this account's Steam time enters a new period.</summary>
+    public void RefreshIfRotated()
+    {
+        long now = Clock.Now;
+        long period = now / SteamGuardCode.PeriodSeconds;
+        if (period != _period)
+        {
+            _period = period;
+            Code = SteamGuardCode.Generate(sharedSecret, now);
+        }
+    }
 
     /// <summary>The code of the next period, used when copying in the last seconds.</summary>
     public string NextCode() => SteamGuardCode.Generate(sharedSecret, Clock.Now + SteamGuardCode.PeriodSeconds);
