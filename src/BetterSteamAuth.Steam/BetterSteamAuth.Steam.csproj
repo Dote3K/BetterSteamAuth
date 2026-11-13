@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
+  </ItemGroup>
+</Project>

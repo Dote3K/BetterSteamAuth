@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BetterSteamAuth.App/BetterSteamAuth.App.csproj" />
+    <Project Path="src/BetterSteamAuth.Core/BetterSteamAuth.Core.csproj" />
+    <Project Path="src/BetterSteamAuth.Steam/BetterSteamAuth.Steam.csproj" />
+    <Project Path="src/BetterSteamAuth.Storage/BetterSteamAuth.Storage.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BetterSteamAuth.Tests/BetterSteamAuth.Tests.csproj" />
+  </Folder>
+</Solution>
