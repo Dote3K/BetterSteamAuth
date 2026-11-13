@@ -57,6 +57,43 @@
     <Setter Property="Background" Value="{DynamicResource SemiColorFill0}" />
     <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
   </Style>
+  <Style Selector="PathIcon.danger">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
+  </Style>
+  <Style Selector="Border.banner-warning">
+    <Setter Property="Background" Value="{DynamicResource SemiColorWarningLight}" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+  </Style>
+  <Style Selector="Border.danger-row">
+    <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusSmall}" />
+    <Setter Property="Padding" Value="8,10" />
+  </Style>
+  <Style Selector="Border.conf-icon">
+    <Setter Property="Width" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+    <Setter Property="Background" Value="{DynamicResource SemiColorFill1}" />
+  </Style>
+  <Style Selector="Border.conf-icon PathIcon">
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Quick accept / reject: muted until hover, then success / danger. -->
+  <Style Selector="Button.quick">
+    <Setter Property="Theme" Value="{DynamicResource BorderlessButton}" />
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorText3}" />
+  </Style>
+  <Style Selector="Button.quick.accept:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorSuccess}" />
+  </Style>
+  <Style Selector="Button.quick.reject:pointerover">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
+  </Style>
   <Style Selector="Border.divider-left">
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="1,0,0,0" />

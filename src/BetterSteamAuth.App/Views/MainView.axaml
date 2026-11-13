@@ -59,7 +59,7 @@
         <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:AccountItemViewModel">
-              <Grid ColumnDefinitions="*,Auto" Height="24" Background="Transparent">
+              <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8" Height="24" Background="Transparent">
                 <Grid.ContextMenu>
                   <ContextMenu>
                     <MenuItem Header="{x:Static res:Strings.CopyCode}"
@@ -71,7 +71,11 @@
                   </ContextMenu>
                 </Grid.ContextMenu>
                 <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-                <TextBlock Grid.Column="1" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
+                <PathIcon Grid.Column="1" Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}"
+                          IsVisible="{Binding HasProblem}" ToolTip.Tip="{Binding Problem}" />
+                <TextBlock Grid.Column="2" Classes="caption accent" VerticalAlignment="Center"
+                           Text="{Binding PendingCount}" IsVisible="{Binding HasPending}" />
+                <TextBlock Grid.Column="3" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
               </Grid>
             </DataTemplate>
           </ListBox.ItemTemplate>
@@ -95,8 +99,80 @@
             <TextBlock Classes="caption"
                        Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
 
+            <!-- Problem banner: only when something is wrong -->
+            <Border Classes="banner-warning" Margin="0,16,0,0" Padding="10,8" IsVisible="{Binding HasProblem}">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <PathIcon Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
+                <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Problem}" />
+                <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
+                        IsVisible="{Binding ProblemNeedsLogin}" Content="{x:Static res:Strings.Fix}"
+                        Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
+                        CommandParameter="{Binding}" />
+                <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
+                        IsVisible="{Binding !ProblemNeedsLogin}" Content="{x:Static res:Strings.Refresh}"
+                        Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
+                        CommandParameter="{Binding}" />
+              </Grid>
+            </Border>
+
             <TextBlock Classes="title" Margin="0,24,0,4" Text="{x:Static res:Strings.Confirmations}" />
-            <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" />
+            <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
+            <ItemsControl ItemsSource="{Binding Confirmations}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ConfirmationItemViewModel">
+                  <Border Classes="divider-bottom" Classes.danger-row="{Binding IsDangerous}" Padding="0,10">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                      <Border Classes="conf-icon" VerticalAlignment="Top">
+                        <Panel>
+                          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
+                          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
+                          <PathIcon Width="16" Height="16" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
+                        </Panel>
+                      </Border>
+
+                      <StackPanel Grid.Column="1" Spacing="2">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                          <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Headline}" />
+                          <TextBlock Grid.Column="1" Classes="caption hint" Text="{Binding Meta}" />
+                        </Grid>
+                        <TextBlock Classes="caption" TextWrapping="Wrap" MaxLines="2" Text="{Binding Summary}" />
+                        <TextBlock Classes="caption danger" TextWrapping="Wrap" Text="{x:Static res:Strings.DangerousHint}"
+                                   IsVisible="{Binding IsDangerous}" />
+                        <TextBlock Classes="caption danger" Text="{Binding Error}"
+                                   IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+                        <StackPanel Spacing="6" Margin="0,6,0,0" IsVisible="{Binding IsConfirmingTrade}">
+                          <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AcceptTradeTitle}" />
+                          <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Classes="Small" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelTradeCommand}" />
+                            <Button Classes="Small Primary" Theme="{DynamicResource SolidButton}"
+                                    Content="{x:Static res:Strings.AcceptTrade}" Command="{Binding AcceptCommand}" />
+                          </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0" IsVisible="{Binding IsPending}">
+                          <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding PendingText}" />
+                          <Button Theme="{DynamicResource BorderlessButton}" Classes="Small Primary" Padding="4,0"
+                                  Content="{x:Static res:Strings.Undo}" Command="{Binding UndoCommand}" />
+                        </StackPanel>
+                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Sending}" IsVisible="{Binding IsSending}" />
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top" IsVisible="{Binding IsIdle}">
+                        <Button Classes="quick accept" IsVisible="{Binding CanQuickAccept}" Command="{Binding AcceptCommand}"
+                                AutomationProperties.Name="{x:Static res:Strings.Accept}" ToolTip.Tip="{x:Static res:Strings.Accept}">
+                          <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconTick}" />
+                        </Button>
+                        <Button Classes="quick reject" Command="{Binding RejectCommand}"
+                                AutomationProperties.Name="{x:Static res:Strings.Reject}" ToolTip.Tip="{x:Static res:Strings.Reject}">
+                          <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconClose}" />
+                        </Button>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
           </StackPanel>
         </Border>
       </Grid>

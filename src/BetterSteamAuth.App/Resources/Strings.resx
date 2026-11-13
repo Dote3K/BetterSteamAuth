@@ -75,4 +75,24 @@
   <data name="Unlocking" xml:space="preserve"><value>Unlocking…</value></data>
   <data name="ImportFromSdaHint" xml:space="preserve"><value>Choose the maFiles folder next to SDA. Your files are copied; the folder isn't changed.</value></data>
   <data name="ImportMaFilesHint" xml:space="preserve"><value>Choose one or more .maFile files. They're copied; the originals aren't changed.</value></data>
+  <data name="Confirmation" xml:space="preserve"><value>Confirmation</value></data>
+  <data name="Trade" xml:space="preserve"><value>Trade</value></data>
+  <data name="Market" xml:space="preserve"><value>Market</value></data>
+  <data name="Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Now" xml:space="preserve"><value>now</value></data>
+  <data name="AcceptedSendingFormat" xml:space="preserve"><value>Accepted · sending in {0}s</value></data>
+  <data name="RejectedSendingFormat" xml:space="preserve"><value>Rejected · sending in {0}s</value></data>
+  <data name="Undo" xml:space="preserve"><value>Undo</value></data>
+  <data name="Sending" xml:space="preserve"><value>Sending…</value></data>
+  <data name="AcceptTradeTitle" xml:space="preserve"><value>Trade checks aren't available yet. Check the items in Steam before accepting.</value></data>
+  <data name="AcceptTrade" xml:space="preserve"><value>Accept trade</value></data>
+  <data name="Accept" xml:space="preserve"><value>Accept</value></data>
+  <data name="Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="DangerousHint" xml:space="preserve"><value>Account changes can't be accepted here. Open the Steam app to review it.</value></data>
+  <data name="Fix" xml:space="preserve"><value>Fix</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="SignInToLoadConfirmations" xml:space="preserve"><value>Sign in again to load confirmations</value></data>
+  <data name="CantReachSteam" xml:space="preserve"><value>Couldn't reach Steam</value></data>
+  <data name="NoConfirmationSecret" xml:space="preserve"><value>This maFile has no identity secret, so confirmations can't load</value></data>
+  <data name="ConfirmationFailed" xml:space="preserve"><value>Couldn't send. Try again.</value></data>
 </root>
