@@ -323,18 +323,25 @@ public sealed partial class Vault : IDisposable
         WriteMaFile(steamId, maFile);
     }
 
-    /// <summary>Moves the maFile to <c>.trash/</c>, then removes the index row.</summary>
-    public void Remove(ulong steamId)
+    /// <summary>
+    /// Moves the maFile to <c>.trash/</c>, then removes the index rows. Returns what's needed to
+    /// <see cref="Restore"/> it.
+    /// </summary>
+    public RemovedAccount Remove(ulong steamId)
     {
+        var entry = ListAccounts().FirstOrDefault(a => a.SteamId == steamId);
+        var profile = GetDeviceProfile(steamId);
         string path = PathFor(steamId);
+        string? trashPath = null;
         lock (FileLock(steamId))
         {
             if (File.Exists(path))
             {
                 string trash = Path.Combine(Folder, TrashFolder);
                 Directory.CreateDirectory(trash);
-                string stamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture);
-                File.Move(path, Path.Combine(trash, $"{Path.GetFileName(path)}.{stamp}"));
+                string stamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
+                trashPath = Path.Combine(trash, $"{Path.GetFileName(path)}.{stamp}");
+                File.Move(path, trashPath);
             }
         }
 
@@ -342,6 +349,47 @@ public sealed partial class Vault : IDisposable
         connection.Execute(
             "DELETE FROM device_profiles WHERE steam_id = @id; DELETE FROM accounts WHERE steam_id = @id",
             new { id = (long)steamId });
+        return new RemovedAccount(entry ?? new AccountEntry(steamId, null, FileNameFor(steamId), null, null, null, 0), trashPath, profile);
+    }
+
+    /// <summary>Undoes <see cref="Remove"/>: moves the maFile back and restores its rows.</summary>
+    public void Restore(RemovedAccount removed)
+    {
+        ArgumentNullException.ThrowIfNull(removed);
+        ulong steamId = removed.Entry.SteamId;
+        if (Contains(steamId))
+        {
+            throw new DuplicateAccountException(steamId);
+        }
+
+        string path = PathFor(steamId);
+        lock (FileLock(steamId))
+        {
+            if (removed.TrashPath is { } trashPath && File.Exists(trashPath) && !File.Exists(path))
+            {
+                File.Move(trashPath, path);
+            }
+        }
+
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var e = removed.Entry;
+        using var connection = _db.Open();
+        using var tx = connection.BeginTransaction();
+        connection.Execute(
+            "INSERT INTO accounts(steam_id, account_name, filename, proxy_id, group_id, note, sort_order, created_at, updated_at) " +
+            "VALUES (@id, @name, @file, (SELECT id FROM proxies WHERE id = @proxyId), (SELECT id FROM groups WHERE id = @groupId), @note, @sort, @now, @now)",
+            new { id = (long)steamId, name = e.AccountName, file = FileNameFor(steamId), proxyId = e.ProxyId, groupId = e.GroupId, note = e.Note, sort = e.SortOrder, now },
+            tx);
+        if (removed.DeviceProfile is { } p)
+        {
+            connection.Execute(
+                "INSERT INTO device_profiles(steam_id, model, friendly_name, android_version, build_id, machine_id, created_at) " +
+                "VALUES (@id, @Model, @FriendlyName, @AndroidVersion, @BuildId, @MachineId, @now)",
+                new { id = (long)steamId, p.Model, p.FriendlyName, p.AndroidVersion, p.BuildId, p.MachineId, now },
+                tx);
+        }
+
+        tx.Commit();
     }
 
     public void Dispose()
@@ -408,6 +456,9 @@ public sealed partial class Vault : IDisposable
         public AccountEntry ToEntry() => new((ulong)SteamId, AccountName, FileName, ProxyId, GroupId, Note, (int)SortOrder);
     }
 }
+
+/// <summary>What <see cref="Vault.Remove"/> took away, so it can be restored.</summary>
+public sealed record RemovedAccount(AccountEntry Entry, string? TrashPath, DeviceProfile? DeviceProfile);
 
 public sealed class VaultLockedException : InvalidOperationException
 {

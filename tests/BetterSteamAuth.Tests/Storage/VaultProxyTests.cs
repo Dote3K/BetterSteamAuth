@@ -93,4 +93,27 @@ public sealed class VaultProxyTests : IDisposable
         vault.Remove(SteamId);
         Assert.Null(vault.GetDeviceProfile(SteamId));
     }
+
+    [Fact]
+    public void Undoing_a_remove_brings_back_the_file_and_its_settings()
+    {
+        using var vault = Vault.Create(_folder, "pw", FastKdf);
+        vault.AddProxies([new ProxySettings(ProxyScheme.Socks5, "10.0.0.1", 1080)]);
+        long proxyId = vault.ListProxies().Single().Id;
+        var profile = new BetterSteamAuth.Core.Devices.DeviceProfile("SM-S911B", "Galaxy S23", "14", "UP1A.231005.007", [1, 2, 3]);
+        vault.Add(new MaFile { SharedSecret = "abc=", Session = new MaFileSession { SteamId = SteamId } }, proxyId, profile);
+        vault.SetAccountGroup(SteamId, "farm-1");
+        vault.SetAccountNote(SteamId, "main account");
+
+        var removed = vault.Remove(SteamId);
+        Assert.Empty(vault.ListAccounts());
+
+        vault.Restore(removed);
+        var entry = vault.ListAccounts().Single();
+        Assert.Equal((proxyId, "farm-1", "main account"), (entry.ProxyId, vault.GetGroupName(entry.GroupId), entry.Note));
+        Assert.Equal("abc=", vault.Load(SteamId).SharedSecret);
+        Assert.NotNull(vault.GetDeviceProfile(SteamId));
+        Assert.True(vault.VerifyPassword("pw"));
+        Assert.False(vault.VerifyPassword("nope"));
+    }
 }
