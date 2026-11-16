@@ -203,7 +203,7 @@ public sealed partial class RemoveAuthenticatorViewModel : ObservableObject
 
         if (result.Removed)
         {
-            _vault.Remove(_steamId);
+            _vault.Remove(_steamId, RemovalReason.AuthenticatorRemoved);
             _shell.ResetConnection(_steamId);
             _shell.ShowMainWithNotice(string.Format(CultureInfo.CurrentCulture, RemovedFormat, Name));
             return;

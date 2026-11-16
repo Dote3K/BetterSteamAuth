@@ -720,7 +720,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
     private void StartOver()
     {
         string name = _maFile?.AccountName ?? "";
-        _vault.Remove(_steamId);
+        _vault.Remove(_steamId, RemovalReason.LinkCancelled);
         _shell.ResetConnection(_steamId);
         _shell.ShowLink(accountName: name);
     }
@@ -751,7 +751,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
         _emailCode?.TrySetResult(null);
         if (_maFile is not null && !_maFile.FullyEnrolled && !_resuming)
         {
-            _vault.Remove(_steamId);
+            _vault.Remove(_steamId, RemovalReason.LinkCancelled);
         }
 
         if (_maFile is { FullyEnrolled: true } && _steamId != 0)

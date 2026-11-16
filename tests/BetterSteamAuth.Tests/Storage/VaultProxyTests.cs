@@ -120,4 +120,34 @@ public sealed class VaultProxyTests : IDisposable
         Assert.True(vault.VerifyPassword("pw"));
         Assert.False(vault.VerifyPassword("nope"));
     }
+
+    [Fact]
+    public void A_removed_account_can_be_restored_after_a_restart_with_its_settings()
+    {
+        long proxyId;
+        using (var vault = Vault.Create(_folder, "pw", FastKdf))
+        {
+            vault.AddProxies([new ProxySettings(ProxyScheme.Socks5, "10.0.0.1", 1080)]);
+            proxyId = vault.ListProxies().Single().Id;
+            var profile = new BetterSteamAuth.Core.Devices.DeviceProfile("SM-S911B", "Galaxy S23", "14", "UP1A.231005.007", [1, 2, 3]);
+            vault.Add(new MaFile { AccountName = "fake_user", SharedSecret = "abc=", Session = new MaFileSession { SteamId = SteamId } }, proxyId, profile);
+            vault.SetAccountGroup(SteamId, "farm-1");
+            vault.SetAccountNote(SteamId, "main account");
+            vault.SetSteamPassword(SteamId, "fake-steam-password");
+            vault.Remove(SteamId, RemovalReason.Removed);
+        }
+
+        using var reopened = Vault.Open(_folder);
+        reopened.Unlock("pw");
+        var removed = reopened.ListRemoved().Single();
+        Assert.Equal(("fake_user", RemovalReason.Removed, true), (removed.AccountName, removed.Reason, removed.CanRead));
+
+        reopened.RestoreRemoved(removed);
+        Assert.Empty(reopened.ListRemoved());
+        var entry = reopened.ListAccounts().Single();
+        Assert.Equal((proxyId, "farm-1", "main account"), (entry.ProxyId, reopened.GetGroupName(entry.GroupId), entry.Note));
+        Assert.Equal("abc=", reopened.Load(SteamId).SharedSecret);
+        Assert.Equal("Galaxy S23", reopened.GetDeviceProfile(SteamId)?.FriendlyName);
+        Assert.Equal("fake-steam-password", reopened.GetSteamPassword(SteamId));
+    }
 }

@@ -324,10 +324,10 @@ public sealed partial class Vault : IDisposable
     }
 
     /// <summary>
-    /// Moves the maFile to <c>.trash/</c>, then removes the index rows. Returns what's needed to
-    /// <see cref="Restore"/> it.
+    /// Moves the maFile to <c>.trash/</c>, records what's needed to restore it later (Settings → Data →
+    /// Removed accounts), then removes the index rows. Returns what's needed to <see cref="Restore"/> it now (Undo).
     /// </summary>
-    public RemovedAccount Remove(ulong steamId)
+    public RemovedAccount Remove(ulong steamId, RemovalReason reason = RemovalReason.Removed)
     {
         var entry = ListAccounts().FirstOrDefault(a => a.SteamId == steamId);
         var profile = GetDeviceProfile(steamId);
@@ -348,9 +348,19 @@ public sealed partial class Vault : IDisposable
         using var connection = _db.Open();
         var password = connection.QuerySingleOrDefault<(byte[]? Secret, byte[]? Nonce)>(
             "SELECT password_enc, password_nonce FROM accounts WHERE steam_id = @id", new { id = (long)steamId });
-        connection.Execute(
-            "DELETE FROM device_profiles WHERE steam_id = @id; DELETE FROM accounts WHERE steam_id = @id",
-            new { id = (long)steamId });
+        using (var tx = connection.BeginTransaction())
+        {
+            if (trashPath is not null)
+            {
+                RecordRemoved(connection, tx, steamId, entry, Path.GetFileName(trashPath), reason, profile, password.Secret, password.Nonce);
+            }
+
+            connection.Execute(
+                "DELETE FROM device_profiles WHERE steam_id = @id; DELETE FROM accounts WHERE steam_id = @id",
+                new { id = (long)steamId }, tx);
+            tx.Commit();
+        }
+
         return new RemovedAccount(entry ?? new AccountEntry(steamId, null, FileNameFor(steamId), null, null, null, 0), trashPath, profile)
         {
             PasswordSecret = password.Secret,
@@ -381,6 +391,11 @@ public sealed partial class Vault : IDisposable
         var e = removed.Entry;
         using var connection = _db.Open();
         using var tx = connection.BeginTransaction();
+        if (removed.TrashPath is { } undone)
+        {
+            connection.Execute("DELETE FROM removed_accounts WHERE trash_file = @file", new { file = Path.GetFileName(undone) }, tx);
+        }
+
         connection.Execute(
             "INSERT INTO accounts(steam_id, account_name, filename, proxy_id, group_id, note, password_enc, password_nonce, sort_order, created_at, updated_at) " +
             "VALUES (@id, @name, @file, (SELECT id FROM proxies WHERE id = @proxyId), (SELECT id FROM groups WHERE id = @groupId), @note, @secret, @nonce, @sort, @now, @now)",
