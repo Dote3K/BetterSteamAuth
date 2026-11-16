@@ -218,6 +218,86 @@ public static class AuthenticatorLinker
             : new RemoveResult(false, r.ShouldSerializerevocation_attempts_remaining() ? (int)r.revocation_attempts_remaining : null);
     }
 
+    /// <summary>
+    /// Starts moving the account's authenticator here: Steam texts a code to the account's phone number.
+    /// False when Steam refuses, which in practice means the account has no phone number.
+    /// </summary>
+    public static async Task<bool> MoveStartAsync(AccountConnection connection, string accessToken, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrEmpty(accessToken);
+        try
+        {
+            var (_, result) = await Call<CTwoFactor_RemoveAuthenticatorViaChallengeStart_Response, CTwoFactor_RemoveAuthenticatorViaChallengeStart_Request>(
+                connection, accessToken, "RemoveAuthenticatorViaChallengeStart", new(), allowErrorResult: true, cancellationToken).ConfigureAwait(false);
+            return result switch
+            {
+                EResult.OK => true,
+                EResult.Fail => false,
+                _ => throw new LinkFailedException((int)result, $"RemoveAuthenticatorViaChallengeStart failed: {result}"),
+            };
+        }
+        catch (LinkFailedException ex) when (ex.Status == (int)EResult.Fail)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Finishes the move with the texted code. Returns the new maFile (already active, no finalize step), or
+    /// null when the code is wrong. Save it at once: the old authenticator stops working when this returns.
+    /// </summary>
+    public static async Task<MaFile?> MoveFinishAsync(
+        AccountConnection connection, string accessToken, string smsCode, string deviceId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrEmpty(accessToken);
+        ArgumentException.ThrowIfNullOrEmpty(smsCode);
+        ArgumentException.ThrowIfNullOrEmpty(deviceId);
+
+        CTwoFactor_RemoveAuthenticatorViaChallengeContinue_Response r;
+        EResult result;
+        try
+        {
+            (r, result) = await Call<CTwoFactor_RemoveAuthenticatorViaChallengeContinue_Response, CTwoFactor_RemoveAuthenticatorViaChallengeContinue_Request>(
+                connection, accessToken, "RemoveAuthenticatorViaChallengeContinue", new()
+                {
+                    sms_code = smsCode.Trim(),
+                    generate_new_token = true,
+                    version = AuthenticatorVersion,
+                }, allowErrorResult: true, cancellationToken).ConfigureAwait(false);
+        }
+        catch (LinkFailedException ex) when (ex.Status == (int)EResult.SMSCodeFailed)
+        {
+            return null;
+        }
+
+        if (result == EResult.SMSCodeFailed)
+        {
+            return null;
+        }
+
+        if (result != EResult.OK || r.replacement_token is not { shared_secret.Length: > 0, identity_secret.Length: > 0 } t)
+        {
+            throw new LinkFailedException((int)result, $"RemoveAuthenticatorViaChallengeContinue failed: {result}");
+        }
+
+        return new MaFile
+        {
+            SharedSecret = Convert.ToBase64String(t.shared_secret),
+            IdentitySecret = Convert.ToBase64String(t.identity_secret),
+            Secret1 = t.secret_1 is { Length: > 0 } ? Convert.ToBase64String(t.secret_1) : null,
+            SerialNumber = t.serial_number.ToString(CultureInfo.InvariantCulture),
+            RevocationCode = t.revocation_code,
+            Uri = t.uri,
+            ServerTime = (long)t.server_time,
+            AccountName = t.account_name,
+            TokenGid = t.token_gid,
+            DeviceId = deviceId,
+            FullyEnrolled = true,
+        };
+    }
+
     /// <summary>Whether the account has an active mobile authenticator, and with which device ID.</summary>
     public static async Task<AuthenticatorStatus> QueryStatusAsync(
         AccountConnection connection, string accessToken, ulong steamId, CancellationToken cancellationToken = default)

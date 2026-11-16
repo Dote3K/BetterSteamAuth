@@ -12,6 +12,12 @@ public enum GuardChallenge
 {
     /// <summary>A code from the email Steam just sent.</summary>
     EmailCode,
+
+    /// <summary>
+    /// A code from the account's current authenticator (the Steam app on a phone). Approving the sign-in
+    /// there also works: the prompt is then left unanswered and the sign-in finishes without it.
+    /// </summary>
+    PhoneCode,
 }
 
 public sealed record LoginTokens(ulong SteamId, string AccountName, string AccessToken, string RefreshToken);
@@ -46,9 +52,13 @@ public static class SteamLogin
 {
     private const string AuthService = "IAuthenticationService";
     private static readonly TimeSpan PollTimeout = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan ApprovalTimeout = TimeSpan.FromMinutes(5);
 
     /// <param name="sharedSecret">The authenticator's shared secret, used to answer the Steam Guard code prompt.</param>
-    /// <param name="askGuardCode">Called when Steam needs a code we can't produce (an email code). Return null to cancel.</param>
+    /// <param name="askGuardCode">
+    /// Called when Steam needs a code we can't produce (an email code, or the phone's code when this app has no
+    /// secret yet). Return null to cancel.
+    /// </param>
     /// <param name="device">The account's generated device profile; null uses the default profile.</param>
     public static async Task<LoginTokens> LoginAsync(
         AccountConnection connection,
@@ -110,14 +120,40 @@ public static class SteamLogin
                           ?? throw new OperationCanceledException();
             await SubmitCode(api, session, code.Trim(), EAuthSessionGuardType.k_EAuthSessionGuardType_EmailCode).ConfigureAwait(false);
         }
+        else if (allowed.Contains(EAuthSessionGuardType.k_EAuthSessionGuardType_DeviceCode)
+                 || allowed.Contains(EAuthSessionGuardType.k_EAuthSessionGuardType_DeviceConfirmation))
+        {
+            // The authenticator is elsewhere (moving it here): the user types its code or approves on the phone.
+            using var approvalCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var approval = allowed.Contains(EAuthSessionGuardType.k_EAuthSessionGuardType_DeviceConfirmation)
+                ? WaitForApprovalAsync(api, session, approvalCts.Token)
+                : Task.FromResult<LoginTokens?>(null);
+            var ask = askGuardCode(GuardChallenge.PhoneCode);
+            if (await Task.WhenAny(approval, ask).ConfigureAwait(false) == approval && await approval.ConfigureAwait(false) is { } approved)
+            {
+                return approved;
+            }
+
+            string code = await ask.ConfigureAwait(false) ?? throw new OperationCanceledException();
+            await approvalCts.CancelAsync().ConfigureAwait(false);
+            await SubmitCode(api, session, code.Trim().ToUpperInvariant(), EAuthSessionGuardType.k_EAuthSessionGuardType_DeviceCode).ConfigureAwait(false);
+        }
         else if (!allowed.Contains(EAuthSessionGuardType.k_EAuthSessionGuardType_None))
         {
             throw new LoginFailedException($"Steam asked for an unsupported confirmation: {string.Join(", ", allowed)}.");
         }
 
         // 4. Poll until Steam issues tokens.
+        return await PollAsync(api, session, PollTimeout, cancellationToken).ConfigureAwait(false)
+               ?? throw new LoginFailedException(EResult.Timeout, "Steam didn't finish the sign-in in time.");
+    }
+
+    /// <summary>Polls until Steam issues tokens; null when <paramref name="timeout"/> passes first.</summary>
+    private static async Task<LoginTokens?> PollAsync(
+        WebAPI.AsyncInterface api, CAuthentication_BeginAuthSessionViaCredentials_Response session, TimeSpan timeout, CancellationToken cancellationToken)
+    {
         ulong clientId = session.client_id;
-        var deadline = DateTimeOffset.UtcNow + PollTimeout;
+        var deadline = DateTimeOffset.UtcNow + timeout;
         var interval = TimeSpan.FromSeconds(Math.Clamp(session.interval, 1, 10));
         while (DateTimeOffset.UtcNow < deadline)
         {
@@ -137,7 +173,22 @@ public static class SteamLogin
             await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
         }
 
-        throw new LoginFailedException(EResult.Timeout, "Steam didn't finish the sign-in in time.");
+        return null;
+    }
+
+    /// <summary>Waits for the user to approve the sign-in on their phone; null if they type the code instead, or it fails.</summary>
+    private static async Task<LoginTokens?> WaitForApprovalAsync(
+        WebAPI.AsyncInterface api, CAuthentication_BeginAuthSessionViaCredentials_Response session, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await PollAsync(api, session, ApprovalTimeout, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or LoginFailedException or HttpRequestException)
+        {
+            // Typing the code is still possible; its own errors are reported there.
+            return null;
+        }
     }
 
     /// <summary>Gets a fresh access token from the refresh token. Returns a new refresh token if Steam rotated it.</summary>
