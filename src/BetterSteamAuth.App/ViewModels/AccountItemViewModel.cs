@@ -66,11 +66,16 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
     /// </summary>
     public void SetConfirmations(IReadOnlyList<MobileConfirmation> latest, Func<MobileConfirmation, ConfirmationItemViewModel> create)
     {
-        var busy = Confirmations.Where(c => !c.IsIdle).ToDictionary(c => c.Id);
+        var existing = Confirmations.ToDictionary(c => c.Id);
+        var busy = Confirmations.Where(c => !c.IsIdle).ToList();
+        var next = latest.Select(c => existing.Remove(c.Id, out var kept) ? kept : create(c)).ToList();
+
+        // Rows still in an undo window or being sent stay until they finish.
+        next.AddRange(busy.Where(b => !next.Contains(b)));
         Confirmations.Clear();
-        foreach (var confirmation in latest)
+        foreach (var row in next)
         {
-            Confirmations.Add(busy.Remove(confirmation.Id, out var kept) ? kept : create(confirmation));
+            Confirmations.Add(row);
         }
 
         HasLoaded = true;

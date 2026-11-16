@@ -110,6 +110,9 @@
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="0,1,0,0" />
   </Style>
+  <Style Selector="Border.bar">
+    <Setter Property="Background" Value="{DynamicResource SemiColorFill0}" />
+  </Style>
   <Style Selector="Border.divider-left">
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="1,0,0,0" />

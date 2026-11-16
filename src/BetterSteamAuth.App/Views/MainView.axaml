@@ -12,7 +12,7 @@
   <DockPanel>
     <!-- Header -->
     <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
-      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
         <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.AllAccounts}" />
         <TextBox Grid.Column="1" MaxWidth="420" HorizontalAlignment="Stretch"
                  PlaceholderText="{x:Static res:Strings.Search}"
@@ -21,7 +21,14 @@
             <PathIcon Width="14" Height="14" Margin="10,0,0,0" Data="{StaticResource SemiIconSearch}" />
           </TextBox.InnerLeftContent>
         </TextBox>
-        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8"
+        <Button Grid.Column="2" Padding="10,6" Command="{Binding OpenInboxCommand}" IsVisible="{Binding HasAccounts}"
+                AutomationProperties.Name="{x:Static res:Strings.Confirmations}" ToolTip.Tip="{x:Static res:Strings.Confirmations}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCheckList}" />
+            <TextBlock VerticalAlignment="Center" Text="{Binding Inbox.TotalCount}" />
+          </StackPanel>
+        </Button>
+        <Button Grid.Column="3" Theme="{DynamicResource BorderlessButton}" Padding="8"
                 AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
           <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
           <Button.Flyout>
@@ -57,7 +64,9 @@
       </StackPanel>
 
       <!-- List + detail -->
-      <Grid IsVisible="{Binding HasAccounts}" ColumnDefinitions="*,1.1*">
+      <views:InboxView DataContext="{Binding Inbox}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsInboxOpen}" />
+
+      <Grid IsVisible="{Binding ShowAccounts}" ColumnDefinitions="*,1.1*">
         <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:AccountItemViewModel">
@@ -120,7 +129,12 @@
               </Grid>
             </Border>
 
-            <TextBlock Classes="title" Margin="0,24,0,4" Text="{x:Static res:Strings.Confirmations}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,24,0,4">
+              <TextBlock Classes="title" Text="{x:Static res:Strings.Confirmations}" />
+              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="4,0"
+                      Content="{x:Static res:Strings.ReviewAll}" IsVisible="{Binding HasPending}"
+                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenInboxCommand}" />
+            </Grid>
             <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
             <ItemsControl ItemsSource="{Binding Confirmations}">
               <ItemsControl.ItemTemplate>

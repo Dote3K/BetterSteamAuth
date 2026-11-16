@@ -54,6 +54,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Normal, (_, _) => Tick());
         _timer.Start();
 
+        Inbox = new InboxViewModel(_all, RespondBatchAsync, RefreshAllAsync, () => IsInboxOpen = false);
+
         // Each account polls on its own jittered schedule.
         foreach (var account in _all)
         {
@@ -66,6 +68,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<AccountItemViewModel> Accounts { get; } = [];
 
     public bool HasAccounts => _all.Count > 0;
+
+    public InboxViewModel Inbox { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowAccounts))]
+    public partial bool IsInboxOpen { get; private set; }
+
+    public bool ShowAccounts => HasAccounts && !IsInboxOpen;
 
     [ObservableProperty]
     public partial AccountItemViewModel? SelectedAccount { get; set; }
@@ -142,8 +152,72 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private Task RefreshConfirmationsAsync(AccountItemViewModel? account)
         => (account ?? SelectedAccount) is { } target ? LoadConfirmationsAsync(target, _polling.Token) : Task.CompletedTask;
 
+    [RelayCommand]
+    private void OpenInbox() => IsInboxOpen = true;
+
+    private Task RefreshAllAsync() => Task.WhenAll(_all.Select(a => LoadConfirmationsAsync(a, _polling.Token)));
+
+    /// <summary>Sends one account's part of a batch in a single request through its own connection.</summary>
+    private async Task RespondBatchAsync(AccountItemViewModel account, IReadOnlyList<ConfirmationItemViewModel> items, bool accept)
+    {
+        if (_shell.Vault is not { IsUnlocked: true } vault)
+        {
+            return;
+        }
+
+#if DEBUG
+        if (Environment.GetEnvironmentVariable("BSA_SAMPLE_CONFIRMATIONS") == "1")
+        {
+            await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
+            foreach (var item in items)
+            {
+                account.Remove(item);
+            }
+
+            return;
+        }
+#endif
+
+        bool ok = false;
+        try
+        {
+            var maFile = vault.Load(account.SteamId);
+            var connection = _shell.ConnectionFor(account.SteamId);
+            if (await WebSession.EnsureAsync(connection, maFile.Session).ConfigureAwait(true))
+            {
+                vault.Save(maFile);
+            }
+
+            ok = await Confirmations.RespondAsync(
+                connection, maFile.IdentitySecret!, maFile.DeviceId!, items.Select(i => i.Confirmation).ToList(), accept).ConfigureAwait(true);
+        }
+        catch (SessionExpiredException)
+        {
+            SetProblem(account, Strings.SignInToLoadConfirmations, needsLogin: true);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Reported on each row below.
+        }
+
+        foreach (var item in items)
+        {
+            vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok);
+            if (ok)
+            {
+                account.Remove(item);
+            }
+            else
+            {
+                item.LeaveBatch();
+                item.Error = Strings.ConfirmationFailed;
+            }
+        }
+    }
+
     public void Dispose()
     {
+        Inbox.Dispose();
         _polling.Cancel();
         _polling.Dispose();
         _timer.Stop();

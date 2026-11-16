@@ -135,4 +135,18 @@
   <data name="Rejecting" xml:space="preserve"><value>Rejecting…</value></data>
   <data name="AcceptTradesInBulk" xml:space="preserve"><value>Accept trades in bulk</value></data>
   <data name="AcceptTradesInBulkBody" xml:space="preserve"><value>Trades without a warning can be accepted with one click and together with market listings. Trades Steam warns about always need a separate check.</value></data>
+  <data name="FilterAllFormat" xml:space="preserve"><value>All {0}</value></data>
+  <data name="FilterTradesFormat" xml:space="preserve"><value>Trades {0}</value></data>
+  <data name="FilterMarketFormat" xml:space="preserve"><value>Market {0}</value></data>
+  <data name="FilterAccountFormat" xml:space="preserve"><value>Account {0}</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Select all</value></data>
+  <data name="AcceptCountFormat" xml:space="preserve"><value>Accept {0}</value></data>
+  <data name="RejectCountFormat" xml:space="preserve"><value>Reject {0}</value></data>
+  <data name="NeedReviewFormat" xml:space="preserve"><value>{0} need review one by one</value></data>
+  <data name="AccountsFailedFormat" xml:space="preserve"><value>{0} accounts couldn't load</value></data>
+  <data name="AcceptingBatchFormat" xml:space="preserve"><value>Accepting {0} · sending in {1}s</value></data>
+  <data name="RejectingBatchFormat" xml:space="preserve"><value>Rejecting {0} · sending in {1}s</value></data>
+  <data name="AllCaughtUp" xml:space="preserve"><value>All caught up</value></data>
+  <data name="AllCaughtUpBody" xml:space="preserve"><value>New confirmations show up here.</value></data>
+  <data name="ReviewAll" xml:space="preserve"><value>Review all</value></data>
 </root>
