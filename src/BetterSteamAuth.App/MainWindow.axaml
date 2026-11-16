@@ -17,6 +17,7 @@
     <DataTemplate DataType="vm:ProxiesViewModel"><views:ProxiesView /></DataTemplate>
     <DataTemplate DataType="vm:ChangeProxyViewModel"><views:ChangeProxyView /></DataTemplate>
     <DataTemplate DataType="vm:LinkViewModel"><views:LinkView /></DataTemplate>
+    <DataTemplate DataType="vm:ExportViewModel"><views:ExportView /></DataTemplate>
     <DataTemplate DataType="vm:BackupViewModel"><views:BackupView /></DataTemplate>
     <DataTemplate DataType="vm:RestoreViewModel"><views:RestoreView /></DataTemplate>
     <DataTemplate DataType="vm:RemovedAccountsViewModel"><views:RemovedAccountsView /></DataTemplate>

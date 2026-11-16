@@ -1,0 +1,84 @@
+<!-- Export for SDA / ASF. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.ExportView"
+             x:DataType="vm:ExportViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.ExportForSda}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel Width="440" Margin="24,28,24,24" Spacing="8" IsEnabled="{Binding IsIdle}">
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportBody}" />
+
+        <!-- Accounts -->
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12" Margin="0,12,0,0">
+          <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Accounts}" />
+          <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                  Content="{x:Static res:Strings.SelectAll}" Command="{Binding SelectAllCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                  Content="{x:Static res:Strings.SelectNone}" Command="{Binding SelectNoneCommand}" />
+        </Grid>
+        <Border Classes="panel" Padding="12,6">
+          <ItemsControl ItemsSource="{Binding Accounts}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ExportItem">
+                <!-- A TextBlock, so "_" in account names isn't read as an access key. -->
+                <CheckBox Margin="0,4" IsChecked="{Binding IsSelected}" AutomationProperties.Name="{Binding Name}">
+                  <TextBlock Text="{Binding Name}" />
+                </CheckBox>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+
+        <!-- Format -->
+        <TextBlock Classes="title" Margin="0,16,0,4" Text="{x:Static res:Strings.Format}" />
+        <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="format" IsChecked="{Binding Plain}">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ExportPlain}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportPlainHint}" />
+          </StackPanel>
+        </RadioButton>
+        <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="format" IsChecked="{Binding SdaEncrypted}">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ExportSdaEncrypted}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSdaEncryptedHint}" />
+          </StackPanel>
+        </RadioButton>
+        <StackPanel Spacing="8" Margin="0,4,0,0" IsVisible="{Binding SdaEncrypted}">
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.SdaPasskey}"
+                   Text="{Binding Passkey}" AutomationProperties.Name="{x:Static res:Strings.SdaPasskey}" />
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.ConfirmPassword}"
+                   Text="{Binding ConfirmPasskey}" AutomationProperties.Name="{x:Static res:Strings.ConfirmPassword}" />
+        </StackPanel>
+
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding HasResult}">
+          <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="success" Data="{StaticResource SemiIconTickCircle}" />
+          <TextBlock VerticalAlignment="Center" Text="{Binding Result}" />
+          <Button Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0" VerticalAlignment="Center"
+                  Content="{x:Static res:Strings.ShowInFolder}" Command="{Binding ShowInFolderCommand}" />
+        </StackPanel>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,16,0,0">
+          <Button Content="{x:Static res:Strings.Back}" Command="{Binding BackCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                  Content="{x:Static res:Strings.ExportChooseFolder}" Command="{Binding ExportCommand}" />
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

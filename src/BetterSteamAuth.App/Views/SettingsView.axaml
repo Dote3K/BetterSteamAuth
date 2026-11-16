@@ -75,6 +75,13 @@
           </StackPanel>
           <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.RestoreMenu}" Command="{Binding OpenRestoreCommand}" />
         </Grid>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ExportForSda}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSettingsBody}" />
+          </StackPanel>
+          <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.ExportMenu}" Command="{Binding OpenExportCommand}" />
+        </Grid>
         <StackPanel Spacing="4" IsVisible="{Binding HasRemoved}">
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
             <StackPanel Spacing="2">

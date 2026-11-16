@@ -48,6 +48,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void OpenRestore() => _shell.ShowRestore();
 
+    [RelayCommand]
+    private void OpenExport() => _shell.ShowExport();
+
     /// <summary>Settings → Data → Removed accounts (N); hidden when there are none.</summary>
     public int RemovedCount { get; }
 

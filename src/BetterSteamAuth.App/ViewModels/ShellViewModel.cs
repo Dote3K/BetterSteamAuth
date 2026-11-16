@@ -350,6 +350,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowFirstRun() => SwitchTo(new FirstRunViewModel(this));
 
+    public void ShowExport() => SwitchTo(new ExportViewModel(this));
+
     /// <summary>
     /// Puts a backup in place of the app's data and opens it, unlocked with the backup's key. The old data
     /// folder is kept aside (returned). If that fails, the old data is opened again (locked) and the error rethrown.
