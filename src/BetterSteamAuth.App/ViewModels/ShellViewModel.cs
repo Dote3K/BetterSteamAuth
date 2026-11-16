@@ -14,6 +14,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     private static readonly TimeSpan ProxyCheckInterval = TimeSpan.FromMinutes(15);
 
     public const string AutoLockKey = "security.auto_lock_minutes";
+    public const string BackgroundCheckKey = "confirmations.background_check";
     public const int DefaultAutoLockMinutes = 15;
 
     private readonly Dictionary<ulong, (AccountConnection Connection, CancellationTokenSource Stop)> _connections = [];
@@ -22,6 +23,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     private NetworkPolicy _network = new(new NetworkOptions());
     private readonly Avalonia.Threading.DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(30) };
     private DateTime _lastActivity = DateTime.UtcNow;
+    private TaskCompletionSource _checksAllowed = Allowed();
+    private bool _minimized;
+    private bool _checkInBackground;
 
     public ShellViewModel(string dataFolder, IPlatformServices platform)
     {
@@ -111,6 +115,41 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         {
             System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
         }
+    }
+
+    /// <summary>Keep checking confirmations while the window is minimized. Off by default.</summary>
+    public bool CheckInBackground
+    {
+        get => _checkInBackground;
+        set
+        {
+            _checkInBackground = value;
+            Vault?.SetSetting(BackgroundCheckKey, value ? "on" : "off");
+            UpdateConfirmationChecks();
+        }
+    }
+
+    /// <summary>Called by the window when it's minimized or restored.</summary>
+    public void SetMinimized(bool minimized)
+    {
+        _minimized = minimized;
+        UpdateConfirmationChecks();
+    }
+
+    /// <summary>
+    /// Waits while confirmation checks are paused (window minimized, unless checking in the background).
+    /// Returns true if it had to wait.
+    /// </summary>
+    public async Task<bool> WaitForConfirmationChecksAsync(CancellationToken cancellationToken)
+    {
+        var gate = _checksAllowed.Task;
+        if (gate.IsCompleted)
+        {
+            return false;
+        }
+
+        await gate.WaitAsync(cancellationToken).ConfigureAwait(true);
+        return true;
     }
 
     /// <summary>Called on any keyboard or mouse input; resets the auto-lock countdown.</summary>
@@ -262,8 +301,29 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
     }
 
+    private static TaskCompletionSource Allowed()
+    {
+        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        gate.SetResult();
+        return gate;
+    }
+
+    private void UpdateConfirmationChecks()
+    {
+        if (!_minimized || _checkInBackground)
+        {
+            _checksAllowed.TrySetResult();
+        }
+        else if (_checksAllowed.Task.IsCompleted)
+        {
+            _checksAllowed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        }
+    }
+
     private void LoadNetworkOptions()
     {
+        _checkInBackground = Vault?.GetSetting(BackgroundCheckKey) == "on";
+        UpdateConfirmationChecks();
         ConfirmationPolicy.AcceptTradesInBulk = Vault?.GetSetting(ConfirmationPolicy.BulkTradesKey) == "on";
 
         var options = NetworkOptions.FromSettings(

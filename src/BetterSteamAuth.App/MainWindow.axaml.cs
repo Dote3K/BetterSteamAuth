@@ -25,6 +25,16 @@ public partial class MainWindow : Window, IPlatformServices
 
     private void OnInput(object? sender, RoutedEventArgs e) => (DataContext as ShellViewModel)?.NoteActivity();
 
+    protected override void OnPropertyChanged(Avalonia.AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == WindowStateProperty)
+        {
+            // Confirmation checks pause while minimized.
+            (DataContext as ShellViewModel)?.SetMinimized(WindowState == WindowState.Minimized);
+        }
+    }
+
     public Task CopyTextAsync(string text) => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
 
     public Task OpenUriAsync(Uri uri) => Launcher.LaunchUriAsync(uri);

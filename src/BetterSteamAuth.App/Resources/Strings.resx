@@ -237,4 +237,6 @@
   <data name="LinkingNotFinished" xml:space="preserve"><value>Linking not finished</value></data>
   <data name="LinkNewAuthenticatorBody" xml:space="preserve"><value>Set up Steam Guard on an account</value></data>
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
+  <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>
+  <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking for confirmations while the window is minimized. Otherwise checks run only while confirmations are on screen.</value></data>
 </root>

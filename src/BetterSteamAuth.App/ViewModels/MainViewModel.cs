@@ -274,7 +274,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             await Task.Delay(Jitter(TimeSpan.FromSeconds(5)), cancellationToken).ConfigureAwait(true);
             while (true)
             {
-                await LoadConfirmationsAsync(account, cancellationToken).ConfigureAwait(true);
+                // Only while confirmations are on screen.
+                if (await _shell.WaitForConfirmationChecksAsync(cancellationToken).ConfigureAwait(true))
+                {
+                    // Coming back: don't let every account fire at once.
+                    await Task.Delay(Jitter(TimeSpan.FromSeconds(10)), cancellationToken).ConfigureAwait(true);
+                }
+
+                if (DateTime.UtcNow - account.LastCheckedUtc >= PollInterval)
+                {
+                    await LoadConfirmationsAsync(account, cancellationToken).ConfigureAwait(true);
+                }
+
                 await Task.Delay(PollInterval + Jitter(TimeSpan.FromSeconds(30)), cancellationToken).ConfigureAwait(true);
             }
         }
@@ -291,6 +302,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
+        account.LastCheckedUtc = DateTime.UtcNow;
         if (account.IsLinkPending)
         {
             // Not active on Steam yet: nothing to load until the link is finished.

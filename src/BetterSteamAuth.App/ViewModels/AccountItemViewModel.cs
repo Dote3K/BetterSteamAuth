@@ -22,6 +22,9 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
 
     public ObservableCollection<ConfirmationItemViewModel> Confirmations { get; } = [];
 
+    /// <summary>When confirmations were last requested for this account.</summary>
+    public DateTime LastCheckedUtc { get; set; } = DateTime.MinValue;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasPending), nameof(ShowNothingToConfirm))]
     public partial int PendingCount { get; private set; }

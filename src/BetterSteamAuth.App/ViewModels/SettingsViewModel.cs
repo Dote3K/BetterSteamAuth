@@ -101,6 +101,19 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
+    public bool CheckInBackground
+    {
+        get => _shell.CheckInBackground;
+        set
+        {
+            if (value != _shell.CheckInBackground)
+            {
+                _shell.CheckInBackground = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     [RelayCommand]
     private void Back() => _shell.ShowMain();
 
