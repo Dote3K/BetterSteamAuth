@@ -293,4 +293,27 @@
   <data name="ExpiresInFormat" xml:space="preserve"><value>Expires in {0} days</value></data>
   <data name="AutoSignInHowTo" xml:space="preserve"><value>Turn it on with "Remember password" when you sign in again.</value></data>
   <data name="AccountDetails" xml:space="preserve"><value>Account details</value></data>
+  <data name="RemoveAuthenticatorMenu" xml:space="preserve"><value>Remove authenticator…</value></data>
+  <data name="RemoveAuthTitle" xml:space="preserve"><value>Remove Steam Guard authenticator</value></data>
+  <data name="RemoveAuthWarning" xml:space="preserve"><value>Trading and the Community Market are blocked for 15 days after removal. To change devices, move the authenticator to the new device instead.</value></data>
+  <data name="RemoveAuthAfterLabel" xml:space="preserve"><value>After removal, Steam Guard…</value></data>
+  <data name="RemoveAuthEmail" xml:space="preserve"><value>Sends codes by email</value></data>
+  <data name="RemoveAuthEmailHint" xml:space="preserve"><value>Recommended</value></data>
+  <data name="RemoveAuthNone" xml:space="preserve"><value>Is turned off completely</value></data>
+  <data name="RemoveAuthNoneHint" xml:space="preserve"><value>Anyone with the password can sign in.</value></data>
+  <data name="RevocationFromMaFile" xml:space="preserve"><value>From this account's maFile</value></data>
+  <data name="RevocationCodeHint" xml:space="preserve"><value>Starts with R, e.g. R12345</value></data>
+  <data name="RevocationCodeWhere" xml:space="preserve"><value>It was shown when the authenticator was linked. SDA and other tools keep it in the maFile as revocation_code.</value></data>
+  <data name="RevocationCodeInvalid" xml:space="preserve"><value>A revocation code is R followed by 5 digits.</value></data>
+  <data name="ConfirmWithAppPassword" xml:space="preserve"><value>Enter your app password to confirm</value></data>
+  <data name="RemoveAuthUnderstand" xml:space="preserve"><value>I understand trading is blocked for 15 days</value></data>
+  <data name="RemoveAuthButton" xml:space="preserve"><value>Remove authenticator</value></data>
+  <data name="RemovingAuth" xml:space="preserve"><value>Removing…</value></data>
+  <data name="RemoveAuthWrongCodeFormat" xml:space="preserve"><value>That revocation code didn't work. {0} attempts left.</value></data>
+  <data name="RemoveAuthNoAttempts" xml:space="preserve"><value>No attempts left. Only Steam Support can remove this authenticator now.</value></data>
+  <data name="RemoveAuthFailed" xml:space="preserve"><value>Steam didn't remove the authenticator. Nothing changed.</value></data>
+  <data name="RemoveAuthNetwork" xml:space="preserve"><value>Couldn't reach Steam. Nothing changed; try again.</value></data>
+  <data name="RemoveAuthSignIn" xml:space="preserve"><value>Sign in again to remove the authenticator.</value></data>
+  <data name="SteamSupport" xml:space="preserve"><value>Steam Support</value></data>
+  <data name="GuardRemovedFormat" xml:space="preserve"><value>Steam Guard removed from {0}</value></data>
 </root>

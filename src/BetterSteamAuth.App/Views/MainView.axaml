@@ -58,7 +58,7 @@
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock VerticalAlignment="Center" Text="{Binding RemovedText}" />
         <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                Content="{x:Static res:Strings.Undo}" Command="{Binding UndoRemoveCommand}" />
+                Content="{x:Static res:Strings.Undo}" Command="{Binding UndoRemoveCommand}" IsVisible="{Binding CanUndoRemove}" />
       </Grid>
     </Border>
 

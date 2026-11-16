@@ -54,6 +54,9 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
         DeviceId = _maFile.DeviceId ?? "";
         FileName = entry.FileName;
         HasRevocationCode = !string.IsNullOrEmpty(_maFile.RevocationCode);
+
+        // An unfinished link isn't active on Steam yet; the link wizard's Fix or Cancel handles it.
+        CanRemoveAuthenticator = _maFile.FullyEnrolled || _vault.GetDeviceProfile(steamId) is null;
         Groups = _vault.ListGroups();
         GroupName = _vault.GetGroupName(entry.GroupId) ?? "";
         Note = entry.Note ?? "";
@@ -115,6 +118,8 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
 
     // Steam Guard
     public bool HasRevocationCode { get; }
+
+    public bool CanRemoveAuthenticator { get; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsRevocationHidden), nameof(ShowMaskedCode))]
@@ -303,6 +308,9 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
         await File.WriteAllTextAsync(path, _vault.Load(_steamId).ToJson()).ConfigureAwait(true);
         ExportMessage = Strings.ExportedPlain;
     }
+
+    [RelayCommand]
+    private void RemoveAuthenticator() => _shell.ShowRemoveAuthenticator(_steamId);
 
     [RelayCommand]
     private void AskRemove()

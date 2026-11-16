@@ -20,6 +20,9 @@
       <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
       <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
+    <Style Selector="MenuItem.danger">
+      <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
+    </Style>
     <Style Selector="Border.row.last">
       <Setter Property="BorderThickness" Value="0" />
     </Style>
@@ -49,6 +52,9 @@
             <MenuFlyout Placement="BottomEdgeAlignedRight">
               <MenuItem Header="{x:Static res:Strings.ExportMaFile}" Command="{Binding ExportCommand}" />
               <MenuItem Header="{x:Static res:Strings.RemoveFromApp}" Command="{Binding AskRemoveCommand}" />
+              <Separator IsVisible="{Binding CanRemoveAuthenticator}" />
+              <MenuItem Classes="danger" Header="{x:Static res:Strings.RemoveAuthenticatorMenu}" Command="{Binding RemoveAuthenticatorCommand}"
+                        IsVisible="{Binding CanRemoveAuthenticator}" />
             </MenuFlyout>
           </Button.Flyout>
         </Button>

@@ -309,7 +309,17 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         StartProxyChecks();
     }
 
+    /// <summary>Main window with a short notice and no Undo (e.g. after removing the authenticator).</summary>
+    public void ShowMainWithNotice(string notice)
+    {
+        SwitchTo(new MainViewModel(this, notice: notice));
+        StartProxyChecks();
+    }
+
     public void ShowAccountDetails(ulong steamId) => SwitchTo(new AccountDetailsViewModel(this, steamId));
+
+    public void ShowRemoveAuthenticator(ulong steamId, GuardAfterRemoval after = GuardAfterRemoval.Email, string? typedCode = null)
+        => SwitchTo(new RemoveAuthenticatorViewModel(this, steamId, after, typedCode));
 
     public void ShowProxies() => SwitchTo(new ProxiesViewModel(this));
 

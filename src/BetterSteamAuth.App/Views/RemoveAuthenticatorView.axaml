@@ -1,0 +1,91 @@
+<!-- Remove the Steam Guard authenticator. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.RemoveAuthenticatorView"
+             x:DataType="vm:RemoveAuthenticatorViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding CancelCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <!-- Top bar -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding CancelCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Grid.Column="1" Classes="secondary" VerticalAlignment="Center" Text="{x:Static res:Strings.AccountDetails}" />
+      </Grid>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel Width="440" Margin="24,28,24,24" Spacing="8" IsEnabled="{Binding IsIdle}">
+        <TextBlock Classes="heading" Text="{x:Static res:Strings.RemoveAuthTitle}" />
+        <TextBlock Classes="secondary" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+
+        <!-- 15-day restriction -->
+        <Border Classes="banner-warning" Margin="0,12,0,0" Padding="14,12">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <PathIcon Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+            <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{x:Static res:Strings.RemoveAuthWarning}" />
+          </Grid>
+        </Border>
+
+        <!-- What Steam Guard becomes -->
+        <TextBlock Classes="title" Margin="0,20,0,4" Text="{x:Static res:Strings.RemoveAuthAfterLabel}" />
+        <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="after"
+                     IsChecked="{Binding KeepEmailCodes}">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RemoveAuthEmail}" />
+            <TextBlock Classes="secondary" Text="{x:Static res:Strings.RemoveAuthEmailHint}" />
+          </StackPanel>
+        </RadioButton>
+        <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="after"
+                     IsChecked="{Binding TurnOffCompletely}">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RemoveAuthNone}" />
+            <TextBlock Classes="secondary" Text="{x:Static res:Strings.RemoveAuthNoneHint}" />
+          </StackPanel>
+        </RadioButton>
+
+        <!-- Revocation code -->
+        <TextBlock Classes="title" Margin="0,20,0,4" Text="{x:Static res:Strings.RevocationCode}" />
+        <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding ShowStoredCode}">
+          <TextBlock Classes="mono" VerticalAlignment="Center" Text="{Binding MaskedCode}" />
+          <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{x:Static res:Strings.RevocationFromMaFile}" />
+        </StackPanel>
+        <StackPanel Spacing="4" IsVisible="{Binding ShowCodeField}">
+          <TextBox FontFamily="{StaticResource Bsa.Font.Code}" PlaceholderText="{x:Static res:Strings.RevocationCodeHint}"
+                   Text="{Binding RevocationCode}" AutomationProperties.Name="{x:Static res:Strings.RevocationCode}"
+                   ToolTip.Tip="{x:Static res:Strings.RevocationCodeWhere}" />
+        </StackPanel>
+
+        <!-- App password -->
+        <StackPanel Spacing="4" Margin="0,16,0,0" IsVisible="{Binding NeedsPassword}">
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.ConfirmWithAppPassword}"
+                   Text="{Binding Password}" AutomationProperties.Name="{x:Static res:Strings.Password}" />
+        </StackPanel>
+
+        <CheckBox Margin="0,12,0,0" IsChecked="{Binding Understood}" Content="{x:Static res:Strings.RemoveAuthUnderstand}" />
+
+        <!-- Errors -->
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding NeedsSignIn}">
+          <TextBlock Classes="danger" VerticalAlignment="Center" Text="{x:Static res:Strings.RemoveAuthSignIn}" />
+          <Button Theme="{DynamicResource BorderlessButton}" Classes="Primary" Content="{x:Static res:Strings.SignIn}"
+                  Command="{Binding SignInCommand}" />
+        </StackPanel>
+        <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                Content="{x:Static res:Strings.SteamSupport}" Command="{Binding OpenSupportCommand}" IsVisible="{Binding NoAttemptsLeft}" />
+
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,16,0,0">
+          <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Danger"
+                  Content="{Binding RemoveLabel}" Command="{Binding RemoveCommand}" IsEnabled="{Binding CanRemove}" />
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

@@ -211,9 +211,9 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
             _ownConnection?.Dispose();
             _ownConnection = new AccountConnection(0, proxySettings, _shell.Network);
             _connection = _ownConnection;
-            await SampleOr(async () => { await TimeSync.SyncAsync(_connection).ConfigureAwait(true); return true; }, () => true).ConfigureAwait(true);
+            await SampleMode.Or(async () => { await TimeSync.SyncAsync(_connection).ConfigureAwait(true); return true; }, () => true).ConfigureAwait(true);
 
-            var tokens = await SampleOr(
+            var tokens = await SampleMode.Or(
                 () => SteamLogin.LoginAsync(_connection, AccountName.Trim(), Password, null, AskEmailCodeAsync, _profile),
                 () => new LoginTokens(76561198000000777, AccountName.Trim(), "sample-access", "sample-refresh")).ConfigureAwait(true);
             Password = "";
@@ -224,7 +224,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            var added = await SampleOr(
+            var added = await SampleMode.Or(
                 () => AuthenticatorLinker.AddAsync(_connection, tokens.AccessToken, tokens.SteamId, _deviceId),
                 () => SampleAdd(_deviceId)).ConfigureAwait(true);
             switch (added.Status)
@@ -350,7 +350,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
         try
         {
             byte[] secret = Convert.FromBase64String(_maFile.SharedSecret!);
-            var result = await SampleOr(
+            var result = await SampleMode.Or(
                 () => AuthenticatorLinker.FinalizeAsync(_connection, _maFile.Session!.AccessToken!, _steamId, secret, ActivationCode),
                 () => FinalizeStatus.Done).ConfigureAwait(true);
             System.Security.Cryptography.CryptographicOperations.ZeroMemory(secret);
@@ -420,7 +420,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
         _connection = _shell.ConnectionFor(steamId);
         try
         {
-            bool refreshed = await SampleOr(
+            bool refreshed = await SampleMode.Or(
                 async () =>
                 {
                     await TimeSync.SyncAsync(_connection).ConfigureAwait(true);
@@ -433,7 +433,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
             }
 
             // Activation may have gone through with the answer lost.
-            var status = await SampleOr(
+            var status = await SampleMode.Or(
                 () => AuthenticatorLinker.QueryStatusAsync(_connection, _maFile.Session!.AccessToken!, steamId),
                 () => new AuthenticatorStatus(false, null)).ConfigureAwait(true);
             if (status.Active && string.Equals(status.DeviceId, _maFile.DeviceId, StringComparison.OrdinalIgnoreCase))
@@ -510,17 +510,4 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
 #else
         throw new NotSupportedException();
 #endif
-
-    /// <summary>In debug builds with BSA_SAMPLE_CONFIRMATIONS=1, fakes Steam so the screens can be reviewed.</summary>
-    private static async Task<T> SampleOr<T>(Func<Task<T>> real, Func<T> sample)
-    {
-#if DEBUG
-        if (Environment.GetEnvironmentVariable("BSA_SAMPLE_CONFIRMATIONS") == "1")
-        {
-            await Task.Delay(600).ConfigureAwait(true);
-            return sample();
-        }
-#endif
-        return await real().ConfigureAwait(true);
-    }
 }

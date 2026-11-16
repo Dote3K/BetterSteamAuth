@@ -31,7 +31,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private readonly (RemovedAccount Account, string Name)? _removed;
 
-    public MainViewModel(ShellViewModel shell, ulong? selectSteamId = null, (RemovedAccount Account, string Name)? removed = null)
+    public MainViewModel(ShellViewModel shell, ulong? selectSteamId = null, (RemovedAccount Account, string Name)? removed = null, string? notice = null)
     {
         _shell = shell;
         var vault = shell.Vault ?? throw new InvalidOperationException("No vault is open.");
@@ -60,7 +60,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         ApplyFilter();
         SelectedAccount = Accounts.FirstOrDefault(a => a.SteamId == selectSteamId) ?? Accounts.FirstOrDefault();
         _removed = removed;
-        RemovedText = removed is { } r ? string.Format(CultureInfo.CurrentCulture, RemovedFormat, r.Name) : null;
+        RemovedText = removed is { } r ? string.Format(CultureInfo.CurrentCulture, RemovedFormat, r.Name) : notice;
         Tick();
 
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Normal, (_, _) => Tick());
@@ -175,12 +175,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void LinkNew() => _shell.ShowLink();
 
-    /// <summary>"Removed {name} · Undo", shown for a few seconds after removing an account.</summary>
+    /// <summary>"Removed {name} · Undo" (or a notice without Undo), shown for a few seconds after removing an account.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasRemoved))]
     public partial string? RemovedText { get; private set; }
 
     public bool HasRemoved => RemovedText is not null;
+
+    public bool CanUndoRemove => _removed is not null;
 
     [RelayCommand]
     private void UndoRemove()
