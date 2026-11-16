@@ -65,7 +65,7 @@
         <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.RevocationBody}" />
         <Border Classes="well" Padding="16">
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-            <SelectableTextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding RevocationCode}" />
+            <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding RevocationCode}" />
             <Button Grid.Column="1" VerticalAlignment="Center" Command="{Binding CopyRevocationCodeCommand}"
                     AutomationProperties.Name="{x:Static res:Strings.Copy}">
               <StackPanel Orientation="Horizontal" Spacing="6">
