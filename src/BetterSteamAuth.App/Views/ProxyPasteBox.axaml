@@ -1,0 +1,25 @@
+<!-- Proxy paste box with live preview. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.ProxyPasteBox"
+             x:DataType="vm:ProxyPasteViewModel">
+  <StackPanel Spacing="6">
+    <TextBox Classes="TextArea" AcceptsReturn="True" Height="110" FontFamily="{StaticResource Bsa.Font.Code}"
+             PlaceholderText="{x:Static res:Strings.ProxyFormatsHint}"
+             AutomationProperties.Name="{x:Static res:Strings.PasteProxies}" Text="{Binding Text}" />
+    <ItemsControl ItemsSource="{Binding Preview}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:ProxyPreviewLine">
+          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
+            <PathIcon Width="11" Height="11" Classes="success" Data="{StaticResource SemiIconTick}" IsVisible="{Binding IsValid}" />
+            <PathIcon Width="11" Height="11" Classes="secondary" Data="{StaticResource SemiIconMinus}" IsVisible="{Binding IsDuplicate}" />
+            <PathIcon Width="11" Height="11" Classes="danger" Data="{StaticResource SemiIconClose}" IsVisible="{Binding IsError}" />
+            <TextBlock Classes="caption" Classes.danger="{Binding IsError}" Classes.hint="{Binding IsDuplicate}" Text="{Binding Text}" />
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </StackPanel>
+</UserControl>

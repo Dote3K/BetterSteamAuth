@@ -178,4 +178,8 @@
   <data name="DangerGenericBody" xml:space="preserve"><value>Steam needs a confirmation for a change to this account. Accept only if you started it yourself.</value></data>
   <data name="YouGiveOne" xml:space="preserve"><value>You give · 1 item</value></data>
   <data name="YouReceiveOne" xml:space="preserve"><value>You receive · 1 item</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="EditProxy" xml:space="preserve"><value>Edit proxy</value></data>
+  <data name="ProxyUnreadable" xml:space="preserve"><value>Can't read this proxy</value></data>
+  <data name="ProxyAlreadyAdded" xml:space="preserve"><value>This proxy is already in the list</value></data>
 </root>

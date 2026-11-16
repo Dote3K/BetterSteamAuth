@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
              xmlns:res="using:BetterSteamAuth.App.Resources"
+             xmlns:v="using:BetterSteamAuth.App.Views"
              x:Class="BetterSteamAuth.App.Views.ProxiesView"
              x:DataType="vm:ProxiesViewModel">
   <UserControl.KeyBindings>
@@ -56,25 +57,28 @@
         <Border Classes="panel" Margin="16,12" Padding="14,12" IsVisible="{Binding IsAdding}">
           <StackPanel Spacing="6">
             <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.PasteProxies}" />
-            <TextBox Classes="TextArea" AcceptsReturn="True" Height="110" FontFamily="{StaticResource Bsa.Font.Code}"
-                     Text="{Binding AddText}" />
-            <ItemsControl ItemsSource="{Binding Preview}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:ProxyPreviewLine">
-                  <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,1">
-                    <PathIcon Width="11" Height="11" Classes="success" Data="{StaticResource SemiIconTick}" IsVisible="{Binding IsValid}" />
-                    <PathIcon Width="11" Height="11" Classes="secondary" Data="{StaticResource SemiIconMinus}" IsVisible="{Binding IsDuplicate}" />
-                    <PathIcon Width="11" Height="11" Classes="danger" Data="{StaticResource SemiIconClose}" IsVisible="{Binding IsError}" />
-                    <TextBlock Classes="caption" Classes.danger="{Binding IsError}" Classes.hint="{Binding IsDuplicate}" Text="{Binding Text}" />
-                  </StackPanel>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <v:ProxyPasteBox DataContext="{Binding Paste}" />
             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4,0,0">
               <TextBlock Classes="caption hint" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static res:Strings.ProxyFormatsHint}" />
               <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAddCommand}" />
               <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
                       Content="{Binding AddButtonText}" Command="{Binding AddCommand}" IsEnabled="{Binding CanAdd}" />
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <!-- Edit panel -->
+        <Border Classes="panel" Margin="16,12" Padding="14,12" IsVisible="{Binding IsEditing}">
+          <StackPanel Spacing="6">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.EditProxy}" />
+            <TextBox FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding EditText}"
+                     AutomationProperties.Name="{x:Static res:Strings.EditProxy}" />
+            <TextBlock Classes="caption danger" Text="{Binding EditError}" IsVisible="{Binding HasEditError}" />
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+              <TextBlock Classes="caption hint" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static res:Strings.ProxyFormatsHint}" />
+              <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelEditCommand}" />
+              <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                      Content="{x:Static res:Strings.Save}" Command="{Binding SaveEditCommand}" />
             </Grid>
           </StackPanel>
         </Border>
@@ -133,6 +137,8 @@
                     <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconMore}" />
                     <Button.Flyout>
                       <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="{x:Static res:Strings.Edit}"
+                                  Command="{Binding $parent[UserControl].((vm:ProxiesViewModel)DataContext).EditCommand}" CommandParameter="{Binding}" />
                         <MenuItem Header="{x:Static res:Strings.Check}"
                                   Command="{Binding $parent[UserControl].((vm:ProxiesViewModel)DataContext).CheckCommand}" CommandParameter="{Binding}" />
                         <MenuItem Header="{x:Static res:Strings.Remove}"

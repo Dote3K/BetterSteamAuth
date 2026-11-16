@@ -38,12 +38,7 @@ public sealed partial class ProxyItemViewModel(ProxyEntry entry, string accounts
     public partial bool IsChecking { get; set; }
 }
 
-public sealed record ProxyPreviewLine(string Text, bool IsValid, bool IsDuplicate)
-{
-    public bool IsError => !IsValid && !IsDuplicate;
-}
-
-/// <summary>Proxy pool: list, add by pasting, auto-assign, check, remove.</summary>
+/// <summary>Proxy pool: list, add by pasting, edit, auto-assign, check, remove.</summary>
 public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
 {
     private static readonly CompositeFormat ProxyCountFormat = CompositeFormat.Parse(Strings.ProxyCountFormat);
@@ -51,8 +46,6 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat DirectFormat = CompositeFormat.Parse(Strings.DirectAccountsFormat);
     private static readonly CompositeFormat SelectedFormat = CompositeFormat.Parse(Strings.SelectedFormat);
     private static readonly CompositeFormat AddCountFormat = CompositeFormat.Parse(Strings.AddCountFormat);
-    private static readonly CompositeFormat UnreadableFormat = CompositeFormat.Parse(Strings.LineUnreadableFormat);
-    private static readonly CompositeFormat DuplicateFormat = CompositeFormat.Parse(Strings.LineDuplicateFormat);
     private static readonly CompositeFormat AutoTitleFormat = CompositeFormat.Parse(Strings.AutoAssignTitleFormat);
     private static readonly CompositeFormat AutoShortFormat = CompositeFormat.Parse(Strings.AutoAssignShortFormat);
     private static readonly CompositeFormat AssignCountFormat = CompositeFormat.Parse(Strings.AssignCountFormat);
@@ -61,8 +54,8 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     private readonly ShellViewModel _shell;
     private readonly Vault _vault;
     private readonly Dictionary<ulong, string> _names = [];
-    private List<ProxySettings> _parsed = [];
     private List<long> _removeIds = [];
+    private ProxyItemViewModel? _editing;
 
     public ProxiesViewModel(ShellViewModel shell)
     {
@@ -75,13 +68,24 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
                 ?? account.SteamId.ToString(CultureInfo.InvariantCulture);
         }
 
+        Paste = new ProxyPasteViewModel(() => _vault.ListProxies().Select(p => new ProxySettings(p.Scheme, p.Host, p.Port, p.Username)));
+        Paste.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(ProxyPasteViewModel.Count))
+            {
+                AddButtonText = string.Format(CultureInfo.CurrentCulture, AddCountFormat, Paste.Count);
+                CanAdd = Paste.Count > 0;
+            }
+        };
+
+        AddButtonText = string.Format(CultureInfo.CurrentCulture, AddCountFormat, 0);
         _shell.ProxyHealthChanged += OnHealthChanged;
         Reload();
     }
 
     public ObservableCollection<ProxyItemViewModel> Items { get; } = [];
 
-    public ObservableCollection<ProxyPreviewLine> Preview { get; } = [];
+    public ProxyPasteViewModel Paste { get; }
 
     [ObservableProperty] public partial string SummaryText { get; private set; } = "";
     [ObservableProperty] public partial string? DeadText { get; private set; }
@@ -91,7 +95,6 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial bool IsCheckingAll { get; private set; }
 
     [ObservableProperty] public partial bool IsAdding { get; private set; }
-    [ObservableProperty] public partial string AddText { get; set; } = "";
     [ObservableProperty] public partial string AddButtonText { get; private set; } = "";
     [ObservableProperty] public partial bool CanAdd { get; private set; }
 
@@ -101,12 +104,22 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial string AutoAssignButtonText { get; private set; } = "";
     [ObservableProperty] public partial bool CanAutoAssign { get; private set; }
 
+    [ObservableProperty] public partial bool IsEditing { get; private set; }
+    [ObservableProperty] public partial string EditText { get; set; } = "";
+    [ObservableProperty] public partial string? EditError { get; private set; }
+
     [ObservableProperty] public partial bool IsConfirmingRemove { get; private set; }
     [ObservableProperty] public partial string RemoveText { get; private set; } = "";
 
     public bool HasDead => DeadText is not null;
 
     public bool ShowEmpty => !HasItems && !IsAdding;
+
+    public bool HasEditError => EditError is not null;
+
+    partial void OnEditErrorChanged(string? value) => OnPropertyChanged(nameof(HasEditError));
+
+    partial void OnEditTextChanged(string value) => EditError = null;
 
     partial void OnHasItemsChanged(bool value) => OnPropertyChanged(nameof(ShowEmpty));
 
@@ -121,8 +134,6 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     partial void OnDirectTextChanged(string? value) => OnPropertyChanged(nameof(HasDirect));
 
     partial void OnSelectionTextChanged(string? value) => OnPropertyChanged(nameof(HasSelection));
-
-    partial void OnAddTextChanged(string value) => ParsePreview();
 
     public void Dispose() => _shell.ProxyHealthChanged -= OnHealthChanged;
 
@@ -151,10 +162,8 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ShowAdd()
     {
-        IsAutoAssigning = false;
-        IsConfirmingRemove = false;
-        AddText = "";
-        ParsePreview();
+        ClosePanels();
+        Paste.Clear();
         IsAdding = true;
     }
 
@@ -164,16 +173,69 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void Add()
     {
-        _vault.AddProxies(_parsed);
+        _vault.AddProxies(Paste.Proxies);
         IsAdding = false;
         Reload();
     }
 
     [RelayCommand]
+    private void Edit(ProxyItemViewModel item)
+    {
+        if (_vault.GetProxySettings(item.Id) is not { } settings)
+        {
+            return;
+        }
+
+        ClosePanels();
+        _editing = item;
+        EditText = ProxyParser.ToLine(settings);
+        EditError = null;
+        IsEditing = true;
+    }
+
+    [RelayCommand]
+    private void CancelEdit()
+    {
+        IsEditing = false;
+        _editing = null;
+    }
+
+    [RelayCommand]
+    private async Task SaveEditAsync()
+    {
+        if (_editing is not { } item)
+        {
+            return;
+        }
+
+        if (!ProxyParser.TryParse(EditText, out var proxy) || proxy is null)
+        {
+            EditError = Strings.ProxyUnreadable;
+            return;
+        }
+
+        if (!_vault.UpdateProxy(item.Id, proxy))
+        {
+            EditError = Strings.ProxyAlreadyAdded;
+            return;
+        }
+
+        // Its accounts reconnect through the new address on their next request.
+        foreach (ulong steamId in item.Entry.AccountIds)
+        {
+            _shell.ResetConnection(steamId);
+        }
+
+        IsEditing = false;
+        _editing = null;
+        Reload();
+        await CheckItemsAsync(Items.Where(i => i.Id == item.Id).ToList()).ConfigureAwait(true);
+    }
+
+    [RelayCommand]
     private void ShowAutoAssign()
     {
-        IsAdding = false;
-        IsConfirmingRemove = false;
+        ClosePanels();
         var (direct, free) = AutoAssignPlan();
         int assign = Math.Min(direct.Count, free.Count);
         AutoAssignTitle = string.Format(CultureInfo.CurrentCulture, AutoTitleFormat, direct.Count);
@@ -243,10 +305,17 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
             return;
         }
 
-        IsAdding = false;
-        IsAutoAssigning = false;
+        ClosePanels();
         RemoveText = string.Format(CultureInfo.CurrentCulture, RemoveInUseFormat, inUse);
         IsConfirmingRemove = true;
+    }
+
+    private void ClosePanels()
+    {
+        IsAdding = false;
+        IsEditing = false;
+        IsAutoAssigning = false;
+        IsConfirmingRemove = false;
     }
 
     private async Task CheckItemsAsync(List<ProxyItemViewModel> items)
@@ -301,39 +370,5 @@ public sealed partial class ProxiesViewModel : ObservableObject, IDisposable
     {
         int count = Items.Count(i => i.IsSelected);
         SelectionText = count > 0 ? string.Format(CultureInfo.CurrentCulture, SelectedFormat, count) : null;
-    }
-
-    private void ParsePreview()
-    {
-        var existing = _vault.ListProxies().Select(p => (p.Scheme, p.Host, p.Port, p.Username)).ToHashSet();
-        _parsed = [];
-        Preview.Clear();
-        string[] lines = (AddText ?? "").Split('\n');
-        for (int i = 0; i < lines.Length; i++)
-        {
-            if (string.IsNullOrWhiteSpace(lines[i]))
-            {
-                continue;
-            }
-
-            int lineNumber = i + 1;
-            if (!ProxyParser.TryParse(lines[i], out var proxy) || proxy is null)
-            {
-                Preview.Add(new ProxyPreviewLine(string.Format(CultureInfo.CurrentCulture, UnreadableFormat, lineNumber), false, false));
-            }
-            else if (existing.Contains((proxy.Scheme, proxy.Host, proxy.Port, proxy.Username))
-                     || _parsed.Any(p => p.Scheme == proxy.Scheme && p.Host == proxy.Host && p.Port == proxy.Port && p.Username == proxy.Username))
-            {
-                Preview.Add(new ProxyPreviewLine(string.Format(CultureInfo.CurrentCulture, DuplicateFormat, lineNumber), false, true));
-            }
-            else
-            {
-                _parsed.Add(proxy);
-                Preview.Add(new ProxyPreviewLine(proxy + (proxy.Username is null ? "" : " · " + Strings.WithLogin), true, false));
-            }
-        }
-
-        AddButtonText = string.Format(CultureInfo.CurrentCulture, AddCountFormat, _parsed.Count);
-        CanAdd = _parsed.Count > 0;
     }
 }
