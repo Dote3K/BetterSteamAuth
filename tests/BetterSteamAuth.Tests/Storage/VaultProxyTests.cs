@@ -104,6 +104,7 @@ public sealed class VaultProxyTests : IDisposable
         vault.Add(new MaFile { SharedSecret = "abc=", Session = new MaFileSession { SteamId = SteamId } }, proxyId, profile);
         vault.SetAccountGroup(SteamId, "farm-1");
         vault.SetAccountNote(SteamId, "main account");
+        vault.SetSteamPassword(SteamId, "fake-steam-password");
 
         var removed = vault.Remove(SteamId);
         Assert.Empty(vault.ListAccounts());
@@ -113,6 +114,9 @@ public sealed class VaultProxyTests : IDisposable
         Assert.Equal((proxyId, "farm-1", "main account"), (entry.ProxyId, vault.GetGroupName(entry.GroupId), entry.Note));
         Assert.Equal("abc=", vault.Load(SteamId).SharedSecret);
         Assert.NotNull(vault.GetDeviceProfile(SteamId));
+        Assert.Equal("fake-steam-password", vault.GetSteamPassword(SteamId));
+        vault.SetSteamPassword(SteamId, null);
+        Assert.False(vault.HasSteamPassword(SteamId));
         Assert.True(vault.VerifyPassword("pw"));
         Assert.False(vault.VerifyPassword("nope"));
     }
