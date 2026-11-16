@@ -234,9 +234,12 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     private void UpdatePendingText()
         => PendingText = string.Format(CultureInfo.CurrentCulture, _accepting ? AcceptedFormat : RejectedFormat, _secondsLeft);
 
-    private static string Age(long unixTime)
+    private static string Age(long unixTime) => Age(DateTimeOffset.FromUnixTimeSeconds(unixTime));
+
+    /// <summary>A short age: "now", "5m", "3h", "2d".</summary>
+    internal static string Age(DateTimeOffset when)
     {
-        var age = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeSeconds(unixTime);
+        var age = DateTimeOffset.UtcNow - when;
         return age.TotalMinutes < 1 ? Strings.Now
             : age.TotalHours < 1 ? string.Create(CultureInfo.CurrentCulture, $"{(int)age.TotalMinutes}m")
             : age.TotalDays < 1 ? string.Create(CultureInfo.CurrentCulture, $"{(int)age.TotalHours}h")

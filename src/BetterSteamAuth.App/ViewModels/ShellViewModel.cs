@@ -337,6 +337,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
+    public void ShowRemovedAccounts() => SwitchTo(new RemovedAccountsViewModel(this));
+
     public void ShowLogin(ulong steamId, string accountName, Action? done = null)
         => SwitchTo(new LoginViewModel(this, steamId, accountName, done ?? ShowMain));
 

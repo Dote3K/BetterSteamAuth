@@ -59,6 +59,19 @@
                         AutomationProperties.Name="{x:Static res:Strings.CheckInBackground}" />
         </Grid>
 
+        <!-- Data: backups, restore, export, removed accounts. -->
+        <StackPanel Spacing="4" IsVisible="{Binding HasRemoved}">
+          <TextBlock Classes="caption" Text="{x:Static res:Strings.Data}" Margin="0,0,0,8" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
+            <StackPanel Spacing="2">
+              <TextBlock FontWeight="SemiBold" Text="{Binding RemovedLabel}" />
+              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
+            </StackPanel>
+            <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.Open}" Command="{Binding OpenRemovedCommand}"
+                    AutomationProperties.Name="{Binding RemovedLabel}" />
+          </Grid>
+        </StackPanel>
+
         <TextBlock Classes="caption" Text="{x:Static res:Strings.AdvancedNetwork}" Margin="0,0,0,8" />
 
         <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">

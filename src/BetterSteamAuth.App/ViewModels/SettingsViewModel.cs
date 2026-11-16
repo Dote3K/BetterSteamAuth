@@ -13,7 +13,7 @@ public sealed record Choice<T>(T Value, string Label)
     public override string ToString() => Label;
 }
 
-/// <summary>Settings page: security, confirmations, Advanced → Network.</summary>
+/// <summary>Settings page: security, confirmations, data, Advanced → Network.</summary>
 public sealed partial class SettingsViewModel : ObservableObject
 {
     private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
@@ -31,7 +31,20 @@ public sealed partial class SettingsViewModel : ObservableObject
         AutoLockChoices = [new(0, Strings.Never), .. AutoLockMinutes.Select(m => new Choice<int>(m, string.Format(CultureInfo.CurrentCulture, MinutesFormat, m)))];
         int minutes = shell.AutoLockMinutes;
         AutoLock = AutoLockChoices.FirstOrDefault(c => c.Value == minutes) ?? AutoLockChoices.Single(c => c.Value == ShellViewModel.DefaultAutoLockMinutes);
+
+        // Names come from the files in encrypted vaults; the count alone is enough here.
+        RemovedCount = shell.Vault?.ListRemoved().Count ?? 0;
     }
+
+    /// <summary>Settings → Data → Removed accounts (N); hidden when there are none.</summary>
+    public int RemovedCount { get; }
+
+    public bool HasRemoved => RemovedCount > 0;
+
+    public string RemovedLabel => string.Create(CultureInfo.CurrentCulture, $"{Strings.RemovedAccounts} ({RemovedCount})");
+
+    [RelayCommand]
+    private void OpenRemoved() => _shell.ShowRemovedAccounts();
 
     /// <summary>Security settings only apply when the data has a password.</summary>
     public bool HasPassword => _shell.Vault?.IsEncrypted == true;

@@ -343,4 +343,21 @@
   <data name="MoveRevocationBody" xml:space="preserve"><value>This is a new code. The one from your phone no longer works.</value></data>
   <data name="MovedFormat" xml:space="preserve"><value>{0} moved to BetterSteamAuth</value></data>
   <data name="MoveDoneBody" xml:space="preserve"><value>The Steam app on your phone no longer makes codes for this account.</value></data>
+  <data name="Data" xml:space="preserve"><value>Data</value></data>
+  <data name="RemovedAccounts" xml:space="preserve"><value>Removed accounts</value></data>
+  <data name="RemovedAccountsBody" xml:space="preserve"><value>Accounts taken out of the app. Restore brings one back with its proxy, group, and note.</value></data>
+  <data name="RemovedAccountsEmpty" xml:space="preserve"><value>No removed accounts.</value></data>
+  <data name="RemovedReasonRemoved" xml:space="preserve"><value>Removed</value></data>
+  <data name="RemovedReasonLinkCancelled" xml:space="preserve"><value>Link cancelled</value></data>
+  <data name="RemovedReasonAuthenticator" xml:space="preserve"><value>Authenticator removed</value></data>
+  <data name="RemovedCantRead" xml:space="preserve"><value>Can't be read</value></data>
+  <data name="RemovedCodesDead" xml:space="preserve"><value>Codes no longer work</value></data>
+  <data name="RemovedAlreadyInApp" xml:space="preserve"><value>Already in the app</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="DeletePermanently" xml:space="preserve"><value>Delete permanently</value></data>
+  <data name="DeleteRemovedFormat" xml:space="preserve"><value>Delete {0}'s maFile permanently? This can't be undone.</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="RestoreRemovedFailed" xml:space="preserve"><value>Couldn't restore this account. Its file may have been moved or changed.</value></data>
+  <data name="DeleteRemovedFailed" xml:space="preserve"><value>Couldn't delete the file.</value></data>
+  <data name="Open" xml:space="preserve"><value>Open</value></data>
 </root>

@@ -1,0 +1,78 @@
+<!-- Settings → Data → Removed accounts. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.RemovedAccountsView"
+             x:DataType="vm:RemovedAccountsViewModel"
+             x:Name="Root">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.RemovedAccounts}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel MaxWidth="640" Margin="24,20" Spacing="12">
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <TextBlock Classes="secondary" Margin="0,24,0,0" HorizontalAlignment="Center"
+                   Text="{x:Static res:Strings.RemovedAccountsEmpty}" IsVisible="{Binding IsEmpty}" />
+
+        <Border Classes="panel" IsVisible="{Binding !IsEmpty}">
+          <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RemovedItemViewModel">
+                <Border Classes="divider-bottom" Padding="16,12">
+                  <StackPanel Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                      <StackPanel Spacing="2" VerticalAlignment="Center">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="caption secondary" Text="{Binding Detail}" />
+                      </StackPanel>
+                      <TextBlock Grid.Column="1" Classes="secondary" VerticalAlignment="Center"
+                                 Text="{Binding Status}" IsVisible="{Binding HasStatus}" />
+                      <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary" VerticalAlignment="Center"
+                              Content="{x:Static res:Strings.Restore}" IsVisible="{Binding CanRestore}"
+                              Command="{Binding #Root.((vm:RemovedAccountsViewModel)DataContext).RestoreCommand}" CommandParameter="{Binding}" />
+                      <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8" VerticalAlignment="Center"
+                              AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
+                        <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconMore}" />
+                        <Button.Flyout>
+                          <MenuFlyout Placement="BottomEdgeAlignedRight">
+                            <MenuItem Header="{x:Static res:Strings.DeletePermanently}"
+                                      Command="{Binding #Root.((vm:RemovedAccountsViewModel)DataContext).AskDeleteCommand}" CommandParameter="{Binding}" />
+                          </MenuFlyout>
+                        </Button.Flyout>
+                      </Button>
+                    </Grid>
+
+                    <!-- Inline confirmation before the only hard delete in the app -->
+                    <Border Classes="banner-danger" Padding="14,12" IsVisible="{Binding IsConfirmingDelete}">
+                      <StackPanel Spacing="10">
+                        <TextBlock TextWrapping="Wrap" Text="{Binding DeleteTitle}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                          <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelDeleteCommand}" />
+                          <Button Theme="{DynamicResource SolidButton}" Classes="Danger" Content="{x:Static res:Strings.Delete}"
+                                  Command="{Binding #Root.((vm:RemovedAccountsViewModel)DataContext).ConfirmDeleteCommand}" CommandParameter="{Binding}" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>
