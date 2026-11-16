@@ -15,21 +15,52 @@ public enum ConfirmationKind
     Dangerous,
 }
 
-/// <summary>One item from <c>mobileconf/getlist</c>.</summary>
+/// <summary>
+/// One item from <c>mobileconf/getlist</c>. Steam sends <c>id</c>, <c>nonce</c> and <c>creator_id</c>
+/// as strings (as ASF and steamguard-cli read them), so numbers are also read from strings.
+/// </summary>
 public sealed class MobileConfirmation
 {
-    [JsonPropertyName("id")] public ulong Id { get; set; }
-    [JsonPropertyName("nonce")] public ulong Nonce { get; set; }
+    [JsonPropertyName("id"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public ulong Id { get; set; }
+    [JsonPropertyName("nonce"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public ulong Nonce { get; set; }
     [JsonPropertyName("type")] public int Type { get; set; }
     [JsonPropertyName("type_name")] public string? TypeName { get; set; }
-    [JsonPropertyName("creator_id")] public ulong CreatorId { get; set; }
-    [JsonPropertyName("creation_time")] public long CreationTime { get; set; }
+    [JsonPropertyName("creator_id"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public ulong CreatorId { get; set; }
+    [JsonPropertyName("creation_time"), JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] public long CreationTime { get; set; }
     [JsonPropertyName("headline")] public string? Headline { get; set; }
     [JsonPropertyName("summary")] public List<string> Summary { get; set; } = [];
     [JsonPropertyName("icon")] public string? Icon { get; set; }
     [JsonPropertyName("multi")] public bool Multi { get; set; }
 
-    // Steam's EMobileConfirmationType: 2 = trade, 3 = market listing.
+    /// <summary>Fields we don't map yet, kept so new ones (such as warnings) can be found later.</summary>
+    [JsonExtensionData] public Dictionary<string, JsonElement>? Extra { get; set; }
+
+    /// <summary>
+    /// The warning Steam shows on the item (the yellow notice in the mobile app), if any. Read from a
+    /// <c>warn</c> field, as text or a list of texts. No open-source client documents this field yet.
+    /// </summary>
+    [JsonIgnore]
+    public string? Warning
+    {
+        get
+        {
+            if (Extra is null || !Extra.TryGetValue("warn", out var warn))
+            {
+                return null;
+            }
+
+            return warn.ValueKind switch
+            {
+                JsonValueKind.String when !string.IsNullOrWhiteSpace(warn.GetString()) => warn.GetString(),
+                JsonValueKind.Array => string.Join(" ", warn.EnumerateArray()
+                    .Where(e => e.ValueKind == JsonValueKind.String).Select(e => e.GetString())) is { Length: > 0 } text ? text : null,
+                _ => null,
+            };
+        }
+    }
+
+    // Steam's EMobileConfirmationType: 2 = trade, 3 = market listing; 5 phone change, 6 recovery,
+    // 9 API key, 11 Steam Family and anything unknown are account-level.
     [JsonIgnore]
     public ConfirmationKind Kind => Type switch
     {
