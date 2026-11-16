@@ -412,4 +412,19 @@
   <data name="ExportFolderHasSda" xml:space="preserve"><value>This folder already has SDA data. Pick an empty folder.</value></data>
   <data name="ExportFailed" xml:space="preserve"><value>Couldn't write the files. Check the folder and try again.</value></data>
   <data name="ExportedFormat" xml:space="preserve"><value>Exported {0} accounts</value></data>
+  <data name="AutoBackupTitle" xml:space="preserve"><value>Back up automatically</value></data>
+  <data name="AutoBackupBody" xml:space="preserve"><value>Makes a new backup only when your data changed since the last one.</value></data>
+  <data name="AutoBackupNeedsPassword" xml:space="preserve"><value>Set an app password first, so backups are encrypted.</value></data>
+  <data name="AutoBackupWhen" xml:space="preserve"><value>When data changes</value></data>
+  <data name="AutoBackupAsap" xml:space="preserve"><value>As soon as possible</value></data>
+  <data name="AutoBackupDaily" xml:space="preserve"><value>At most once a day</value></data>
+  <data name="AutoBackupWeekly" xml:space="preserve"><value>At most once a week</value></data>
+  <data name="AutoBackupKeep" xml:space="preserve"><value>Keep</value></data>
+  <data name="KeepLastFormat" xml:space="preserve"><value>Last {0}</value></data>
+  <data name="KeepAll" xml:space="preserve"><value>All</value></data>
+  <data name="AutoBackupKeepBody" xml:space="preserve"><value>Older automatic backups are deleted. Manual backups never are.</value></data>
+  <data name="AutoBackupFolder" xml:space="preserve"><value>Folder</value></data>
+  <data name="LastAutoBackupFormat" xml:space="preserve"><value>Last automatic backup: {0}</value></data>
+  <data name="AutoBackupFailed" xml:space="preserve"><value>Automatic backup failed</value></data>
+  <data name="ChooseBackupFolder" xml:space="preserve"><value>Folder for automatic backups</value></data>
 </root>

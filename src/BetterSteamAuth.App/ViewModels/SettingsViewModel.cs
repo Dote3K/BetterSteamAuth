@@ -18,6 +18,9 @@ public sealed partial class SettingsViewModel : ObservableObject
 {
     private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
     private static readonly int[] AutoLockMinutes = [5, 15, 30, 60];
+    private static readonly int[] KeepCounts = [5, 10, 20, 50];
+    private static readonly CompositeFormat KeepLastFormat = CompositeFormat.Parse(Strings.KeepLastFormat);
+    private static readonly CompositeFormat LastAutoBackupFormat = CompositeFormat.Parse(Strings.LastAutoBackupFormat);
 
     private readonly ShellViewModel _shell;
 
@@ -35,6 +38,85 @@ public sealed partial class SettingsViewModel : ObservableObject
         // Names come from the files in encrypted vaults; the count alone is enough here.
         RemovedCount = shell.Vault?.ListRemoved().Count ?? 0;
         LastBackupText = shell.Vault is { } vault ? BackupViewModel.LastBackup(vault) : null;
+
+        var auto = shell.AutoBackup;
+        KeepChoices = [.. KeepCounts.Select(n => new Choice<int>(n, string.Format(CultureInfo.CurrentCulture, KeepLastFormat, n))), new(AutoBackup.KeepAll, Strings.KeepAll)];
+        AutoBackupFrequency = FrequencyChoices.Single(c => c.Value == auto.Frequency);
+        AutoBackupKeep = KeepChoices.FirstOrDefault(c => c.Value == auto.Keep) ?? KeepChoices[1];
+        AutoBackupFolder = auto.Folder;
+        LastAutoBackupText = auto.LastAt is { } at
+            ? string.Format(CultureInfo.CurrentCulture, LastAutoBackupFormat, ConfirmationItemViewModel.Age(at))
+            : null;
+    }
+
+    // Automatic backups
+    public bool AutoBackupAvailable => _shell.AutoBackup.IsAvailable;
+
+    public bool AutoBackupUnavailable => !AutoBackupAvailable;
+
+    public bool AutoBackupEnabled
+    {
+        get => _shell.AutoBackup.Enabled;
+        set
+        {
+            if (value != _shell.AutoBackup.Enabled)
+            {
+                _shell.AutoBackup.Enabled = value;
+                OnPropertyChanged();
+                if (value)
+                {
+                    _shell.CheckAutoBackup();
+                }
+            }
+        }
+    }
+
+    public IReadOnlyList<Choice<AutoBackupFrequency>> FrequencyChoices { get; } =
+    [
+        new(Services.AutoBackupFrequency.AsSoonAsPossible, Strings.AutoBackupAsap),
+        new(Services.AutoBackupFrequency.Daily, Strings.AutoBackupDaily),
+        new(Services.AutoBackupFrequency.Weekly, Strings.AutoBackupWeekly),
+    ];
+
+    [ObservableProperty]
+    public partial Choice<AutoBackupFrequency> AutoBackupFrequency { get; set; }
+
+    partial void OnAutoBackupFrequencyChanged(Choice<AutoBackupFrequency> value)
+    {
+        if (value is not null && value.Value != _shell.AutoBackup.Frequency)
+        {
+            _shell.AutoBackup.Frequency = value.Value;
+        }
+    }
+
+    public IReadOnlyList<Choice<int>> KeepChoices { get; }
+
+    [ObservableProperty]
+    public partial Choice<int> AutoBackupKeep { get; set; }
+
+    partial void OnAutoBackupKeepChanged(Choice<int> value)
+    {
+        if (value is not null && value.Value != _shell.AutoBackup.Keep)
+        {
+            _shell.AutoBackup.Keep = value.Value;
+        }
+    }
+
+    [ObservableProperty]
+    public partial string AutoBackupFolder { get; private set; }
+
+    public string? LastAutoBackupText { get; }
+
+    public bool HasLastAutoBackup => LastAutoBackupText is not null;
+
+    [RelayCommand]
+    private async Task ChangeAutoBackupFolderAsync()
+    {
+        if (await _shell.Platform.PickFolderAsync(Strings.ChooseBackupFolder).ConfigureAwait(true) is { } folder)
+        {
+            _shell.AutoBackup.Folder = folder;
+            AutoBackupFolder = folder;
+        }
     }
 
     /// <summary>"Last backup: 3d" under Back up, or the generic description if there's never been one.</summary>

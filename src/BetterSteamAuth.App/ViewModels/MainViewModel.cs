@@ -188,6 +188,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool HasRemoved => RemovedText is not null;
 
+    /// <summary>The last automatic backup failed: one quiet warning until the next one works.</summary>
+    [ObservableProperty]
+    public partial bool AutoBackupFailed { get; private set; }
+
     public bool CanUndoRemove => _removed is not null;
 
     [RelayCommand]
@@ -459,6 +463,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void Tick()
     {
+        AutoBackupFailed = _shell.AutoBackup.LastFailed;
         if (RemovedText is not null && --_removedSecondsLeft <= 0)
         {
             RemovedText = null;

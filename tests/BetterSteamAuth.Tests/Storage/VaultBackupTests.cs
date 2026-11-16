@@ -114,6 +114,23 @@ public sealed class VaultBackupTests : IDisposable
         Assert.Equal((ImportStatus.Ready, "aaa=", (ulong?)First), (read.Status, read.MaFile?.SharedSecret, read.SteamId));
     }
 
+    [Fact]
+    public void The_fingerprint_ignores_access_tokens_and_backup_settings_but_not_real_changes()
+    {
+        using var vault = Vault.Create(Path.Combine(_root, "source"), "pw", FastKdf);
+        var maFile = NewMaFile(First, "first", "aaa=");
+        vault.Add(maFile);
+        string before = vault.ComputeFingerprint();
+
+        maFile.Session!.AccessToken = "fake-new-access-token";
+        vault.Save(maFile);
+        vault.SetSetting("backup.last_auto_at", "123");
+        Assert.Equal(before, vault.ComputeFingerprint());
+
+        vault.SetAccountNote(First, "changed");
+        Assert.NotEqual(before, vault.ComputeFingerprint());
+    }
+
     private static MaFile NewMaFile(ulong steamId, string name, string sharedSecret)
         => new() { AccountName = name, SharedSecret = sharedSecret, Session = new MaFileSession { SteamId = steamId } };
 }

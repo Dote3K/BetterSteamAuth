@@ -22,6 +22,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     private bool _proxyChecksRunning;
     private NetworkPolicy _network = new(new NetworkOptions());
     private readonly Avalonia.Threading.DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(30) };
+    private readonly Avalonia.Threading.DispatcherTimer _autoBackupTimer = new() { Interval = TimeSpan.FromHours(1) };
     private DateTime _lastActivity = DateTime.UtcNow;
     private TaskCompletionSource _checksAllowed = Allowed();
     private bool _minimized;
@@ -33,6 +34,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         Platform = platform;
         _idleTimer.Tick += (_, _) => LockIfIdle();
         _idleTimer.Start();
+        AutoBackup = new AutoBackup(() => Vault);
+        _autoBackupTimer.Tick += (_, _) => CheckAutoBackup();
+        _autoBackupTimer.Start();
 
         if (!Vault.Exists(dataFolder))
         {
@@ -293,6 +297,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         SwitchTo(new MainViewModel(this));
         StartProxyChecks();
+        CheckAutoBackup();
     }
 
     /// <summary>Main window with this account selected.</summary>
@@ -300,6 +305,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         SwitchTo(new MainViewModel(this, selectSteamId));
         StartProxyChecks();
+        CheckAutoBackup();
     }
 
     /// <summary>Main window right after an account was removed, offering Undo.</summary>
@@ -307,6 +313,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         SwitchTo(new MainViewModel(this, removed: (removed, name)));
         StartProxyChecks();
+        CheckAutoBackup();
     }
 
     /// <summary>Main window with a short notice and no Undo (e.g. after removing the authenticator).</summary>
@@ -314,6 +321,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         SwitchTo(new MainViewModel(this, notice: notice));
         StartProxyChecks();
+        CheckAutoBackup();
     }
 
     public void ShowAccountDetails(ulong steamId) => SwitchTo(new AccountDetailsViewModel(this, steamId));
@@ -422,6 +430,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _idleTimer.Stop();
+        _autoBackupTimer.Stop();
         (CurrentPage as IDisposable)?.Dispose();
         CloseConnections();
         _background.Dispose();
@@ -508,6 +517,15 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _connections.Clear();
         _proxyChecksRunning = false;
     }
+
+    /// <summary>Optional automatic backups.</summary>
+    public AutoBackup AutoBackup { get; }
+
+    /// <summary>
+    /// Makes an automatic backup if it's on, due, and the data changed. Runs on start (after unlocking), whenever the
+    /// main window is shown again (after adding, removing, or restoring accounts), and every hour.
+    /// </summary>
+    public void CheckAutoBackup() => _ = AutoBackup.RunIfDueAsync(AppVersion);
 
     /// <summary>Background proxy checks about every 15 minutes, with jitter, while unlocked.</summary>
     private void StartProxyChecks()

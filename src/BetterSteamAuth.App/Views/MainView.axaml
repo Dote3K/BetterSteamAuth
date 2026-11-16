@@ -55,6 +55,16 @@
     <ProgressBar DockPanel.Dock="Top" Height="2" MinHeight="2" CornerRadius="0" IsVisible="{Binding HasAccounts}"
                  Minimum="0" Maximum="30" Value="{Binding SecondsRemaining}" />
 
+    <!-- Automatic backup failed · Details -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding AutoBackupFailed}">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Static res:Strings.AutoBackupFailed}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                Content="{x:Static res:Strings.Details}" Command="{Binding OpenSettingsCommand}" />
+      </Grid>
+    </Border>
+
     <!-- Removed {name} · Undo -->
     <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding HasRemoved}">
       <Grid ColumnDefinitions="*,Auto">
