@@ -203,4 +203,38 @@
   <data name="MinutesFormat" xml:space="preserve"><value>{0} minutes</value></data>
   <data name="Never" xml:space="preserve"><value>Never</value></data>
   <data name="FixUnreadableLines" xml:space="preserve"><value>Fix or remove the lines that can't be read. Proxies are assigned in order.</value></data>
+  <data name="AccountName" xml:space="preserve"><value>Account name</value></data>
+  <data name="LinkSignInSubtitle" xml:space="preserve"><value>Sign in to the Steam account you want to protect.</value></data>
+  <data name="UseAProxy" xml:space="preserve"><value>Use a proxy</value></data>
+  <data name="PasteNewProxy" xml:space="preserve"><value>Paste a new proxy</value></data>
+  <data name="ProxyPlaceholder" xml:space="preserve"><value>socks5://user:pass@host:port</value></data>
+  <data name="LinkEnterAccount" xml:space="preserve"><value>Enter the account name and password.</value></data>
+  <data name="LinkAlreadyAdded" xml:space="preserve"><value>This account is already in BetterSteamAuth.</value></data>
+  <data name="LinkAlreadyLinked" xml:space="preserve"><value>This account already uses Steam Guard Mobile Authenticator on another device. Remove it there first, or import its maFile.</value></data>
+  <data name="LinkPhoneRequired" xml:space="preserve"><value>Steam requires a phone number for this account. Add one in your Steam account settings, then try again.</value></data>
+  <data name="LinkSaveFailed" xml:space="preserve"><value>Couldn't save the account. Nothing was activated.</value></data>
+  <data name="RevocationTitle" xml:space="preserve"><value>Save your revocation code</value></data>
+  <data name="RevocationBody" xml:space="preserve"><value>It's the only way back into the account if this app or its data is lost.</value></data>
+  <data name="SavedRevocationCode" xml:space="preserve"><value>I've saved this code somewhere safe</value></data>
+  <data name="LinkSaveCodeFirst" xml:space="preserve"><value>Save the revocation code first, then check the box.</value></data>
+  <data name="ActivateTitle" xml:space="preserve"><value>Enter the code from Steam</value></data>
+  <data name="LinkSentToEmail" xml:space="preserve"><value>Steam sent a code to your email.</value></data>
+  <data name="LinkSentToPhoneFormat" xml:space="preserve"><value>Steam sent a code to your phone ending {0}.</value></data>
+  <data name="ActivationCode" xml:space="preserve"><value>Activation code</value></data>
+  <data name="Activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="Activating" xml:space="preserve"><value>Activating…</value></data>
+  <data name="LinkEnterActivationCode" xml:space="preserve"><value>Enter the code Steam sent you.</value></data>
+  <data name="LinkBadActivationCode" xml:space="preserve"><value>That code didn't work. Check it and try again.</value></data>
+  <data name="LinkCodesRejected" xml:space="preserve"><value>Steam didn't accept this app's codes. Check that this computer's clock is right, then try again.</value></data>
+  <data name="LinkNetwork" xml:space="preserve"><value>Couldn't reach Steam. Your progress is saved; try again.</value></data>
+  <data name="LinkProgressSaved" xml:space="preserve"><value>Your progress is saved; try again.</value></data>
+  <data name="LinkStatusUnknown" xml:space="preserve"><value>Couldn't check the link with Steam. Enter the code, or try again later.</value></data>
+  <data name="StartOver" xml:space="preserve"><value>Start over</value></data>
+  <data name="LinkCheckingStatus" xml:space="preserve"><value>Checking the link with Steam…</value></data>
+  <data name="LinkProtectedFormat" xml:space="preserve"><value>{0} is protected</value></data>
+  <data name="LinkDoneBody" xml:space="preserve"><value>Steam Guard codes now come from this app.</value></data>
+  <data name="LinkAlreadyActive" xml:space="preserve"><value>Activation had already gone through.</value></data>
+  <data name="LinkingNotFinished" xml:space="preserve"><value>Linking not finished</value></data>
+  <data name="LinkNewAuthenticatorBody" xml:space="preserve"><value>Set up Steam Guard on an account</value></data>
+  <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
 </root>

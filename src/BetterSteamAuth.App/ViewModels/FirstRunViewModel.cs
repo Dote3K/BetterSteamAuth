@@ -17,6 +17,7 @@ public enum StartChoice
 {
     ImportFromSda,
     ImportMaFiles,
+    Link,
     AddLater,
 }
 
@@ -40,7 +41,7 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
     public bool IsPassword => Step == FirstRunStep.Password;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ChoiceIsSda), nameof(ChoiceIsFiles), nameof(ChoiceIsLater))]
+    [NotifyPropertyChangedFor(nameof(ChoiceIsSda), nameof(ChoiceIsFiles), nameof(ChoiceIsLink), nameof(ChoiceIsLater))]
     public partial StartChoice Choice { get; set; } = StartChoice.ImportFromSda;
 
     public bool ChoiceIsSda
@@ -53,6 +54,12 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
     {
         get => Choice == StartChoice.ImportMaFiles;
         set { if (value) Choice = StartChoice.ImportMaFiles; }
+    }
+
+    public bool ChoiceIsLink
+    {
+        get => Choice == StartChoice.Link;
+        set { if (value) Choice = StartChoice.Link; }
     }
 
     public bool ChoiceIsLater
@@ -148,6 +155,9 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
                 break;
             case StartChoice.ImportMaFiles:
                 shell.ShowImport(ImportSource.MaFiles);
+                break;
+            case StartChoice.Link:
+                shell.ShowLink();
                 break;
             default:
                 shell.ShowMain();

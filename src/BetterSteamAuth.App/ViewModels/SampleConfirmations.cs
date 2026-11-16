@@ -37,5 +37,20 @@ internal static class SampleConfirmations
         return (new TradeOfferDetails(76561198000000999, give, receive),
             new PartnerProfile(confirmation.Headline ?? "partner", null, created, false, false, false, confirmation.Headline == "buyer_88"));
     }
+
+    /// <summary>A fake AddAuthenticator answer with generated (not real) secrets.</summary>
+    public static AddResult LinkResult(string deviceId)
+    {
+        static string Secret() => Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(20));
+        return new AddResult(AddStatus.Added, new Core.Accounts.MaFile
+        {
+            SharedSecret = Secret(),
+            IdentitySecret = Secret(),
+            RevocationCode = "R" + System.Security.Cryptography.RandomNumberGenerator.GetInt32(10000, 99999),
+            SerialNumber = "1234567890",
+            DeviceId = deviceId,
+            FullyEnrolled = false,
+        }, SentToEmail: true, PhoneHint: null);
+    }
 }
 #endif

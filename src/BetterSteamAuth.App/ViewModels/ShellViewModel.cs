@@ -199,6 +199,10 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowUnlock() => SwitchTo(new UnlockViewModel(this));
 
+    /// <summary>Opens the link wizard: a new link, or resuming an unfinished one.</summary>
+    public void ShowLink(ulong? resumeSteamId = null, string? accountName = null)
+        => SwitchTo(new LinkViewModel(this, resumeSteamId) { AccountName = accountName ?? "" });
+
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
     public void ShowLogin(ulong steamId, string accountName) => SwitchTo(new LoginViewModel(this, steamId, accountName));

@@ -26,6 +26,13 @@
         </StackPanel>
       </RadioButton>
       <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"
+                   IsChecked="{Binding ChoiceIsLink}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.LinkNewAuthenticator}" />
+          <TextBlock Classes="secondary" Text="{x:Static res:Strings.LinkNewAuthenticatorBody}" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"
                    IsChecked="{Binding ChoiceIsLater}">
         <StackPanel Spacing="2">
           <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AddLater}" />

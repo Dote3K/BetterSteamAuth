@@ -37,7 +37,15 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
 
     /// <summary>Whether the problem is fixed by signing in again.</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRefreshProblem))]
     public partial bool ProblemNeedsLogin { get; set; }
+
+    /// <summary>Linked in this app but not activated yet.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRefreshProblem))]
+    public partial bool IsLinkPending { get; set; }
+
+    public bool CanRefreshProblem => !ProblemNeedsLogin && !IsLinkPending;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ShowNothingToConfirm))]

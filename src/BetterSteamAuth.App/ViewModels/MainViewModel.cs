@@ -44,7 +44,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 entry.SteamId,
                 maFile.AccountName ?? entry.SteamId.ToString(CultureInfo.InvariantCulture),
                 Convert.FromBase64String(maFile.SharedSecret),
-                shell.ConnectionFor(entry.SteamId).Clock));
+                shell.ConnectionFor(entry.SteamId).Clock)
+            {
+                // Only accounts linked here (they have a device profile) can be unfinished; imported
+                // maFiles from other tools may lack fully_enrolled.
+                IsLinkPending = !maFile.FullyEnrolled && vault.GetDeviceProfile(entry.SteamId) is not null,
+            });
         }
 
         ApplyFilter();
@@ -161,6 +166,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private void LinkNew() => _shell.ShowLink();
+
+    [RelayCommand]
+    private void FinishLink(AccountItemViewModel? account)
+    {
+        if ((account ?? SelectedAccount) is { } target)
+        {
+            _shell.ShowLink(target.SteamId);
+        }
+    }
+
+    [RelayCommand]
     private void Relogin(AccountItemViewModel? account)
     {
         account ??= SelectedAccount;
@@ -271,6 +288,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         if (_shell.Vault is not { IsUnlocked: true } vault)
         {
+            return;
+        }
+
+        if (account.IsLinkPending)
+        {
+            // Not active on Steam yet: nothing to load until the link is finished.
+            SetProblem(account, Strings.LinkingNotFinished, needsLogin: false);
             return;
         }
 
