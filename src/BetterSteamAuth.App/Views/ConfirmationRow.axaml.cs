@@ -1,5 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.VisualTree;
+using BetterSteamAuth.App.ViewModels;
 
 namespace BetterSteamAuth.App.Views;
 
@@ -12,6 +15,21 @@ public partial class ConfirmationRow : UserControl
     public ConfirmationRow()
     {
         InitializeComponent();
+        Tapped += OnTapped;
+    }
+
+    private void OnTapped(object? sender, TappedEventArgs e)
+    {
+        // ✓ / ✕ and other buttons handle their own clicks.
+        if (e.Source is Visual source && source.FindAncestorOfType<Button>(includeSelf: true) is not null)
+        {
+            return;
+        }
+
+        if (DataContext is ConfirmationItemViewModel item)
+        {
+            item.OpenDetailCommand.Execute(null);
+        }
     }
 
     public bool ShowAccount

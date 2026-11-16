@@ -1,0 +1,178 @@
+<!-- Confirmation detail. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.ConfirmationDetailView"
+             x:DataType="vm:ConfirmationDetailViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:TradeItemViewModel">
+      <Border Classes="item-tile" Width="132" Margin="0,0,10,10" ToolTip.Tip="{Binding Name}">
+        <StackPanel Spacing="6">
+          <Border Classes="item-image">
+            <Panel>
+              <Image Source="{Binding Image}" Stretch="Uniform" Margin="6" />
+              <PathIcon Width="20" Height="20" Classes="hint-icon" Data="{StaticResource SemiIconImage}"
+                        IsVisible="{Binding Image, Converter={x:Static ObjectConverters.IsNull}}" />
+            </Panel>
+          </Border>
+          <TextBlock FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap" MaxLines="2" Text="{Binding Name}" />
+          <TextBlock Classes="caption" TextTrimming="CharacterEllipsis" Text="{Binding Type}" />
+        </StackPanel>
+      </Border>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <DockPanel>
+    <!-- Header -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+          <TextBlock Classes="title" TextTrimming="CharacterEllipsis" Text="{Binding Title}" />
+          <TextBlock Classes="caption hint" Text="{Binding Subtitle}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Footer -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="24,12">
+      <Panel>
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" IsVisible="{Binding !Item.IsPending}">
+          <Button Content="{x:Static res:Strings.Back}" Command="{Binding BackCommand}" />
+          <Button Grid.Column="2" Content="{x:Static res:Strings.Reject}" Command="{Binding RejectCommand}" IsEnabled="{Binding Item.IsIdle}" />
+          <Button Grid.Column="3" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                  Content="{Binding AcceptLabel}" Command="{Binding AcceptCommand}" IsEnabled="{Binding Item.IsIdle}" />
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding Item.IsPending}">
+          <TextBlock VerticalAlignment="Center" Text="{Binding Item.PendingText}" />
+          <Button Grid.Column="1" Content="{x:Static res:Strings.Undo}" Command="{Binding UndoCommand}" />
+        </Grid>
+      </Panel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel Margin="24,20" Spacing="20" MaxWidth="760" HorizontalAlignment="Stretch">
+
+        <!-- ===== Trade ===== -->
+        <StackPanel Spacing="20" IsVisible="{Binding Item.IsTrade}">
+          <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsLoading}">
+            <TextBlock Classes="secondary" Text="{x:Static res:Strings.LoadingDetails}" />
+          </StackPanel>
+          <Border Classes="banner-warning" Padding="12,10" IsVisible="{Binding LoadFailed}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+              <PathIcon Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Static res:Strings.DetailsFailed}" />
+              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small"
+                      Content="{x:Static res:Strings.Retry}" Command="{Binding RetryCommand}" />
+            </Grid>
+          </Border>
+
+          <!-- Partner -->
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" IsVisible="{Binding HasDetails}">
+            <Border Classes="avatar" VerticalAlignment="Top">
+              <Panel>
+                <Image Source="{Binding PartnerAvatar}" Stretch="UniformToFill" />
+                <PathIcon Width="22" Height="22" Classes="hint-icon" Data="{StaticResource SemiIconUser}"
+                          IsVisible="{Binding PartnerAvatar, Converter={x:Static ObjectConverters.IsNull}}" />
+              </Panel>
+            </Border>
+            <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+              <Button Theme="{DynamicResource BorderlessButton}" Padding="0" HorizontalAlignment="Left"
+                      Command="{Binding OpenProfileCommand}" ToolTip.Tip="{x:Static res:Strings.OpenProfile}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Classes="title" Text="{Binding PartnerName}" />
+                  <PathIcon Width="12" Height="12" Classes="hint-icon" Data="{StaticResource SemiIconExternalOpen}" />
+                </StackPanel>
+              </Button>
+              <TextBlock Classes="secondary" Text="{Binding PartnerSince}"
+                         IsVisible="{Binding PartnerSince, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              <ItemsControl ItemsSource="{Binding PartnerFlags}" Margin="0,4,0,0">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" Margin="0,2">
+                      <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+                      <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Grid>
+
+          <!-- Steam's own warning -->
+          <Border Classes="banner-warning" Padding="12,10" IsVisible="{Binding Item.HasWarning}">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+              <PathIcon Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+              <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Item.Warning}" />
+            </Grid>
+          </Border>
+
+          <!-- Items -->
+          <StackPanel Spacing="8" IsVisible="{Binding HasDetails}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconArrowUp}" />
+              <TextBlock FontWeight="SemiBold" Text="{Binding GiveHeader}" />
+            </StackPanel>
+            <ItemsControl ItemsSource="{Binding Give}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            </ItemsControl>
+          </StackPanel>
+          <StackPanel Spacing="8" IsVisible="{Binding HasDetails}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="success" Data="{StaticResource SemiIconArrowDown}" />
+              <TextBlock FontWeight="SemiBold" Text="{Binding ReceiveHeader}" />
+            </StackPanel>
+            <TextBlock Classes="secondary" Text="{x:Static res:Strings.GivesAwayNote}" IsVisible="{Binding ReceivesNothing}" />
+            <ItemsControl ItemsSource="{Binding Receive}">
+              <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+            </ItemsControl>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- ===== Market ===== -->
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16" IsVisible="{Binding Item.IsMarket}">
+          <Border Classes="item-image" Width="112" Height="84">
+            <Panel>
+              <Image Source="{Binding MarketImage}" Stretch="Uniform" Margin="6" />
+              <PathIcon Width="22" Height="22" Classes="hint-icon" Data="{StaticResource SemiIconImage}"
+                        IsVisible="{Binding MarketImage, Converter={x:Static ObjectConverters.IsNull}}" />
+            </Panel>
+          </Border>
+          <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+            <TextBlock Classes="title" TextWrapping="Wrap" Text="{Binding Item.Headline}" />
+            <ItemsControl ItemsSource="{Binding SummaryLines}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String"><TextBlock Classes="secondary" Margin="0,1" Text="{Binding}" /></DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Grid>
+
+        <!-- ===== Account change ===== -->
+        <StackPanel Spacing="16" IsVisible="{Binding Item.IsDangerous}">
+          <Border Classes="banner-danger" Padding="14,12">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconKey}" />
+                <TextBlock FontWeight="SemiBold" Text="{Binding DangerTitle}" />
+              </StackPanel>
+              <TextBlock TextWrapping="Wrap" Text="{Binding DangerBody}" />
+            </StackPanel>
+          </Border>
+          <ItemsControl ItemsSource="{Binding SummaryLines}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String"><TextBlock Classes="secondary" Margin="0,1" Text="{Binding}" /></DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

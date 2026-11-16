@@ -64,7 +64,8 @@
       </StackPanel>
 
       <!-- List + detail -->
-      <views:InboxView DataContext="{Binding Inbox}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).IsInboxOpen}" />
+      <views:InboxView DataContext="{Binding Inbox}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ShowInbox}" />
+      <views:ConfirmationDetailView DataContext="{Binding Detail}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).HasDetail}" />
 
       <Grid IsVisible="{Binding ShowAccounts}" ColumnDefinitions="*,1.1*">
         <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">

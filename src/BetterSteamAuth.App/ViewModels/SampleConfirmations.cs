@@ -18,5 +18,24 @@ internal static class SampleConfirmations
             new() { Id = 3, Type = 9, TypeName = "Web API Key", Headline = "Create Web API key", CreationTime = now - 20, Summary = ["Domain: steam-trade.example"] },
         ];
     }
+
+    /// <summary>A fake trade offer and partner for the detail screen.</summary>
+    public static (TradeOfferDetails, PartnerProfile) TradeDetails(MobileConfirmation confirmation)
+    {
+        var created = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(confirmation.Headline == "buyer_88" ? -4 : -2900));
+        var give = confirmation.Headline == "buyer_88"
+            ? new List<TradeItem>
+            {
+                new("AK-47 | Redline (Field-Tested)", "Classified Rifle", null, 1),
+                new("AWP | Asiimov (Field-Tested)", "Covert Sniper Rifle", null, 1),
+                new("Prisma 2 Case", "Base Grade Container", null, 3),
+            }
+            : [new TradeItem("M4A4 | Desolate Space (Minimal Wear)", "Classified Rifle", null, 1)];
+        var receive = confirmation.Headline == "buyer_88"
+            ? new List<TradeItem>()
+            : [new TradeItem("Glock-18 | Water Elemental (Field-Tested)", "Restricted Pistol", null, 1), new TradeItem("Recoil Case", "Base Grade Container", null, 1)];
+        return (new TradeOfferDetails(76561198000000999, give, receive),
+            new PartnerProfile(confirmation.Headline ?? "partner", null, created, false, false, false, confirmation.Headline == "buyer_88"));
+    }
 }
 #endif

@@ -5,6 +5,8 @@ public interface IPlatformServices
 {
     Task CopyTextAsync(string text);
 
+    Task OpenUriAsync(Uri uri);
+
     Task<string?> PickFolderAsync(string title);
 
     Task<IReadOnlyList<string>> PickMaFilesAsync(string title);

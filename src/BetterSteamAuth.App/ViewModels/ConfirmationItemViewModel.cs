@@ -58,6 +58,9 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     public MobileConfirmation Confirmation { get; }
 
+    /// <summary>Opens the confirmation detail for this row. Set by the page that owns the row.</summary>
+    public Action<ConfirmationItemViewModel>? Open { get; init; }
+
     public string AccountName { get; }
 
     public ulong Id => Confirmation.Id;
@@ -127,12 +130,33 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     {
         if (NeedsTradeReview && State == ConfirmationState.Idle)
         {
-            State = ConfirmationState.ConfirmingTrade;
+            // The detail screen is the review; fall back to the inline prompt without one.
+            if (Open is not null)
+            {
+                Open(this);
+            }
+            else
+            {
+                State = ConfirmationState.ConfirmingTrade;
+            }
+
             return;
         }
 
         StartCountdown(accept: true);
     }
+
+    /// <summary>Accept after the user looked at the detail screen.</summary>
+    public void AcceptReviewed()
+    {
+        if (State is ConfirmationState.Idle or ConfirmationState.ConfirmingTrade)
+        {
+            StartCountdown(accept: true);
+        }
+    }
+
+    [RelayCommand]
+    private void OpenDetail() => Open?.Invoke(this);
 
     [RelayCommand]
     private void Reject() => StartCountdown(accept: false);

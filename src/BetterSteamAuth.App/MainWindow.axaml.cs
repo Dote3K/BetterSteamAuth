@@ -16,6 +16,8 @@ public partial class MainWindow : Window, IPlatformServices
 
     public Task CopyTextAsync(string text) => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
 
+    public Task OpenUriAsync(Uri uri) => Launcher.LaunchUriAsync(uri);
+
     public async Task<string?> PickFolderAsync(string title)
     {
         var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title });

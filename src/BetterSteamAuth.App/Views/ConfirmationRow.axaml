@@ -6,7 +6,7 @@
              xmlns:res="using:BetterSteamAuth.App.Resources"
              x:Class="BetterSteamAuth.App.Views.ConfirmationRow"
              x:DataType="vm:ConfirmationItemViewModel">
-  <Border Classes.danger-row="{Binding IsDangerous}">
+  <Border Classes.danger-row="{Binding IsDangerous}" Background="Transparent" Cursor="Hand">
     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
       <Border Classes="conf-icon" VerticalAlignment="Center">
         <Panel>

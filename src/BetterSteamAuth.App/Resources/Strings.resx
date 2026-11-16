@@ -149,4 +149,33 @@
   <data name="AllCaughtUp" xml:space="preserve"><value>All caught up</value></data>
   <data name="AllCaughtUpBody" xml:space="preserve"><value>New confirmations show up here.</value></data>
   <data name="ReviewAll" xml:space="preserve"><value>Review all</value></data>
+  <data name="TradeOffer" xml:space="preserve"><value>Trade offer</value></data>
+  <data name="MarketListing" xml:space="preserve"><value>Market listing</value></data>
+  <data name="MemberSinceFormat" xml:space="preserve"><value>Steam member since {0}</value></data>
+  <data name="FlagNewAccountFormat" xml:space="preserve"><value>Account created {0} days ago</value></data>
+  <data name="FlagVac" xml:space="preserve"><value>VAC banned</value></data>
+  <data name="FlagTradeBan" xml:space="preserve"><value>Trade banned</value></data>
+  <data name="FlagLimited" xml:space="preserve"><value>Limited account</value></data>
+  <data name="FlagPrivate" xml:space="preserve"><value>Profile is private, so its age can't be checked</value></data>
+  <data name="YouGiveFormat" xml:space="preserve"><value>You give · {0} items</value></data>
+  <data name="YouReceiveFormat" xml:space="preserve"><value>You receive · {0} items</value></data>
+  <data name="YouGiveNothing" xml:space="preserve"><value>You give · nothing</value></data>
+  <data name="YouReceiveNothing" xml:space="preserve"><value>You receive · nothing</value></data>
+  <data name="GivesAwayNote" xml:space="preserve"><value>This trade gives your items away for nothing.</value></data>
+  <data name="LoadingDetails" xml:space="preserve"><value>Loading trade details…</value></data>
+  <data name="DetailsFailed" xml:space="preserve"><value>Couldn't load trade details</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="OpenProfile" xml:space="preserve"><value>Open Steam profile</value></data>
+  <data name="DangerApiKeyTitle" xml:space="preserve"><value>Someone wants a Web API key for this account</value></data>
+  <data name="DangerApiKeyBody" xml:space="preserve"><value>Scammers use API keys to replace your trade offers with fake ones. Accept only if you're creating this key yourself right now.</value></data>
+  <data name="DangerPhoneTitle" xml:space="preserve"><value>Phone number change</value></data>
+  <data name="DangerPhoneBody" xml:space="preserve"><value>Accept only if you're changing this account's phone number yourself.</value></data>
+  <data name="DangerRecoveryTitle" xml:space="preserve"><value>Account recovery</value></data>
+  <data name="DangerRecoveryBody" xml:space="preserve"><value>Accept only if you started recovering this account yourself.</value></data>
+  <data name="DangerFamilyTitle" xml:space="preserve"><value>Join a Steam Family</value></data>
+  <data name="DangerFamilyBody" xml:space="preserve"><value>Accept only if you're joining this Steam Family yourself. Family members can play this account's games.</value></data>
+  <data name="DangerGenericTitle" xml:space="preserve"><value>Account change</value></data>
+  <data name="DangerGenericBody" xml:space="preserve"><value>Steam needs a confirmation for a change to this account. Accept only if you started it yourself.</value></data>
+  <data name="YouGiveOne" xml:space="preserve"><value>You give · 1 item</value></data>
+  <data name="YouReceiveOne" xml:space="preserve"><value>You receive · 1 item</value></data>
 </root>

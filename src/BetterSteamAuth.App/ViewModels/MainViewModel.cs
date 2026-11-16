@@ -75,7 +75,29 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [NotifyPropertyChangedFor(nameof(ShowAccounts))]
     public partial bool IsInboxOpen { get; private set; }
 
-    public bool ShowAccounts => HasAccounts && !IsInboxOpen;
+    public bool ShowAccounts => HasAccounts && !IsInboxOpen && Detail is null;
+
+    public bool ShowInbox => IsInboxOpen && Detail is null;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowAccounts), nameof(ShowInbox), nameof(HasDetail))]
+    public partial ConfirmationDetailViewModel? Detail { get; private set; }
+
+    public bool HasDetail => Detail is not null;
+
+    partial void OnIsInboxOpenChanged(bool value) => OnPropertyChanged(nameof(ShowInbox));
+
+    private void OpenDetail(AccountItemViewModel account, ConfirmationItemViewModel item)
+    {
+        Detail?.Dispose();
+        Detail = new ConfirmationDetailViewModel(_shell, account, item, CloseDetail);
+    }
+
+    private void CloseDetail()
+    {
+        Detail?.Dispose();
+        Detail = null;
+    }
 
     [ObservableProperty]
     public partial AccountItemViewModel? SelectedAccount { get; set; }
@@ -217,6 +239,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        Detail?.Dispose();
         Inbox.Dispose();
         _polling.Cancel();
         _polling.Dispose();
@@ -260,7 +283,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 {
                     await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
                     account.Remove(item);
-                }));
+                })
+            { Open = i => OpenDetail(account, i) });
             return;
         }
 #endif
@@ -284,7 +308,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 .ConfigureAwait(true);
             account.Problem = null;
             account.SetConfirmations(list, c => new ConfirmationItemViewModel(
-                c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept)));
+                c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept))
+            { Open = i => OpenDetail(account, i) });
         }
         catch (SessionExpiredException)
         {
