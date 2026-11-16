@@ -182,4 +182,17 @@
   <data name="EditProxy" xml:space="preserve"><value>Edit proxy</value></data>
   <data name="ProxyUnreadable" xml:space="preserve"><value>Can't read this proxy</value></data>
   <data name="ProxyAlreadyAdded" xml:space="preserve"><value>This proxy is already in the list</value></data>
+  <data name="ConnectionTitle" xml:space="preserve"><value>How should these accounts connect?</value></data>
+  <data name="ConnectionSubtitle" xml:space="preserve"><value>Nothing is sent to Steam until you choose. You can change this later.</value></data>
+  <data name="DirectConnection" xml:space="preserve"><value>Direct connection</value></data>
+  <data name="DirectHintFormat" xml:space="preserve"><value>All {0} accounts share your IP address</value></data>
+  <data name="DirectHintOne" xml:space="preserve"><value>The account uses your IP address</value></data>
+  <data name="UseProxies" xml:space="preserve"><value>Use proxies</value></data>
+  <data name="UseProxiesHint" xml:space="preserve"><value>One proxy per account, in order</value></data>
+  <data name="ProxiesForAccountsFormat" xml:space="preserve"><value>{0} proxies for {1} accounts</value></data>
+  <data name="ExtraProxiesFormat" xml:space="preserve"><value>{0} extra stay unassigned</value></data>
+  <data name="TooFewProxiesFormat" xml:space="preserve"><value>{0} accounts, {1} proxies. Add {2} more or use a direct connection</value></data>
+  <data name="Finish" xml:space="preserve"><value>Finish</value></data>
+  <data name="ConnectionDirect" xml:space="preserve"><value>Direct connection</value></data>
+  <data name="ConnectionProxies" xml:space="preserve"><value>One proxy per account</value></data>
 </root>

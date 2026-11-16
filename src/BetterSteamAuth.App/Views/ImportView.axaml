@@ -2,11 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
              xmlns:res="using:BetterSteamAuth.App.Resources"
+             xmlns:v="using:BetterSteamAuth.App.Views"
              x:Class="BetterSteamAuth.App.Views.ImportView"
              x:DataType="vm:ImportViewModel">
   <Grid Width="460" Margin="24" VerticalAlignment="Center">
     <!-- Pick and select -->
-    <StackPanel Spacing="8" IsVisible="{Binding !IsDone}">
+    <StackPanel Spacing="8" IsVisible="{Binding IsSelecting}">
       <TextBlock Classes="heading" Text="{Binding Title}" />
       <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding Subtitle}" />
 
@@ -51,6 +52,41 @@
         <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
         <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
                 IsVisible="{Binding HasItems}" Content="{Binding ImportButtonText}" Command="{Binding ImportCommand}" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Connection: nothing is sent to Steam before Finish -->
+    <StackPanel Spacing="8" IsVisible="{Binding IsConnection}">
+      <TextBlock Classes="heading" Text="{x:Static res:Strings.ConnectionTitle}" />
+      <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.ConnectionSubtitle}" />
+
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="connection"
+                   IsChecked="{Binding UseDirect}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.DirectConnection}" />
+          <TextBlock Classes="secondary" Text="{Binding DirectHint}" />
+        </StackPanel>
+      </RadioButton>
+      <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="connection"
+                   IsChecked="{Binding UseProxies}">
+        <StackPanel Spacing="2">
+          <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.UseProxies}" />
+          <TextBlock Classes="secondary" Text="{x:Static res:Strings.UseProxiesHint}" />
+        </StackPanel>
+      </RadioButton>
+
+      <StackPanel Spacing="6" Margin="0,4,0,0" IsVisible="{Binding UseProxies}">
+        <ScrollViewer MaxHeight="260">
+          <v:ProxyPasteBox DataContext="{Binding Paste}" />
+        </ScrollViewer>
+        <TextBlock Classes="caption" Classes.danger="{Binding ProxySummaryIsError}" TextWrapping="Wrap"
+                   Text="{Binding ProxySummary}" IsVisible="{Binding HasProxySummary}" />
+      </StackPanel>
+
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+        <Button Content="{x:Static res:Strings.Back}" Command="{Binding BackToSelectCommand}" />
+        <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                Content="{x:Static res:Strings.Finish}" Command="{Binding ConnectCommand}" IsEnabled="{Binding CanConnect}" />
       </Grid>
     </StackPanel>
 
