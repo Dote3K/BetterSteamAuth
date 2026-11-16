@@ -32,6 +32,9 @@
   <Style Selector="TextBlock.danger">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorDanger}" />
   </Style>
+  <Style Selector="TextBlock.warning">
+    <Setter Property="Foreground" Value="{DynamicResource SemiColorWarning}" />
+  </Style>
   <Style Selector="PathIcon.secondary">
     <Setter Property="Foreground" Value="{DynamicResource SemiColorText2}" />
   </Style>

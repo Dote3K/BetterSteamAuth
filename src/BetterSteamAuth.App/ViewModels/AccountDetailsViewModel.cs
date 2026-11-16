@@ -17,6 +17,9 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
 {
     private const int RevealSeconds = 30;
     private const int CopyNextThreshold = 5;
+    private const int ExpiringDays = 14;
+
+    private static readonly CompositeFormat ExpiresInFormat = CompositeFormat.Parse(Strings.ExpiresInFormat);
 
     private static readonly CompositeFormat SecondsLeftFormat = CompositeFormat.Parse(Strings.SecondsLeftFormat);
     private static readonly CompositeFormat ValidUntilFormat = CompositeFormat.Parse(Strings.SessionValidUntilFormat);
@@ -82,17 +85,33 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
     // Sign-in
     [ObservableProperty] public partial string SessionStatus { get; private set; } = "";
     [ObservableProperty] public partial bool SessionProblem { get; private set; }
-    [ObservableProperty] public partial string? SessionValidUntil { get; private set; }
+
+    /// <summary>Muted second line: when the session ends.</summary>
+    [ObservableProperty] public partial string? SessionDetail { get; private set; }
+
+    /// <summary>Under 14 days left: the second line is a warning.</summary>
+    [ObservableProperty] public partial bool SessionExpiring { get; private set; }
+
+    [ObservableProperty] public partial bool HasSavedPassword { get; private set; }
+    [ObservableProperty] public partial string AutoSignInText { get; private set; } = "";
+    [ObservableProperty] public partial string? AutoSignInHint { get; private set; }
 
     // Connection
     [ObservableProperty] public partial string ProxyText { get; private set; } = "";
     [ObservableProperty] public partial bool HasProxy { get; private set; }
-    [ObservableProperty] public partial string? ProxyHealth { get; private set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowProxyHealth))]
+    public partial string? ProxyHealth { get; private set; }
+
+    public bool ShowProxyHealth => ProxyHealth is not null && !IsTesting;
     [ObservableProperty] public partial bool ProxyDead { get; private set; }
 
     /// <summary>The last error, shown on hover.</summary>
     [ObservableProperty] public partial string? ProxyError { get; private set; }
-    [ObservableProperty] public partial bool IsTesting { get; private set; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowProxyHealth))]
+    public partial bool IsTesting { get; private set; }
 
     // Steam Guard
     public bool HasRevocationCode { get; }
@@ -366,11 +385,12 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
     private void UpdateSession()
     {
         var expiry = WebSession.GetExpiry(_maFile.Session?.RefreshToken);
+        UpdateAutoSignIn();
         if (expiry is null)
         {
             SessionStatus = Strings.NotSignedIn;
             SessionProblem = true;
-            SessionValidUntil = null;
+            SessionDetail = null;
             return;
         }
 
@@ -378,9 +398,26 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
         SessionStatus = expired ? Strings.SessionExpired : Strings.SignedInRenews;
         SessionProblem = expired;
         int days = Math.Max(0, (int)(expiry.Value - DateTimeOffset.UtcNow).TotalDays);
-        SessionValidUntil = expired
-            ? null
+        SessionExpiring = !expired && days < ExpiringDays;
+        SessionDetail = expired ? null
+            : SessionExpiring ? string.Format(CultureInfo.CurrentCulture, ExpiresInFormat, days)
             : string.Format(CultureInfo.CurrentCulture, ValidUntilFormat, expiry.Value.ToLocalTime().ToString("MMM d, yyyy", CultureInfo.CurrentCulture), days);
+    }
+
+    private void UpdateAutoSignIn()
+    {
+        HasSavedPassword = _vault.HasSteamPassword(_steamId);
+        AutoSignInText = !HasSavedPassword ? Strings.AutoSignInOff
+            : _shell.IsAutoSignInPaused(_steamId) ? Strings.AutoSignInStopped
+            : Strings.AutoSignInOn;
+        AutoSignInHint = HasSavedPassword || !_vault.CanSaveSteamPasswords ? null : Strings.AutoSignInHowTo;
+    }
+
+    [RelayCommand]
+    private void ForgetPassword()
+    {
+        _vault.SetSteamPassword(_steamId, null);
+        UpdateAutoSignIn();
     }
 
     private void UpdateConnection()

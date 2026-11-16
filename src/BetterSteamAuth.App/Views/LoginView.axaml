@@ -15,6 +15,9 @@
     <StackPanel Spacing="8" IsVisible="{Binding !NeedsEmailCode}">
       <TextBox Classes="revealPasswordButton" PasswordChar="•" IsEnabled="{Binding IsIdle}"
                PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
+      <CheckBox Margin="0,4,0,0" IsChecked="{Binding RememberPassword}" IsEnabled="{Binding IsIdle}"
+                IsVisible="{Binding CanRememberPassword}" Content="{x:Static res:Strings.RememberSteamPassword}"
+                ToolTip.Tip="{x:Static res:Strings.RememberSteamPasswordHint}" />
       <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}"
                  IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
       <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">

@@ -155,6 +155,71 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     /// <summary>Called on any keyboard or mouse input; resets the auto-lock countdown.</summary>
     public void NoteActivity() => _lastActivity = DateTime.UtcNow;
 
+    private const string AutoSignInPausedPrefix = "signin.paused.";
+    private static readonly TimeSpan AutoSignInInterval = TimeSpan.FromMinutes(15);
+    private readonly Dictionary<ulong, DateTime> _lastAutoSignIn = [];
+
+    /// <summary>Automatic sign-in stopped after a wrong password or an email code; a manual sign-in resumes it.</summary>
+    public bool IsAutoSignInPaused(ulong steamId)
+        => Vault?.GetSetting(AutoSignInPausedPrefix + steamId.ToString(System.Globalization.CultureInfo.InvariantCulture)) == "on";
+
+    public void SetAutoSignInPaused(ulong steamId, bool paused)
+        => Vault?.SetSetting(AutoSignInPausedPrefix + steamId.ToString(System.Globalization.CultureInfo.InvariantCulture), paused ? "on" : "off");
+
+    /// <summary>
+    /// Signs in again with the account's saved password, through its own connection. At most once per
+    /// account every 15 minutes. Returns true when the session was renewed.
+    /// </summary>
+    public async Task<bool> TryAutoSignInAsync(ulong steamId, CancellationToken cancellationToken)
+    {
+        if (Vault is not { IsUnlocked: true } vault || !vault.HasSteamPassword(steamId) || IsAutoSignInPaused(steamId)
+            || (_lastAutoSignIn.TryGetValue(steamId, out var last) && DateTime.UtcNow - last < AutoSignInInterval))
+        {
+            return false;
+        }
+
+        _lastAutoSignIn[steamId] = DateTime.UtcNow;
+        var maFile = vault.Load(steamId);
+        if (string.IsNullOrEmpty(maFile.AccountName) || vault.GetSteamPassword(steamId) is not { } password)
+        {
+            return false;
+        }
+
+        byte[]? sharedSecret = string.IsNullOrEmpty(maFile.SharedSecret) ? null : Convert.FromBase64String(maFile.SharedSecret);
+        try
+        {
+            // An email code can't be answered without the user: give up and let them sign in by hand.
+            var tokens = await SteamLogin.LoginAsync(
+                ConnectionFor(steamId), maFile.AccountName, password, sharedSecret,
+                _ => Task.FromResult<string?>(null), vault.GetDeviceProfile(steamId), cancellationToken).ConfigureAwait(true);
+            LoginViewModel.ApplyTokens(maFile, tokens);
+            vault.Save(maFile);
+            return true;
+        }
+        catch (LoginFailedException ex) when (ex.Result is SteamKit2.EResult.InvalidPassword)
+        {
+            SetAutoSignInPaused(steamId, paused: true);
+            return false;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            SetAutoSignInPaused(steamId, paused: true);
+            return false;
+        }
+        catch (Exception ex) when (ex is LoginFailedException or HttpRequestException)
+        {
+            // Rate limits and network trouble: try again in the next window.
+            return false;
+        }
+        finally
+        {
+            if (sharedSecret is not null)
+            {
+                System.Security.Cryptography.CryptographicOperations.ZeroMemory(sharedSecret);
+            }
+        }
+    }
+
     /// <summary>Saves new network settings and rebuilds every account connection with them.</summary>
     public void ApplyNetworkOptions(NetworkOptions options)
     {

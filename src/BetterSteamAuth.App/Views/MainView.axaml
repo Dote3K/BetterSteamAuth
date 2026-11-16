@@ -114,7 +114,17 @@
         <Border Grid.Column="1" Classes="divider-left" Padding="28,22">
           <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
                       IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <TextBlock Classes="title" Text="{Binding Name}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="title" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="6,2"
+                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenDetailsCommand}" CommandParameter="{Binding}"
+                      AutomationProperties.Name="{x:Static res:Strings.Details}">
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Details}" />
+                  <PathIcon Width="10" Height="10" VerticalAlignment="Center" Data="{StaticResource SemiIconChevronRight}" />
+                </StackPanel>
+              </Button>
+            </Grid>
             <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
               <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
               <Button Grid.Column="1" VerticalAlignment="Center"
@@ -149,12 +159,7 @@
               </Grid>
             </Border>
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,32,0,6">
-              <TextBlock Classes="title" Text="{x:Static res:Strings.Confirmations}" />
-              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="4,0"
-                      Content="{x:Static res:Strings.ReviewAll}" IsVisible="{Binding HasPending}"
-                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenInboxCommand}" />
-            </Grid>
+            <TextBlock Classes="title" Margin="0,32,0,6" Text="{x:Static res:Strings.Confirmations}" />
             <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
             <ItemsControl ItemsSource="{Binding Confirmations}">
               <ItemsControl.ItemTemplate>

@@ -239,7 +239,7 @@
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
   <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>
   <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking for confirmations while the window is minimized. Otherwise checks run only while confirmations are on screen.</value></data>
-  <data name="SessionValidUntilFormat" xml:space="preserve"><value>{0} · {1} days left</value></data>
+  <data name="SessionValidUntilFormat" xml:space="preserve"><value>Valid until {0} · {1} days left</value></data>
   <data name="HidesInFormat" xml:space="preserve"><value>Hides in {0}s</value></data>
   <data name="RemoveAccountTitleFormat" xml:space="preserve"><value>Remove {0} from BetterSteamAuth?</value></data>
   <data name="DeviceFormat" xml:space="preserve"><value>{0} · Android {1}</value></data>
@@ -282,4 +282,15 @@
   <data name="RemoveAccountBody" xml:space="preserve"><value>Steam Guard stays active on this account. Without this maFile or the revocation code you can lose access to it.</value></data>
   <data name="RemoveAccountCheckbox" xml:space="preserve"><value>I've saved the revocation code or exported the maFile</value></data>
   <data name="EnterPasswordToReveal" xml:space="preserve"><value>Enter your password to show the code</value></data>
+  <data name="Details" xml:space="preserve"><value>Details</value></data>
+  <data name="AutomaticSignIn" xml:space="preserve"><value>Automatic sign-in</value></data>
+  <data name="AutoSignInOn" xml:space="preserve"><value>On · password saved</value></data>
+  <data name="AutoSignInOff" xml:space="preserve"><value>Off</value></data>
+  <data name="AutoSignInStopped" xml:space="preserve"><value>Paused · sign in by hand once</value></data>
+  <data name="Forget" xml:space="preserve"><value>Forget</value></data>
+  <data name="RememberSteamPassword" xml:space="preserve"><value>Remember password for automatic sign-in</value></data>
+  <data name="RememberSteamPasswordHint" xml:space="preserve"><value>Saved encrypted with your app password. When the session expires, the app signs in again by itself.</value></data>
+  <data name="ExpiresInFormat" xml:space="preserve"><value>Expires in {0} days</value></data>
+  <data name="AutoSignInHowTo" xml:space="preserve"><value>Turn it on with "Remember password" when you sign in again.</value></data>
+  <data name="AccountDetails" xml:space="preserve"><value>Account details</value></data>
 </root>

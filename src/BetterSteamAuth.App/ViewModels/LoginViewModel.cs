@@ -30,7 +30,15 @@ public sealed partial class LoginViewModel : ObservableObject
         _steamId = steamId;
         AccountName = accountName;
         Title = string.Format(CultureInfo.CurrentCulture, TitleFormat, accountName);
+        CanRememberPassword = shell.Vault?.CanSaveSteamPasswords == true;
+        RememberPassword = CanRememberPassword && shell.Vault!.HasSteamPassword(steamId);
     }
+
+    /// <summary>Saving the Steam password needs an app password (it's encrypted with the data key).</summary>
+    public bool CanRememberPassword { get; }
+
+    [ObservableProperty]
+    public partial bool RememberPassword { get; set; }
 
     public string AccountName { get; }
 
@@ -77,7 +85,14 @@ public sealed partial class LoginViewModel : ObservableObject
             {
                 var tokens = await SteamLogin.LoginAsync(connection, AccountName, Password, sharedSecret, AskEmailCodeAsync, vault.GetDeviceProfile(_steamId))
                     .ConfigureAwait(true);
-                Save(maFile, tokens);
+                ApplyTokens(maFile, tokens);
+                vault.Save(maFile);
+                if (CanRememberPassword)
+                {
+                    // Optional automatic sign-in.
+                    vault.SetSteamPassword(_steamId, RememberPassword ? Password : null);
+                    _shell.SetAutoSignInPaused(_steamId, paused: false);
+                }
             }
             finally
             {
@@ -147,13 +162,13 @@ public sealed partial class LoginViewModel : ObservableObject
             TaskScheduler.FromCurrentSynchronizationContext());
     }
 
-    private void Save(MaFile maFile, LoginTokens tokens)
+    /// <summary>Puts new sign-in tokens into the maFile's session (the caller saves it).</summary>
+    internal static void ApplyTokens(MaFile maFile, LoginTokens tokens)
     {
         maFile.Session ??= new MaFileSession();
         maFile.Session.SteamId = tokens.SteamId;
         maFile.Session.AccessToken = tokens.AccessToken;
         maFile.Session.RefreshToken = tokens.RefreshToken;
         maFile.Session.SessionId ??= Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(12));
-        _shell.Vault!.Save(maFile);
     }
 }

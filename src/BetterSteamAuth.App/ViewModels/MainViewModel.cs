@@ -328,7 +328,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    private async Task LoadConfirmationsAsync(AccountItemViewModel account, CancellationToken cancellationToken)
+    private async Task LoadConfirmationsAsync(AccountItemViewModel account, CancellationToken cancellationToken, bool mayAutoSignIn = true)
     {
         if (_shell.Vault is not { IsUnlocked: true } vault)
         {
@@ -382,6 +382,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (SessionExpiredException)
         {
+            // A saved password renews the session by itself.
+            if (mayAutoSignIn && await _shell.TryAutoSignInAsync(account.SteamId, cancellationToken).ConfigureAwait(true))
+            {
+                await LoadConfirmationsAsync(account, cancellationToken, mayAutoSignIn: false).ConfigureAwait(true);
+                return;
+            }
+
             SetProblem(account, Strings.SignInToLoadConfirmations, needsLogin: true);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !cancellationToken.IsCancellationRequested)

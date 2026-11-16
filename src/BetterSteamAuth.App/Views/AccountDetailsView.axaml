@@ -11,49 +11,38 @@
     <KeyBinding Gesture="Ctrl+R" Command="{Binding ReloginCommand}" />
   </UserControl.KeyBindings>
   <UserControl.Styles>
-    <Style Selector="Grid.row">
-      <Setter Property="MinHeight" Value="36" />
-    </Style>
-    <Style Selector="Grid.row > TextBlock.label">
-      <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
+    <!-- A section: a title, then its rows in one quiet panel. -->
     <Style Selector="TextBlock.section">
-      <Setter Property="Margin" Value="0,24,0,6" />
+      <Setter Property="Margin" Value="2,32,0,10" />
+    </Style>
+    <Style Selector="Border.row">
+      <Setter Property="Padding" Value="16,14" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.row.last">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Border.row TextBlock.label">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="Margin" Value="0,1,0,0" />
+    </Style>
+    <Style Selector="Border.row Button.action">
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="Margin" Value="0,-4,0,-4" />
     </Style>
   </UserControl.Styles>
 
   <DockPanel>
-    <!-- Header -->
-    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
-      <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="12">
-        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" VerticalAlignment="Center" Command="{Binding BackCommand}"
+    <!-- Top bar: back and rare actions only -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
                 AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
           <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
         </Button>
-        <Border Grid.Column="1" Classes="avatar" VerticalAlignment="Center">
-          <Panel>
-            <Image Source="{Binding Avatar}" Stretch="UniformToFill" />
-            <PathIcon Width="22" Height="22" Classes="hint-icon" Data="{StaticResource SemiIconUser}"
-                      IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNull}}" />
-          </Panel>
-        </Border>
-        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-          <TextBlock Classes="title" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-          <TextBlock Classes="caption hint" Text="{Binding GroupName}" IsVisible="{Binding HasGroupLine}" />
-        </StackPanel>
-        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right">
-            <TextBlock Classes="code-list" FontSize="20" HorizontalAlignment="Right" Text="{Binding Code}" />
-            <TextBlock Classes="caption hint" HorizontalAlignment="Right" Text="{Binding SecondsLeftText}" />
-          </StackPanel>
-          <Button VerticalAlignment="Center" Command="{Binding CopyCodeCommand}" AutomationProperties.Name="{x:Static res:Strings.CopyCode}">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
-              <TextBlock Text="{Binding CopyLabel}" />
-            </StackPanel>
-          </Button>
-        </StackPanel>
-        <Button Grid.Column="4" Theme="{DynamicResource BorderlessButton}" Padding="8" VerticalAlignment="Center"
+        <TextBlock Grid.Column="1" Classes="secondary" VerticalAlignment="Center" Text="{x:Static res:Strings.AccountDetails}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8"
                 AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
           <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
           <Button.Flyout>
@@ -76,13 +65,40 @@
     </Border>
 
     <ScrollViewer>
-      <StackPanel MaxWidth="680" Margin="24,8,24,24" HorizontalAlignment="Stretch">
+      <StackPanel MaxWidth="680" Margin="28,24,28,32" HorizontalAlignment="Stretch">
 
-        <TextBlock Classes="secondary" Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding ExportMessage}"
+        <!-- Account block -->
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+          <Border Classes="avatar" VerticalAlignment="Center">
+            <Panel>
+              <Image Source="{Binding Avatar}" Stretch="UniformToFill" />
+              <PathIcon Width="22" Height="22" Classes="hint-icon" Data="{StaticResource SemiIconUser}"
+                        IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNull}}" />
+            </Panel>
+          </Border>
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+            <TextBlock Classes="heading" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+            <TextBlock Classes="secondary" Text="{Binding GroupName}" IsVisible="{Binding HasGroupLine}" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+              <TextBlock Classes="code-list" FontSize="26" VerticalAlignment="Center" Text="{Binding Code}" />
+              <Button VerticalAlignment="Center" Command="{Binding CopyCodeCommand}" AutomationProperties.Name="{x:Static res:Strings.CopyCode}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
+                  <TextBlock Text="{Binding CopyLabel}" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <TextBlock Classes="caption hint" Text="{Binding SecondsLeftText}" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Classes="secondary" Margin="0,16,0,0" TextWrapping="Wrap" Text="{Binding ExportMessage}"
                    IsVisible="{Binding ExportMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
         <!-- Remove confirmation -->
-        <Border Classes="banner-danger" Margin="0,16,0,0" Padding="14,12" IsVisible="{Binding IsConfirmingRemove}">
+        <Border Classes="banner-danger" Margin="0,24,0,0" Padding="16,14" IsVisible="{Binding IsConfirmingRemove}">
           <StackPanel Spacing="6">
             <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding RemoveTitle}" />
             <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.RemoveAccountBody}" />
@@ -98,124 +114,161 @@
         </Border>
 
         <!-- Sign-in -->
-        <TextBlock Classes="caption section" Text="{x:Static res:Strings.SignInSection}" />
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Status}" />
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-            <PathIcon Width="13" Height="13" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" IsVisible="{Binding SessionProblem}" />
-            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding SessionStatus}" />
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.SignInSection}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Status}" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <PathIcon Width="13" Height="13" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" IsVisible="{Binding SessionProblem}" />
+                    <TextBlock TextWrapping="Wrap" Text="{Binding SessionStatus}" />
+                  </StackPanel>
+                  <TextBlock Classes="caption" Classes.warning="{Binding SessionExpiring}" TextWrapping="Wrap" Text="{Binding SessionDetail}"
+                             IsVisible="{Binding SessionDetail, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </StackPanel>
+                <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.Relogin}" Command="{Binding ReloginCommand}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.AutomaticSignIn}" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                  <TextBlock TextWrapping="Wrap" Text="{Binding AutoSignInText}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding AutoSignInHint}"
+                             IsVisible="{Binding AutoSignInHint, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </StackPanel>
+                <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.Forget}" Command="{Binding ForgetPasswordCommand}" IsVisible="{Binding HasSavedPassword}" />
+              </Grid>
+            </Border>
           </StackPanel>
-          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                  Content="{x:Static res:Strings.Relogin}" Command="{Binding ReloginCommand}" />
-        </Grid>
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto" IsVisible="{Binding SessionValidUntil, Converter={x:Static ObjectConverters.IsNotNull}}">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.SessionValidUntil}" />
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SessionValidUntil}" />
-        </Grid>
+        </Border>
 
         <!-- Connection -->
-        <TextBlock Classes="caption section" Text="{x:Static res:Strings.Connection}" />
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Proxy}" />
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
-                     TextTrimming="CharacterEllipsis" Text="{Binding ProxyText}" IsVisible="{Binding HasProxy}" />
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding ProxyText}" IsVisible="{Binding !HasProxy}" />
-          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                  Content="{x:Static res:Strings.Change}" Command="{Binding ChangeProxyCommand}" />
-        </Grid>
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto" IsVisible="{Binding HasProxy}">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.LastCheck}" />
-          <Panel Grid.Column="1" VerticalAlignment="Center">
-            <TextBlock Classes="hint" Text="{x:Static res:Strings.Checking}" IsVisible="{Binding IsTesting}" />
-            <TextBlock TextWrapping="Wrap" Classes.danger="{Binding ProxyDead}" Text="{Binding ProxyHealth}" IsVisible="{Binding !IsTesting}"
-                       ToolTip.Tip="{Binding ProxyError}" />
-          </Panel>
-          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                  Content="{x:Static res:Strings.Test}" Command="{Binding TestProxyCommand}" IsEnabled="{Binding !IsTesting}" />
-        </Grid>
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Connection}" />
+        <Border Classes="panel">
+          <Border Classes="row last">
+            <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Proxy}" />
+              <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock FontFamily="{StaticResource Bsa.Font.Code}" TextTrimming="CharacterEllipsis" Text="{Binding ProxyText}" IsVisible="{Binding HasProxy}" />
+                <TextBlock Text="{Binding ProxyText}" IsVisible="{Binding !HasProxy}" />
+                <TextBlock Classes="caption hint" Text="{x:Static res:Strings.Checking}" IsVisible="{Binding IsTesting}" />
+                <TextBlock Classes="caption" Classes.danger="{Binding ProxyDead}" Text="{Binding ProxyHealth}" ToolTip.Tip="{Binding ProxyError}"
+                           IsVisible="{Binding ShowProxyHealth}" />
+              </StackPanel>
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top">
+                <Button Classes="action Primary" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Test}"
+                        Command="{Binding TestProxyCommand}" IsVisible="{Binding HasProxy}" IsEnabled="{Binding !IsTesting}" />
+                <Button Classes="action Primary" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Change}"
+                        Command="{Binding ChangeProxyCommand}" />
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Border>
 
         <!-- Steam Guard -->
-        <TextBlock Classes="caption section" Text="{x:Static res:Strings.SteamGuard}" />
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.RevocationCode}" />
-          <!-- Hidden -->
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
-                     Text="R•••••" IsVisible="{Binding ShowMaskedCode}" />
-          <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="hint"
-                     Text="{x:Static res:Strings.NotInMaFile}" IsVisible="{Binding ShowNoCode}" />
-          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                  Content="{x:Static res:Strings.Reveal}" Command="{Binding RevealCommand}" IsVisible="{Binding ShowMaskedCode}" />
-          <!-- Asking for the password -->
-          <Grid Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4"
-                IsVisible="{Binding IsAskingPassword}">
-            <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.EnterPasswordToReveal}"
-                     Text="{Binding RevealPassword}" AutomationProperties.Name="{x:Static res:Strings.Password}">
-              <TextBox.KeyBindings>
-                <KeyBinding Gesture="Enter" Command="{Binding ConfirmRevealCommand}" />
-              </TextBox.KeyBindings>
-            </TextBox>
-            <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelRevealCommand}" />
-            <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
-                    Content="{x:Static res:Strings.Show}" Command="{Binding ConfirmRevealCommand}" IsEnabled="{Binding !IsVerifying}" />
-          </Grid>
-          <!-- Revealed -->
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
-                      IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <TextBlock Classes="code-list" FontSize="16" VerticalAlignment="Center" Text="{Binding RevealedCode}" />
-            <TextBlock Classes="caption hint" VerticalAlignment="Center" Text="{Binding HidesInText}" />
-          </StackPanel>
-          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4"
-                      IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Button Theme="{DynamicResource BorderlessButton}" Classes="Primary" Content="{x:Static res:Strings.Copy}"
-                    Command="{Binding CopyRevocationCodeCommand}" />
-            <Button Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Hide}"
-                    Command="{Binding HideRevocationCodeCommand}" />
-          </StackPanel>
-        </Grid>
-        <TextBlock Classes="caption danger" Margin="170,0,0,0" Text="{Binding RevealError}"
-                   IsVisible="{Binding RevealError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.SteamGuard}" />
+        <Border Classes="panel">
+          <Border Classes="row last">
+            <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.RevocationCode}" />
+              <!-- Hidden -->
+              <TextBlock Grid.Column="1" FontFamily="{StaticResource Bsa.Font.Code}" Text="R•••••" IsVisible="{Binding ShowMaskedCode}" />
+              <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static res:Strings.NotInMaFile}" IsVisible="{Binding ShowNoCode}" />
+              <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                      Content="{x:Static res:Strings.Reveal}" Command="{Binding RevealCommand}" IsVisible="{Binding ShowMaskedCode}" />
+              <!-- Asking for the password -->
+              <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Spacing="6" Margin="0,-6,0,-6" IsVisible="{Binding IsAskingPassword}">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                  <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.EnterPasswordToReveal}"
+                           Text="{Binding RevealPassword}" AutomationProperties.Name="{x:Static res:Strings.Password}">
+                    <TextBox.KeyBindings>
+                      <KeyBinding Gesture="Enter" Command="{Binding ConfirmRevealCommand}" />
+                    </TextBox.KeyBindings>
+                  </TextBox>
+                  <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelRevealCommand}" />
+                  <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                          Content="{x:Static res:Strings.Show}" Command="{Binding ConfirmRevealCommand}" IsEnabled="{Binding !IsVerifying}" />
+                </Grid>
+                <TextBlock Classes="caption danger" Text="{Binding RevealError}"
+                           IsVisible="{Binding RevealError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              </StackPanel>
+              <!-- Revealed -->
+              <StackPanel Grid.Column="1" Spacing="4" IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Classes="code-list" FontSize="18" Text="{Binding RevealedCode}" />
+                <TextBlock Classes="caption hint" Text="{Binding HidesInText}" />
+              </StackPanel>
+              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top"
+                          IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Button Classes="action Primary" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Copy}"
+                        Command="{Binding CopyRevocationCodeCommand}" />
+                <Button Classes="action" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Hide}"
+                        Command="{Binding HideRevocationCodeCommand}" />
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Border>
 
         <!-- Organize -->
-        <TextBlock Classes="caption section" Text="{x:Static res:Strings.Organize}" />
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Group}" />
-          <AutoCompleteBox Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4" ItemsSource="{Binding Groups}" Text="{Binding GroupName}"
-                           FilterMode="ContainsOrdinal" MinimumPrefixLength="0" Watermark="{x:Static res:Strings.NoGroup}"
-                           AutomationProperties.Name="{x:Static res:Strings.Group}" />
-        </Grid>
-        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-          <TextBlock Classes="label secondary" VerticalAlignment="Top" Margin="0,10,0,0" Text="{x:Static res:Strings.Note}" />
-          <TextBox Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4" Classes="TextArea" AcceptsReturn="True" TextWrapping="Wrap"
-                   MinHeight="64" PlaceholderText="{x:Static res:Strings.NotePlaceholder}" Text="{Binding Note}"
-                   AutomationProperties.Name="{x:Static res:Strings.Note}" />
-        </Grid>
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Organize}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="170,*" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Margin="0,8,0,0" Text="{x:Static res:Strings.Group}" />
+                <AutoCompleteBox Grid.Column="1" ItemsSource="{Binding Groups}" Text="{Binding GroupName}"
+                                 FilterMode="ContainsOrdinal" MinimumPrefixLength="0" Watermark="{x:Static res:Strings.NoGroup}"
+                                 AutomationProperties.Name="{x:Static res:Strings.Group}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="170,*" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Margin="0,8,0,0" Text="{x:Static res:Strings.Note}" />
+                <TextBox Grid.Column="1" Classes="TextArea" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72"
+                         PlaceholderText="{x:Static res:Strings.NotePlaceholder}" Text="{Binding Note}"
+                         AutomationProperties.Name="{x:Static res:Strings.Note}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
 
         <!-- Advanced -->
-        <Expander Margin="0,24,0,0" HorizontalAlignment="Stretch" Header="{x:Static res:Strings.Advanced}">
+        <Expander Margin="0,32,0,0" HorizontalAlignment="Stretch" Header="{x:Static res:Strings.Advanced}">
           <StackPanel>
-            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.SteamId64}" />
-              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding SteamIdText}" />
-              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                      Content="{x:Static res:Strings.Copy}" Command="{Binding CopySteamIdCommand}" />
-            </Grid>
-            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Device}" />
-              <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding DeviceText}" />
-            </Grid>
-            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.DeviceId}" />
-              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
-                         Text="{Binding DeviceIdShort}" ToolTip.Tip="{Binding DeviceId}" />
-              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                      Content="{x:Static res:Strings.Copy}" Command="{Binding CopyDeviceIdCommand}" />
-            </Grid>
-            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
-              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.MaFileLabel}" />
-              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding FileName}" />
-              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                      Content="{x:Static res:Strings.ShowInFolder}" Command="{Binding ShowInFolderCommand}" />
-            </Grid>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.SteamId64}" />
+                <TextBlock Grid.Column="1" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding SteamIdText}" />
+                <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.Copy}" Command="{Binding CopySteamIdCommand}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="170,*" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Device}" />
+                <TextBlock Grid.Column="1" Text="{Binding DeviceText}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.DeviceId}" />
+                <TextBlock Grid.Column="1" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding DeviceIdShort}" ToolTip.Tip="{Binding DeviceId}" />
+                <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.Copy}" Command="{Binding CopyDeviceIdCommand}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+                <TextBlock Classes="label secondary" Text="{x:Static res:Strings.MaFileLabel}" />
+                <TextBlock Grid.Column="1" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding FileName}" />
+                <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.ShowInFolder}" Command="{Binding ShowInFolderCommand}" />
+              </Grid>
+            </Border>
           </StackPanel>
         </Expander>
       </StackPanel>
