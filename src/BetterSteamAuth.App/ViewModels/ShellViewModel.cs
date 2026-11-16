@@ -332,6 +332,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void ShowLink(ulong? resumeSteamId = null, string? accountName = null)
         => SwitchTo(new LinkViewModel(this, resumeSteamId) { AccountName = accountName ?? "" });
 
+    /// <summary>Opens the link wizard in move mode: moves an existing authenticator here.</summary>
+    public void ShowMoveFromPhone() => SwitchTo(new LinkViewModel(this, resumeSteamId: null, move: true));
+
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
     public void ShowLogin(ulong steamId, string accountName, Action? done = null)

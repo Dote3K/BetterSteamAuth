@@ -1,4 +1,4 @@
-<!-- Link a new authenticator. -->
+<!-- Link a new authenticator, or move one here. -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
@@ -13,8 +13,8 @@
 
       <!-- 1. Sign in -->
       <StackPanel Spacing="8" IsVisible="{Binding IsSignIn}">
-        <TextBlock Classes="heading" Text="{x:Static res:Strings.LinkNewAuthenticator}" />
-        <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.LinkSignInSubtitle}" />
+        <TextBlock Classes="heading" Text="{Binding Title}" />
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding SignInSubtitle}" />
         <TextBox PlaceholderText="{x:Static res:Strings.AccountName}" Text="{Binding AccountName}" IsEnabled="{Binding IsIdle}"
                  AutomationProperties.Name="{x:Static res:Strings.AccountName}" />
         <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.Password}"
@@ -34,6 +34,11 @@
         </StackPanel>
 
         <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <!-- The account turned out to need the other flow; the sign-in is kept -->
+        <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                Content="{x:Static res:Strings.MoveItHere}" Command="{Binding MoveHereCommand}" IsVisible="{Binding CanMoveHere}" />
+        <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                Content="{x:Static res:Strings.LinkNewAuthenticator}" Command="{Binding LinkInsteadCommand}" IsVisible="{Binding CanLinkInstead}" />
         <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
           <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
           <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
@@ -41,12 +46,12 @@
         </Grid>
       </StackPanel>
 
-      <!-- Sign-in email code -->
+      <!-- Sign-in Steam Guard: an emailed code, or the phone's code / approval when moving -->
       <StackPanel Spacing="8" IsVisible="{Binding IsEmailCode}">
-        <TextBlock Classes="heading" Text="{x:Static res:Strings.LinkNewAuthenticator}" />
-        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="{x:Static res:Strings.EmailCodePrompt}" />
-        <TextBox PlaceholderText="{x:Static res:Strings.EmailCode}" Text="{Binding EmailCode}"
-                 AutomationProperties.Name="{x:Static res:Strings.EmailCode}" />
+        <TextBlock Classes="heading" Text="{Binding GuardTitle}" />
+        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8" Text="{Binding GuardPrompt}" />
+        <TextBox PlaceholderText="{Binding GuardPlaceholder}" Text="{Binding EmailCode}"
+                 AutomationProperties.Name="{Binding GuardPlaceholder}" />
         <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
           <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
           <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
@@ -59,10 +64,45 @@
         <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.LinkCheckingStatus}" />
       </StackPanel>
 
+      <!-- Move: send a text -->
+      <StackPanel Spacing="8" IsVisible="{Binding IsMoveSend}">
+        <TextBlock Classes="heading" Text="{x:Static res:Strings.MoveSendTitle}" />
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding MoveSendBody}" />
+        <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0" Margin="0,0,0,8"
+                Content="{x:Static res:Strings.AboutTradeHolds}" Command="{Binding OpenTradeHoldsCommand}" />
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+          <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                  Content="{Binding SendTextLabel}" Command="{Binding SendTextCommand}" IsEnabled="{Binding IsIdle}" />
+        </Grid>
+      </StackPanel>
+
+      <!-- Move: enter the texted code -->
+      <StackPanel Spacing="8" IsVisible="{Binding IsMoveCode}">
+        <TextBlock Classes="heading" Text="{x:Static res:Strings.MoveCodeTitle}" />
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding MoveCodeSubtitle}" />
+        <TextBox PlaceholderText="{x:Static res:Strings.SmsCode}" Text="{Binding SmsCode}" IsEnabled="{Binding IsIdle}"
+                 FontFamily="{StaticResource Bsa.Font.Code}" AutomationProperties.Name="{x:Static res:Strings.SmsCode}" />
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <!-- The move went through but saving failed: never lose the only copy -->
+        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding SaveFailed}">
+          <Button Theme="{DynamicResource SolidButton}" Classes="Primary" Content="{x:Static res:Strings.TryAgain}" Command="{Binding RetrySaveCommand}" />
+          <Button Content="{x:Static res:Strings.SaveAsFile}" Command="{Binding SaveAsFileCommand}" />
+        </StackPanel>
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8" Margin="0,12,0,0" IsVisible="{Binding CanCancel}">
+          <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{Binding SendAgainLabel}" Command="{Binding SendAgainCommand}" IsEnabled="{Binding CanSendAgain}" />
+          <Button Grid.Column="3" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                  Content="{Binding MoveLabel}" Command="{Binding MoveCommand}" IsEnabled="{Binding IsIdle}" />
+        </Grid>
+      </StackPanel>
+
       <!-- 2. Revocation code -->
       <StackPanel Spacing="8" IsVisible="{Binding IsRevocation}">
         <TextBlock Classes="heading" Text="{x:Static res:Strings.RevocationTitle}" />
-        <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static res:Strings.RevocationBody}" />
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,12" Text="{Binding RevocationSubtitle}" />
         <Border Classes="well" Padding="16">
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding RevocationCode}" />
@@ -101,11 +141,11 @@
       </StackPanel>
 
       <!-- 4. Done -->
-      <StackPanel Spacing="8" HorizontalAlignment="Center" IsVisible="{Binding IsDone}">
+      <StackPanel Spacing="8" IsVisible="{Binding IsDone}">
         <PathIcon Width="40" Height="40" Classes="success" Data="{StaticResource SemiIconTickCircle}" />
-        <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{Binding DoneTitle}" />
-        <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{x:Static res:Strings.LinkDoneBody}" />
-        <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{Binding DoneNote}"
+        <TextBlock Classes="heading" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding DoneTitle}" />
+        <TextBlock Classes="secondary" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding DoneBody}" />
+        <TextBlock Classes="secondary" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding DoneNote}"
                    IsVisible="{Binding DoneNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
         <TextBlock Classes="code-large" HorizontalAlignment="Center" Margin="0,8,0,0" Text="{Binding CurrentCode}" />
         <Button Margin="0,12,0,0" HorizontalAlignment="Center" Theme="{DynamicResource SolidButton}" Classes="Primary"
