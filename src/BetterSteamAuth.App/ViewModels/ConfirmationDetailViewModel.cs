@@ -16,8 +16,6 @@ public sealed partial class TradeItemViewModel(TradeItem item) : ObservableObjec
 
     public string Name => Item.Amount > 1 ? $"{Item.Name} ×{Item.Amount}" : Item.Name;
 
-    public string? Type => Item.Type;
-
     [ObservableProperty]
     public partial Bitmap? Image { get; set; }
 }
