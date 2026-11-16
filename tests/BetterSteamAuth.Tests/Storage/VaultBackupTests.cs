@@ -97,6 +97,23 @@ public sealed class VaultBackupTests : IDisposable
         Assert.Equal([First], restored.ListAccounts().Select(a => a.SteamId));
     }
 
+    [Fact]
+    public void SDA_export_reads_back_with_the_passkey_and_never_overwrites_a_manifest()
+    {
+        using var source = Vault.Create(Path.Combine(_root, "source"), "pw", FastKdf);
+        source.Add(NewMaFile(First, "first", "aaa="));
+        source.Add(NewMaFile(Second, "second", "bbb="));
+        string export = Path.Combine(_root, "export");
+
+        string sda = SdaExporter.Export(source, [First], export, "fake-passkey");
+        Assert.Throws<SdaFolderNotEmptyException>(() => SdaExporter.Export(source, [Second], export, null));
+
+        using var other = Vault.Create(Path.Combine(_root, "other"), password: null);
+        Assert.Throws<WrongPasswordException>(() => SdaImporter.ReadFolder(sda, "wrong", other));
+        var read = SdaImporter.ReadFolder(sda, "fake-passkey", other).Single();
+        Assert.Equal((ImportStatus.Ready, "aaa=", (ulong?)First), (read.Status, read.MaFile?.SharedSecret, read.SteamId));
+    }
+
     private static MaFile NewMaFile(ulong steamId, string name, string sharedSecret)
         => new() { AccountName = name, SharedSecret = sharedSecret, Session = new MaFileSession { SteamId = steamId } };
 }
