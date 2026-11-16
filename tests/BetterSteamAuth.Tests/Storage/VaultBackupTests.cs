@@ -69,6 +69,34 @@ public sealed class VaultBackupTests : IDisposable
         Assert.Equal("aaa=", opened.Vault.Load(First).SharedSecret);
     }
 
+    [Fact]
+    public void Replacing_the_data_keeps_the_old_folder_and_opens_the_backup()
+    {
+        string data = Path.Combine(_root, "data");
+        string backup = Path.Combine(_root, "replace" + VaultBackup.Extension);
+        using (var source = Vault.Create(Path.Combine(_root, "source"), "backup-pw", FastKdf))
+        {
+            source.Add(NewMaFile(First, "first", "aaa="));
+            VaultBackup.Create(source, backup, newPassword: null, appVersion: null);
+        }
+
+        using (var current = Vault.Create(data, "forgotten-pw", FastKdf))
+        {
+            current.Add(NewMaFile(Second, "second", "bbb="));
+        }
+
+        string keptFolder = VaultBackup.KeptFolderFor(data, new DateTime(2026, 11, 16, 15, 30, 0));
+        using (var opened = VaultBackup.Open(backup))
+        {
+            Assert.Equal(keptFolder, VaultBackup.ReplaceDataFolder(opened, data, keptFolder));
+        }
+
+        Assert.True(File.Exists(Path.Combine(keptFolder, "76561198000000002.maFile")));
+        using var restored = Vault.Open(data);
+        restored.Unlock("backup-pw");
+        Assert.Equal([First], restored.ListAccounts().Select(a => a.SteamId));
+    }
+
     private static MaFile NewMaFile(ulong steamId, string name, string sharedSecret)
         => new() { AccountName = name, SharedSecret = sharedSecret, Session = new MaFileSession { SteamId = steamId } };
 }

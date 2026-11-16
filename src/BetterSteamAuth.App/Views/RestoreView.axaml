@@ -1,4 +1,4 @@
-<!-- Restore from backup into this app. -->
+<!-- Restore from backup: into this app, or replacing its data. -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
@@ -23,7 +23,7 @@
       <Grid Width="420" Margin="24,28,24,24">
         <!-- 1. Pick the file -->
         <StackPanel Spacing="8" IsVisible="{Binding IsPick}">
-          <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RestoreBody}" />
+          <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Body}" />
           <Button Margin="0,12,0,0" HorizontalAlignment="Left" Command="{Binding PickCommand}" IsEnabled="{Binding IsIdle}"
                   AutomationProperties.Name="{x:Static res:Strings.ChooseBackupFile}">
             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -70,6 +70,8 @@
         <StackPanel Spacing="8" IsVisible="{Binding IsDone}">
           <PathIcon Width="40" Height="40" Classes="success" Data="{StaticResource SemiIconTickCircle}" />
           <TextBlock Classes="heading" TextAlignment="Center" Text="{Binding DoneText}" />
+          <TextBlock Classes="secondary" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding DoneNote}"
+                     IsVisible="{Binding DoneNote, Converter={x:Static ObjectConverters.IsNotNull}}" />
           <Button Margin="0,12,0,0" HorizontalAlignment="Center" Theme="{DynamicResource SolidButton}" Classes="Primary"
                   Content="{x:Static res:Strings.OpenApp}" Command="{Binding OpenCommand}" />
         </StackPanel>

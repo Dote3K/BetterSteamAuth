@@ -13,5 +13,13 @@
     <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <Button HorizontalAlignment="Stretch" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
             Content="{Binding UnlockLabel}" Command="{Binding UnlockCommand}" IsEnabled="{Binding !IsBusy}" />
+    <Button HorizontalAlignment="Center" Theme="{DynamicResource BorderlessButton}" Margin="0,4,0,0"
+            Content="{x:Static res:Strings.ForgotPassword}" Command="{Binding ForgotCommand}" IsVisible="{Binding !ShowsForgot}" />
+    <Border Classes="well" Padding="14,12" Margin="0,8,0,0" IsVisible="{Binding ShowsForgot}">
+      <StackPanel Spacing="10">
+        <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.ForgotPasswordBody}" />
+        <Button HorizontalAlignment="Left" Content="{x:Static res:Strings.RestoreFromBackup}" Command="{Binding RestoreFromBackupCommand}" />
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

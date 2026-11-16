@@ -30,6 +30,9 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
 
     public string DataFolder => shell.DataFolder;
 
+    [RelayCommand]
+    private void RestoreFromBackup() => shell.ShowRestoreReplacing(fromFirstRun: true);
+
     public string DataFolderText => string.Format(CultureInfo.CurrentCulture, DataFolderFormat, shell.DataFolder);
 
     [ObservableProperty]

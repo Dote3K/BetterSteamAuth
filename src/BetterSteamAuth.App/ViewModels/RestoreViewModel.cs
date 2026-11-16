@@ -17,7 +17,8 @@ public enum RestoreStep
 }
 
 /// <summary>
-/// Restore from backup into this app: adds the accounts it doesn't have and keeps the rest as they are.
+/// Restore from backup. Into this app (merge): adds the accounts it doesn't have and keeps the rest as they are.
+/// Replacing (forgot password, first run): the backup becomes the app's data; the old folder is kept aside.
 /// </summary>
 public sealed partial class RestoreViewModel : ObservableObject, IDisposable
 {
@@ -25,19 +26,25 @@ public sealed partial class RestoreViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat WillAddFormat = CompositeFormat.Parse(Strings.RestoreWillAddFormat);
     private static readonly CompositeFormat AlreadyHereFormat = CompositeFormat.Parse(Strings.RestoreAlreadyHereFormat);
     private static readonly CompositeFormat RestoredFormat = CompositeFormat.Parse(Strings.RestoredFormat);
+    private static readonly CompositeFormat KeptFormat = CompositeFormat.Parse(Strings.RestoreKeptFormat);
 
     private readonly ShellViewModel _shell;
-    private readonly Vault _vault;
+    private readonly Vault? _vault;
     private readonly Action _back;
+    private readonly bool _replace;
+    private readonly string _keptFolder;
     private OpenedBackup? _backup;
-    private int _toAdd;
 
-    public RestoreViewModel(ShellViewModel shell, Action back)
+    public RestoreViewModel(ShellViewModel shell, Action back, bool replace)
     {
         _shell = shell;
-        _vault = shell.Vault ?? throw new InvalidOperationException("No vault is open.");
+        _replace = replace;
+        _vault = replace ? null : shell.Vault ?? throw new InvalidOperationException("No vault is open.");
         _back = back;
+        _keptFolder = VaultBackup.KeptFolderFor(shell.DataFolder, DateTime.Now);
     }
+
+    public string Body => _replace ? Strings.RestoreReplaceBody : Strings.RestoreBody;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsPick), nameof(IsPassword), nameof(IsPreview), nameof(IsDone))]
@@ -69,6 +76,7 @@ public sealed partial class RestoreViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial string? AlreadyHere { get; private set; }
     [ObservableProperty] public partial bool CanRestore { get; private set; }
     [ObservableProperty] public partial string DoneText { get; private set; } = "";
+    [ObservableProperty] public partial string? DoneNote { get; private set; }
 
     partial void OnPasswordChanged(string value) => Error = null;
 
@@ -155,8 +163,20 @@ public sealed partial class RestoreViewModel : ObservableObject, IDisposable
         try
         {
             var source = _backup.Vault;
-            int added = await Task.Run(() => _vault.MergeFrom(source)).ConfigureAwait(true);
-            DoneText = string.Format(CultureInfo.CurrentCulture, RestoredFormat, added);
+            if (_replace)
+            {
+                // On the UI thread: it closes and reopens the app's data. The files are small.
+                var backup = _backup;
+                string? kept = _shell.ReplaceDataWithBackup(backup, _keptFolder);
+                DoneText = string.Format(CultureInfo.CurrentCulture, RestoredFormat, backup.Manifest.Accounts);
+                DoneNote = kept is null ? null : string.Format(CultureInfo.CurrentCulture, KeptFormat, kept);
+            }
+            else
+            {
+                int added = await Task.Run(() => _vault!.MergeFrom(source)).ConfigureAwait(true);
+                DoneText = string.Format(CultureInfo.CurrentCulture, RestoredFormat, added);
+            }
+
             CloseBackup();
             Step = RestoreStep.Done;
         }
@@ -175,12 +195,22 @@ public sealed partial class RestoreViewModel : ObservableObject, IDisposable
 
     private void ShowPreview()
     {
-        var candidates = _vault.PreviewMerge(_backup!.Vault);
-        _toAdd = candidates.Count(c => !c.AlreadyHere);
-        int here = candidates.Count - _toAdd;
-        WillAdd = _toAdd > 0 ? string.Format(CultureInfo.CurrentCulture, WillAddFormat, _toAdd) : Strings.RestoreNothingToAdd;
+        if (_replace)
+        {
+            WillAdd = Strings.RestoreReplacesData;
+            bool hasData = Directory.Exists(_shell.DataFolder) && Directory.EnumerateFileSystemEntries(_shell.DataFolder).Any();
+            AlreadyHere = hasData ? string.Format(CultureInfo.CurrentCulture, KeptFormat, _keptFolder) : null;
+            CanRestore = true;
+            Step = RestoreStep.Preview;
+            return;
+        }
+
+        var candidates = _vault!.PreviewMerge(_backup!.Vault);
+        int toAdd = candidates.Count(c => !c.AlreadyHere);
+        int here = candidates.Count - toAdd;
+        WillAdd = toAdd > 0 ? string.Format(CultureInfo.CurrentCulture, WillAddFormat, toAdd) : Strings.RestoreNothingToAdd;
         AlreadyHere = here > 0 ? string.Format(CultureInfo.CurrentCulture, AlreadyHereFormat, here) : null;
-        CanRestore = _toAdd > 0;
+        CanRestore = toAdd > 0;
         Step = RestoreStep.Preview;
     }
 

@@ -29,6 +29,16 @@ public sealed partial class UnlockViewModel(ShellViewModel shell) : ObservableOb
 
     partial void OnPasswordChanged(string value) => Error = null;
 
+    /// <summary>"Forgot password?" was clicked: explain, and offer restoring a backup.</summary>
+    [ObservableProperty]
+    public partial bool ShowsForgot { get; private set; }
+
+    [RelayCommand]
+    private void Forgot() => ShowsForgot = true;
+
+    [RelayCommand]
+    private void RestoreFromBackup() => shell.ShowRestoreReplacing(fromFirstRun: false);
+
     [RelayCommand]
     private async Task UnlockAsync()
     {

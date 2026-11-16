@@ -342,7 +342,60 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     /// <summary>Back up now; <paramref name="fromSettings"/> decides where Back returns.</summary>
     public void ShowBackup(bool fromSettings) => SwitchTo(new BackupViewModel(this, fromSettings ? ShowSettings : ShowMain));
 
-    public void ShowRestore() => SwitchTo(new RestoreViewModel(this, ShowSettings));
+    public void ShowRestore() => SwitchTo(new RestoreViewModel(this, ShowSettings, replace: false));
+
+    /// <summary>Restore that replaces the data: from Unlock ("Forgot password?") or the first run.</summary>
+    public void ShowRestoreReplacing(bool fromFirstRun)
+        => SwitchTo(new RestoreViewModel(this, fromFirstRun ? ShowFirstRun : ShowUnlock, replace: true));
+
+    public void ShowFirstRun() => SwitchTo(new FirstRunViewModel(this));
+
+    /// <summary>
+    /// Puts a backup in place of the app's data and opens it, unlocked with the backup's key. The old data
+    /// folder is kept aside (returned). If that fails, the old data is opened again (locked) and the error rethrown.
+    /// </summary>
+    public string? ReplaceDataWithBackup(OpenedBackup backup, string keptFolder)
+    {
+        ArgumentNullException.ThrowIfNull(backup);
+        byte[]? key = backup.Vault.IsEncrypted ? backup.Vault.ExportDataKey() : null;
+        try
+        {
+            CloseConnections();
+            Vault?.Dispose();
+            Vault = null;
+            RememberedKey.Forget(DataFolder);
+            string? kept;
+            try
+            {
+                kept = VaultBackup.ReplaceDataFolder(backup, DataFolder, keptFolder);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                if (Vault.Exists(DataFolder))
+                {
+                    UseVault(Vault.Open(DataFolder));
+                }
+
+                throw;
+            }
+
+            var restored = Vault.Open(DataFolder);
+            if (key is not null)
+            {
+                restored.TryUnlockWithKey(key);
+            }
+
+            UseVault(restored);
+            return kept;
+        }
+        finally
+        {
+            if (key is not null)
+            {
+                System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
+            }
+        }
+    }
 
     /// <summary>The app's version, written into backups.</summary>
     public static string? AppVersion => typeof(ShellViewModel).Assembly.GetName().Version?.ToString(3);

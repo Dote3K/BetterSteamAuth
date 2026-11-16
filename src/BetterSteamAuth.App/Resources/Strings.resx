@@ -388,4 +388,10 @@
   <data name="RestoreButton" xml:space="preserve"><value>Restore</value></data>
   <data name="RestoredFormat" xml:space="preserve"><value>Restored {0} accounts</value></data>
   <data name="RestoreFailed" xml:space="preserve"><value>Couldn't restore. Nothing was changed for accounts that weren't added.</value></data>
+  <data name="RestoreKeptFormat" xml:space="preserve"><value>Your current data is kept in {0}.</value></data>
+  <data name="RestoreReplaceBody" xml:space="preserve"><value>Replaces the app's data with a backup. The data here now is kept in a folder next to it, not deleted.</value></data>
+  <data name="RestoreReplacesData" xml:space="preserve"><value>The app's data will be replaced with this backup.</value></data>
+  <data name="ForgotPassword" xml:space="preserve"><value>Forgot password?</value></data>
+  <data name="ForgotPasswordBody" xml:space="preserve"><value>Your password can't be recovered. If you have a backup, you can restore it. The data here is kept aside, not deleted.</value></data>
+  <data name="HaveABackup" xml:space="preserve"><value>Have a backup? Restore it</value></data>
 </root>

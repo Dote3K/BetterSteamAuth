@@ -40,6 +40,18 @@ public sealed class OpenedBackup : IDisposable
         SqliteConnection.ClearAllPools();
         VaultBackup.DeleteFolder(Folder);
     }
+
+    /// <summary>Copies the unpacked data (vault.db and maFiles) into <paramref name="destination"/>.</summary>
+    internal void CopyTo(string destination)
+    {
+        Vault.Dispose();
+        SqliteConnection.ClearAllPools();
+        Directory.CreateDirectory(destination);
+        foreach (string file in Directory.GetFiles(Folder))
+        {
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
+        }
+    }
 }
 
 /// <summary>
@@ -150,6 +162,30 @@ public static class VaultBackup
             DeleteFolder(folder);
             throw;
         }
+    }
+
+    /// <summary>The name the current data folder gets when a backup replaces it, e.g. <c>BetterSteamAuth.old-2026-11-16-1530</c>.</summary>
+    public static string KeptFolderFor(string dataFolder, DateTime now)
+        => Path.TrimEndingDirectorySeparator(dataFolder) + ".old-" + now.ToString("yyyy-MM-dd-HHmm", System.Globalization.CultureInfo.InvariantCulture);
+
+    /// <summary>
+    /// Replaces a data folder with an opened backup. The current folder is never deleted: it's renamed to
+    /// <paramref name="keptFolder"/> when it has anything in it. Close the app's vault before calling this.
+    /// Returns the kept folder, or null when there was nothing to keep.
+    /// </summary>
+    public static string? ReplaceDataFolder(OpenedBackup backup, string dataFolder, string keptFolder)
+    {
+        ArgumentNullException.ThrowIfNull(backup);
+        SqliteConnection.ClearAllPools();
+        string? kept = null;
+        if (Directory.Exists(dataFolder) && Directory.EnumerateFileSystemEntries(dataFolder).Any())
+        {
+            Directory.Move(dataFolder, keptFolder);
+            kept = keptFolder;
+        }
+
+        backup.CopyTo(dataFolder);
+        return kept;
     }
 
     internal static void DeleteFolder(string folder)
