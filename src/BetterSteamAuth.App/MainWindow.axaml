@@ -17,6 +17,7 @@
     <DataTemplate DataType="vm:ProxiesViewModel"><views:ProxiesView /></DataTemplate>
     <DataTemplate DataType="vm:ChangeProxyViewModel"><views:ChangeProxyView /></DataTemplate>
     <DataTemplate DataType="vm:LinkViewModel"><views:LinkView /></DataTemplate>
+    <DataTemplate DataType="vm:AccountDetailsViewModel"><views:AccountDetailsView /></DataTemplate>
   </Window.DataTemplates>
   <ContentControl Content="{Binding CurrentPage}" />
 </Window>

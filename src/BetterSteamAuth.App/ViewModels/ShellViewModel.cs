@@ -230,9 +230,26 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         StartProxyChecks();
     }
 
+    /// <summary>Main window with this account selected.</summary>
+    public void ShowMain(ulong selectSteamId)
+    {
+        SwitchTo(new MainViewModel(this, selectSteamId));
+        StartProxyChecks();
+    }
+
+    /// <summary>Main window right after an account was removed, offering Undo.</summary>
+    public void ShowMainAfterRemove(RemovedAccount removed, string name)
+    {
+        SwitchTo(new MainViewModel(this, removed: (removed, name)));
+        StartProxyChecks();
+    }
+
+    public void ShowAccountDetails(ulong steamId) => SwitchTo(new AccountDetailsViewModel(this, steamId));
+
     public void ShowProxies() => SwitchTo(new ProxiesViewModel(this));
 
-    public void ShowChangeProxy(ulong steamId, string accountName) => SwitchTo(new ChangeProxyViewModel(this, steamId, accountName));
+    public void ShowChangeProxy(ulong steamId, string accountName, Action? done = null)
+        => SwitchTo(new ChangeProxyViewModel(this, steamId, accountName, done ?? ShowMain));
 
     public void ShowUnlock() => SwitchTo(new UnlockViewModel(this));
 
@@ -242,7 +259,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
-    public void ShowLogin(ulong steamId, string accountName) => SwitchTo(new LoginViewModel(this, steamId, accountName));
+    public void ShowLogin(ulong steamId, string accountName, Action? done = null)
+        => SwitchTo(new LoginViewModel(this, steamId, accountName, done ?? ShowMain));
 
     public void ShowImport(ImportSource source) => SwitchTo(new ImportViewModel(this, source, onDone: ShowMain));
 

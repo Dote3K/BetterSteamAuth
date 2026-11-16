@@ -8,6 +8,7 @@
   <UserControl.KeyBindings>
     <KeyBinding Gesture="Ctrl+L" Command="{Binding LockCommand}" />
     <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyCodeCommand}" />
+    <KeyBinding Gesture="Ctrl+Enter" Command="{Binding OpenDetailsCommand}" />
   </UserControl.KeyBindings>
   <DockPanel>
     <!-- Header -->
@@ -52,6 +53,15 @@
     <ProgressBar DockPanel.Dock="Top" Height="2" MinHeight="2" CornerRadius="0" IsVisible="{Binding HasAccounts}"
                  Minimum="0" Maximum="30" Value="{Binding SecondsRemaining}" />
 
+    <!-- Removed {name} · Undo -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding HasRemoved}">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock VerticalAlignment="Center" Text="{Binding RemovedText}" />
+        <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                Content="{x:Static res:Strings.Undo}" Command="{Binding UndoRemoveCommand}" />
+      </Grid>
+    </Border>
+
     <Panel>
       <!-- Empty state -->
       <StackPanel IsVisible="{Binding !HasAccounts}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
@@ -69,12 +79,15 @@
       <views:ConfirmationDetailView DataContext="{Binding Detail}" IsVisible="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).HasDetail}" />
 
       <Grid IsVisible="{Binding ShowAccounts}" ColumnDefinitions="*,1.1*">
-        <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
+        <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DoubleTapped="OnAccountDoubleTapped">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:AccountItemViewModel">
               <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10" Height="32" Margin="4,0" Background="Transparent">
                 <Grid.ContextMenu>
                   <ContextMenu>
+                    <MenuItem Header="{x:Static res:Strings.OpenDetails}"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenDetailsCommand}"
+                              CommandParameter="{Binding}" />
                     <MenuItem Header="{x:Static res:Strings.CopyCode}"
                               Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
                               CommandParameter="{Binding}" />

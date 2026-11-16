@@ -239,4 +239,47 @@
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
   <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>
   <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking for confirmations while the window is minimized. Otherwise checks run only while confirmations are on screen.</value></data>
+  <data name="SessionValidUntilFormat" xml:space="preserve"><value>{0} · {1} days left</value></data>
+  <data name="HidesInFormat" xml:space="preserve"><value>Hides in {0}s</value></data>
+  <data name="RemoveAccountTitleFormat" xml:space="preserve"><value>Remove {0} from BetterSteamAuth?</value></data>
+  <data name="DeviceFormat" xml:space="preserve"><value>{0} · Android {1}</value></data>
+  <data name="FromImportedMaFile" xml:space="preserve"><value>From imported maFile</value></data>
+  <data name="NotInMaFile" xml:space="preserve"><value>Not in this maFile</value></data>
+  <data name="ExportMaFile" xml:space="preserve"><value>Export maFile</value></data>
+  <data name="ExportedPlain" xml:space="preserve"><value>Exported. The file isn't encrypted, so keep it somewhere safe.</value></data>
+  <data name="RemoveNeedsCheck" xml:space="preserve"><value>Check the box first.</value></data>
+  <data name="NotSignedIn" xml:space="preserve"><value>Not signed in</value></data>
+  <data name="SessionExpired" xml:space="preserve"><value>Session expired</value></data>
+  <data name="SignedInRenews" xml:space="preserve"><value>Signed in · renews automatically</value></data>
+  <data name="NotCheckedYet" xml:space="preserve"><value>Not checked yet</value></data>
+  <data name="RemovedFormat" xml:space="preserve"><value>Removed {0}</value></data>
+  <data name="OpenDetails" xml:space="preserve"><value>Open details</value></data>
+  <data name="SignInSection" xml:space="preserve"><value>Sign-in</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="SessionValidUntil" xml:space="preserve"><value>Session valid until</value></data>
+  <data name="Connection" xml:space="preserve"><value>Connection</value></data>
+  <data name="Proxy" xml:space="preserve"><value>Proxy</value></data>
+  <data name="LastCheck" xml:space="preserve"><value>Last check</value></data>
+  <data name="Change" xml:space="preserve"><value>Change</value></data>
+  <data name="Test" xml:space="preserve"><value>Test</value></data>
+  <data name="SteamGuard" xml:space="preserve"><value>Steam Guard</value></data>
+  <data name="RevocationCode" xml:space="preserve"><value>Revocation code</value></data>
+  <data name="Reveal" xml:space="preserve"><value>Reveal</value></data>
+  <data name="Hide" xml:space="preserve"><value>Hide</value></data>
+  <data name="Show" xml:space="preserve"><value>Show</value></data>
+  <data name="Organize" xml:space="preserve"><value>Organize</value></data>
+  <data name="Group" xml:space="preserve"><value>Group</value></data>
+  <data name="NoGroup" xml:space="preserve"><value>No group</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
+  <data name="NotePlaceholder" xml:space="preserve"><value>Add a note</value></data>
+  <data name="Advanced" xml:space="preserve"><value>Advanced</value></data>
+  <data name="SteamId64" xml:space="preserve"><value>SteamID64</value></data>
+  <data name="Device" xml:space="preserve"><value>Device</value></data>
+  <data name="DeviceId" xml:space="preserve"><value>Device ID</value></data>
+  <data name="MaFileLabel" xml:space="preserve"><value>maFile</value></data>
+  <data name="ShowInFolder" xml:space="preserve"><value>Show in folder</value></data>
+  <data name="RemoveFromApp" xml:space="preserve"><value>Remove from app</value></data>
+  <data name="RemoveAccountBody" xml:space="preserve"><value>Steam Guard stays active on this account. Without this maFile or the revocation code you can lose access to it.</value></data>
+  <data name="RemoveAccountCheckbox" xml:space="preserve"><value>I've saved the revocation code or exported the maFile</value></data>
+  <data name="EnterPasswordToReveal" xml:space="preserve"><value>Enter your password to show the code</value></data>
 </root>

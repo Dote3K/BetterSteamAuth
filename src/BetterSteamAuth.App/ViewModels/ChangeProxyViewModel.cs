@@ -21,10 +21,12 @@ public sealed partial class ChangeProxyViewModel : ObservableObject
 
     private readonly ShellViewModel _shell;
     private readonly ulong _steamId;
+    private readonly Action _done;
 
-    public ChangeProxyViewModel(ShellViewModel shell, ulong steamId, string accountName)
+    public ChangeProxyViewModel(ShellViewModel shell, ulong steamId, string accountName, Action done)
     {
         _shell = shell;
+        _done = done;
         _steamId = steamId;
         Title = string.Format(CultureInfo.CurrentCulture, TitleFormat, accountName);
 
@@ -55,9 +57,9 @@ public sealed partial class ChangeProxyViewModel : ObservableObject
     {
         _shell.Vault?.SetAccountProxy(_steamId, Selected.ProxyId);
         _shell.ResetConnection(_steamId);
-        _shell.ShowMain();
+        _done();
     }
 
     [RelayCommand]
-    private void Cancel() => _shell.ShowMain();
+    private void Cancel() => _done();
 }

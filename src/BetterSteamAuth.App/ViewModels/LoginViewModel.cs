@@ -20,11 +20,13 @@ public sealed partial class LoginViewModel : ObservableObject
 
     private readonly ShellViewModel _shell;
     private readonly ulong _steamId;
+    private readonly Action _done;
     private TaskCompletionSource<string?>? _emailCode;
 
-    public LoginViewModel(ShellViewModel shell, ulong steamId, string accountName)
+    public LoginViewModel(ShellViewModel shell, ulong steamId, string accountName, Action done)
     {
         _shell = shell;
+        _done = done;
         _steamId = steamId;
         AccountName = accountName;
         Title = string.Format(CultureInfo.CurrentCulture, TitleFormat, accountName);
@@ -86,7 +88,7 @@ public sealed partial class LoginViewModel : ObservableObject
             }
 
             Password = "";
-            _shell.ShowMain();
+            _done();
         }
         catch (LoginFailedException ex)
         {
@@ -126,7 +128,7 @@ public sealed partial class LoginViewModel : ObservableObject
     private void Cancel()
     {
         _emailCode?.TrySetResult(null);
-        _shell.ShowMain();
+        _done();
     }
 
     private Task<string?> AskEmailCodeAsync(GuardChallenge challenge)

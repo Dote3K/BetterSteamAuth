@@ -1,0 +1,221 @@
+<!-- Account details. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.AccountDetailsView"
+             x:DataType="vm:AccountDetailsViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+    <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyCodeCommand}" />
+    <KeyBinding Gesture="Ctrl+R" Command="{Binding ReloginCommand}" />
+  </UserControl.KeyBindings>
+  <UserControl.Styles>
+    <Style Selector="Grid.row">
+      <Setter Property="MinHeight" Value="36" />
+    </Style>
+    <Style Selector="Grid.row > TextBlock.label">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="Margin" Value="0,24,0,6" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <!-- Header -->
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="12">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" VerticalAlignment="Center" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <Border Grid.Column="1" Classes="avatar" VerticalAlignment="Center">
+          <Panel>
+            <Image Source="{Binding Avatar}" Stretch="UniformToFill" />
+            <PathIcon Width="22" Height="22" Classes="hint-icon" Data="{StaticResource SemiIconUser}"
+                      IsVisible="{Binding Avatar, Converter={x:Static ObjectConverters.IsNull}}" />
+          </Panel>
+        </Border>
+        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+          <TextBlock Classes="title" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+          <TextBlock Classes="caption hint" Text="{Binding GroupName}" IsVisible="{Binding HasGroupLine}" />
+        </StackPanel>
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right">
+            <TextBlock Classes="code-list" FontSize="20" HorizontalAlignment="Right" Text="{Binding Code}" />
+            <TextBlock Classes="caption hint" HorizontalAlignment="Right" Text="{Binding SecondsLeftText}" />
+          </StackPanel>
+          <Button VerticalAlignment="Center" Command="{Binding CopyCodeCommand}" AutomationProperties.Name="{x:Static res:Strings.CopyCode}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
+              <TextBlock Text="{Binding CopyLabel}" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Button Grid.Column="4" Theme="{DynamicResource BorderlessButton}" Padding="8" VerticalAlignment="Center"
+                AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
+          <Button.Flyout>
+            <MenuFlyout Placement="BottomEdgeAlignedRight">
+              <MenuItem Header="{x:Static res:Strings.ExportMaFile}" Command="{Binding ExportCommand}" />
+              <MenuItem Header="{x:Static res:Strings.RemoveFromApp}" Command="{Binding AskRemoveCommand}" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
+      </Grid>
+    </Border>
+
+    <!-- Footer -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="24,10">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Button Content="{x:Static res:Strings.ExportMaFile}" Command="{Binding ExportCommand}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Danger"
+                Content="{x:Static res:Strings.RemoveFromApp}" Command="{Binding AskRemoveCommand}" />
+      </Grid>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel MaxWidth="680" Margin="24,8,24,24" HorizontalAlignment="Stretch">
+
+        <TextBlock Classes="secondary" Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding ExportMessage}"
+                   IsVisible="{Binding ExportMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+        <!-- Remove confirmation -->
+        <Border Classes="banner-danger" Margin="0,16,0,0" Padding="14,12" IsVisible="{Binding IsConfirmingRemove}">
+          <StackPanel Spacing="6">
+            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding RemoveTitle}" />
+            <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.RemoveAccountBody}" />
+            <CheckBox Margin="0,4,0,0" Content="{x:Static res:Strings.RemoveAccountCheckbox}" IsChecked="{Binding SavedForRemove}" />
+            <TextBlock Classes="danger" Text="{Binding RemoveError}"
+                       IsVisible="{Binding RemoveError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+              <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelRemoveCommand}" />
+              <Button Theme="{DynamicResource SolidButton}" Classes="Danger" Content="{x:Static res:Strings.Remove}"
+                      Command="{Binding ConfirmRemoveCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Sign-in -->
+        <TextBlock Classes="caption section" Text="{x:Static res:Strings.SignInSection}" />
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Status}" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <PathIcon Width="13" Height="13" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" IsVisible="{Binding SessionProblem}" />
+            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding SessionStatus}" />
+          </StackPanel>
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.Relogin}" Command="{Binding ReloginCommand}" />
+        </Grid>
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto" IsVisible="{Binding SessionValidUntil, Converter={x:Static ObjectConverters.IsNotNull}}">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.SessionValidUntil}" />
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SessionValidUntil}" />
+        </Grid>
+
+        <!-- Connection -->
+        <TextBlock Classes="caption section" Text="{x:Static res:Strings.Connection}" />
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Proxy}" />
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
+                     TextTrimming="CharacterEllipsis" Text="{Binding ProxyText}" />
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.Change}" Command="{Binding ChangeProxyCommand}" />
+        </Grid>
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto" IsVisible="{Binding HasProxy}">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.LastCheck}" />
+          <Panel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Classes="hint" Text="{x:Static res:Strings.Checking}" IsVisible="{Binding IsTesting}" />
+            <TextBlock TextWrapping="Wrap" Classes.danger="{Binding ProxyDead}" Text="{Binding ProxyHealth}" IsVisible="{Binding !IsTesting}" />
+          </Panel>
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.Test}" Command="{Binding TestProxyCommand}" IsEnabled="{Binding !IsTesting}" />
+        </Grid>
+
+        <!-- Steam Guard -->
+        <TextBlock Classes="caption section" Text="{x:Static res:Strings.SteamGuard}" />
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.RevocationCode}" />
+          <!-- Hidden -->
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
+                     Text="{Binding MaskedRevocationCode}" IsVisible="{Binding IsRevocationHidden}" />
+          <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.Reveal}" Command="{Binding RevealCommand}"
+                  IsVisible="{Binding IsRevocationHidden}" IsEnabled="{Binding HasRevocationCode}" />
+          <!-- Asking for the password -->
+          <Grid Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4"
+                IsVisible="{Binding IsAskingPassword}">
+            <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.EnterPasswordToReveal}"
+                     Text="{Binding RevealPassword}" AutomationProperties.Name="{x:Static res:Strings.Password}">
+              <TextBox.KeyBindings>
+                <KeyBinding Gesture="Enter" Command="{Binding ConfirmRevealCommand}" />
+              </TextBox.KeyBindings>
+            </TextBox>
+            <Button Grid.Column="1" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelRevealCommand}" />
+            <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                    Content="{x:Static res:Strings.Show}" Command="{Binding ConfirmRevealCommand}" IsEnabled="{Binding !IsVerifying}" />
+          </Grid>
+          <!-- Revealed -->
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center"
+                      IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Classes="code-list" FontSize="16" VerticalAlignment="Center" Text="{Binding RevealedCode}" />
+            <TextBlock Classes="caption hint" VerticalAlignment="Center" Text="{Binding HidesInText}" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4"
+                      IsVisible="{Binding RevealedCode, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Button Theme="{DynamicResource BorderlessButton}" Classes="Primary" Content="{x:Static res:Strings.Copy}"
+                    Command="{Binding CopyRevocationCodeCommand}" />
+            <Button Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Hide}"
+                    Command="{Binding HideRevocationCodeCommand}" />
+          </StackPanel>
+        </Grid>
+        <TextBlock Classes="caption danger" Margin="170,0,0,0" Text="{Binding RevealError}"
+                   IsVisible="{Binding RevealError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+        <!-- Organize -->
+        <TextBlock Classes="caption section" Text="{x:Static res:Strings.Organize}" />
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+          <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Group}" />
+          <AutoCompleteBox Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4" ItemsSource="{Binding Groups}" Text="{Binding GroupName}"
+                           FilterMode="ContainsOrdinal" MinimumPrefixLength="0" Watermark="{x:Static res:Strings.NoGroup}"
+                           AutomationProperties.Name="{x:Static res:Strings.Group}" />
+        </Grid>
+        <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+          <TextBlock Classes="label secondary" VerticalAlignment="Top" Margin="0,10,0,0" Text="{x:Static res:Strings.Note}" />
+          <TextBox Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4" Classes="TextArea" AcceptsReturn="True" TextWrapping="Wrap"
+                   MinHeight="64" PlaceholderText="{x:Static res:Strings.NotePlaceholder}" Text="{Binding Note}"
+                   AutomationProperties.Name="{x:Static res:Strings.Note}" />
+        </Grid>
+
+        <!-- Advanced -->
+        <Expander Margin="0,24,0,0" HorizontalAlignment="Stretch" Header="{x:Static res:Strings.Advanced}">
+          <StackPanel>
+            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.SteamId64}" />
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding SteamIdText}" />
+              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                      Content="{x:Static res:Strings.Copy}" Command="{Binding CopySteamIdCommand}" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Device}" />
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding DeviceText}" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.DeviceId}" />
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
+                         Text="{Binding DeviceIdShort}" ToolTip.Tip="{Binding DeviceId}" />
+              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                      Content="{x:Static res:Strings.Copy}" Command="{Binding CopyDeviceIdCommand}" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="170,*,Auto">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.MaFileLabel}" />
+              <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}" Text="{Binding FileName}" />
+              <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                      Content="{x:Static res:Strings.ShowInFolder}" Command="{Binding ShowInFolderCommand}" />
+            </Grid>
+          </StackPanel>
+        </Expander>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

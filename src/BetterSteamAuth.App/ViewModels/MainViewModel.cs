@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Core.Guard;
 using BetterSteamAuth.Steam;
+using BetterSteamAuth.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -19,6 +20,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat SecondsLeftFormat = CompositeFormat.Parse(Strings.SecondsLeftFormat);
 
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(60);
+    private static readonly CompositeFormat RemovedFormat = CompositeFormat.Parse(Strings.RemovedFormat);
+    private int _removedSecondsLeft = 10 * 4;
 
     private readonly List<AccountItemViewModel> _all = [];
     private readonly DispatcherTimer _timer;
@@ -26,7 +29,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private readonly ShellViewModel _shell;
 
-    public MainViewModel(ShellViewModel shell)
+    private readonly (RemovedAccount Account, string Name)? _removed;
+
+    public MainViewModel(ShellViewModel shell, ulong? selectSteamId = null, (RemovedAccount Account, string Name)? removed = null)
     {
         _shell = shell;
         var vault = shell.Vault ?? throw new InvalidOperationException("No vault is open.");
@@ -53,7 +58,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
 
         ApplyFilter();
-        SelectedAccount = Accounts.FirstOrDefault();
+        SelectedAccount = Accounts.FirstOrDefault(a => a.SteamId == selectSteamId) ?? Accounts.FirstOrDefault();
+        _removed = removed;
+        RemovedText = removed is { } r ? string.Format(CultureInfo.CurrentCulture, RemovedFormat, r.Name) : null;
         Tick();
 
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Normal, (_, _) => Tick());
@@ -167,6 +174,32 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void LinkNew() => _shell.ShowLink();
+
+    /// <summary>"Removed {name} · Undo", shown for a few seconds after removing an account.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasRemoved))]
+    public partial string? RemovedText { get; private set; }
+
+    public bool HasRemoved => RemovedText is not null;
+
+    [RelayCommand]
+    private void UndoRemove()
+    {
+        if (_removed is { } r && _shell.Vault is { } vault)
+        {
+            vault.Restore(r.Account);
+            _shell.ShowMain(r.Account.Entry.SteamId);
+        }
+    }
+
+    [RelayCommand]
+    private void OpenDetails(AccountItemViewModel? account)
+    {
+        if ((account ?? SelectedAccount) is { } target)
+        {
+            _shell.ShowAccountDetails(target.SteamId);
+        }
+    }
 
     [RelayCommand]
     private void FinishLink(AccountItemViewModel? account)
@@ -411,6 +444,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private void Tick()
     {
+        if (RemovedText is not null && --_removedSecondsLeft <= 0)
+        {
+            RemovedText = null;
+        }
+
         foreach (var account in _all)
         {
             account.RefreshIfRotated();

@@ -10,4 +10,10 @@ public interface IPlatformServices
     Task<string?> PickFolderAsync(string title);
 
     Task<IReadOnlyList<string>> PickMaFilesAsync(string title);
+
+    /// <summary>Asks where to save a file; null when cancelled.</summary>
+    Task<string?> SaveFileAsync(string title, string suggestedName);
+
+    /// <summary>Opens the file's folder with the file selected.</summary>
+    void RevealFile(string path);
 }

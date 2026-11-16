@@ -45,6 +45,29 @@ public partial class MainWindow : Window, IPlatformServices
         return folders.Count > 0 ? folders[0].TryGetLocalPath() : null;
     }
 
+    public async Task<string?> SaveFileAsync(string title, string suggestedName)
+    {
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = title,
+            SuggestedFileName = suggestedName,
+            FileTypeChoices = [MaFileType],
+        });
+        return file?.TryGetLocalPath();
+    }
+
+    public void RevealFile(string path)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"/select,\"{path}\"") { UseShellExecute = false });
+        }
+        else
+        {
+            _ = Launcher.LaunchUriAsync(new Uri(Path.GetDirectoryName(path)!));
+        }
+    }
+
     public async Task<IReadOnlyList<string>> PickMaFilesAsync(string title)
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
