@@ -20,6 +20,27 @@
 
     <ScrollViewer>
       <StackPanel MaxWidth="640" Margin="24,20" Spacing="4" HorizontalAlignment="Stretch">
+        <StackPanel Spacing="4" IsVisible="{Binding HasPassword}">
+          <TextBlock Classes="caption" Text="{x:Static res:Strings.Security}" Margin="0,0,0,8" />
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16" IsVisible="{Binding CanRemember}">
+            <StackPanel Spacing="2">
+              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RememberOnDevice}" />
+              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RememberOnDeviceBody}" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding RememberOnDevice}"
+                          AutomationProperties.Name="{x:Static res:Strings.RememberOnDevice}" />
+          </Grid>
+          <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,28">
+            <StackPanel Spacing="2">
+              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AutoLock}" />
+              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoLockBody}" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                      ItemsSource="{Binding AutoLockChoices}" SelectedItem="{Binding AutoLock}"
+                      AutomationProperties.Name="{x:Static res:Strings.AutoLock}" />
+          </Grid>
+        </StackPanel>
+
         <TextBlock Classes="caption" Text="{x:Static res:Strings.Confirmations}" Margin="0,0,0,8" />
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
           <StackPanel Spacing="2">

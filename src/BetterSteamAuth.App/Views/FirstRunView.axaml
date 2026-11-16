@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
              xmlns:res="using:BetterSteamAuth.App.Resources"
+             xmlns:svc="using:BetterSteamAuth.App.Services"
              x:Class="BetterSteamAuth.App.Views.FirstRunView"
              x:DataType="vm:FirstRunViewModel">
   <Grid Width="460" Margin="24" VerticalAlignment="Center">
@@ -50,6 +51,8 @@
       <TextBox Classes="revealPasswordButton" PasswordChar="•"
                PlaceholderText="{x:Static res:Strings.ConfirmPassword}" Text="{Binding ConfirmPassword}" />
       <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+      <CheckBox Margin="0,4,0,0" IsChecked="{Binding RememberOnDevice}" IsVisible="{x:Static svc:RememberedKey.IsSupported}"
+                Content="{x:Static res:Strings.RememberOnDevice}" ToolTip.Tip="{x:Static res:Strings.RememberOnDeviceBody}" />
       <TextBlock Classes="secondary" TextWrapping="Wrap" IsVisible="{Binding ShowNoPasswordNote}"
                  Text="{x:Static res:Strings.NoPasswordNote}" />
 

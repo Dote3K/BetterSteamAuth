@@ -1,7 +1,10 @@
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using BetterSteamAuth.App.Services;
+using BetterSteamAuth.App.ViewModels;
 
 namespace BetterSteamAuth.App;
 
@@ -12,7 +15,15 @@ public partial class MainWindow : Window, IPlatformServices
     public MainWindow()
     {
         InitializeComponent();
+
+        // Any input counts as activity for auto-lock, even when a control handles it.
+        AddHandler(KeyDownEvent, OnInput, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerPressedEvent, OnInput, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerMovedEvent, OnInput, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerWheelChangedEvent, OnInput, RoutingStrategies.Tunnel, handledEventsToo: true);
     }
+
+    private void OnInput(object? sender, RoutedEventArgs e) => (DataContext as ShellViewModel)?.NoteActivity();
 
     public Task CopyTextAsync(string text) => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
 

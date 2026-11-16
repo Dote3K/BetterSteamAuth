@@ -195,4 +195,12 @@
   <data name="Finish" xml:space="preserve"><value>Finish</value></data>
   <data name="ConnectionDirect" xml:space="preserve"><value>Direct connection</value></data>
   <data name="ConnectionProxies" xml:space="preserve"><value>One proxy per account</value></data>
+  <data name="Security" xml:space="preserve"><value>Security</value></data>
+  <data name="RememberOnDevice" xml:space="preserve"><value>Remember on this device</value></data>
+  <data name="RememberOnDeviceBody" xml:space="preserve"><value>Open without the password on this Windows account. Lock app still asks for it.</value></data>
+  <data name="AutoLock" xml:space="preserve"><value>Auto-lock</value></data>
+  <data name="AutoLockBody" xml:space="preserve"><value>Lock the app after this long without use.</value></data>
+  <data name="MinutesFormat" xml:space="preserve"><value>{0} minutes</value></data>
+  <data name="Never" xml:space="preserve"><value>Never</value></data>
+  <data name="FixUnreadableLines" xml:space="preserve"><value>Fix or remove the lines that can't be read. Proxies are assigned in order.</value></data>
 </root>

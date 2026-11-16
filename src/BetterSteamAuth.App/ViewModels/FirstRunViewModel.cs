@@ -71,6 +71,9 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
     public partial string? Error { get; private set; }
 
     [ObservableProperty]
+    public partial bool RememberOnDevice { get; set; } = true;
+
+    [ObservableProperty]
     public partial bool ShowNoPasswordNote { get; private set; }
 
     [ObservableProperty]
@@ -128,6 +131,10 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
         {
             var vault = await Task.Run(() => Vault.Create(shell.DataFolder, password)).ConfigureAwait(true);
             shell.UseVault(vault);
+            if (password is not null && RememberOnDevice)
+            {
+                shell.SetRemembered(true);
+            }
         }
         finally
         {

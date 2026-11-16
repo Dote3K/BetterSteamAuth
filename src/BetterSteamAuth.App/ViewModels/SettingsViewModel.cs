@@ -1,4 +1,7 @@
+using System.Globalization;
+using System.Text;
 using BetterSteamAuth.App.Resources;
+using BetterSteamAuth.App.Services;
 using BetterSteamAuth.Steam.Network;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,9 +13,12 @@ public sealed record Choice<T>(T Value, string Label)
     public override string ToString() => Label;
 }
 
-/// <summary>Settings page. So far only Advanced → Network.</summary>
+/// <summary>Settings page: security, confirmations, Advanced → Network.</summary>
 public sealed partial class SettingsViewModel : ObservableObject
 {
+    private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
+    private static readonly int[] AutoLockMinutes = [5, 15, 30, 60];
+
     private readonly ShellViewModel _shell;
 
     public SettingsViewModel(ShellViewModel shell)
@@ -21,6 +27,41 @@ public sealed partial class SettingsViewModel : ObservableObject
         var current = shell.NetworkOptions;
         SniBypass = SniBypassChoices.Single(c => c.Value == current.SniBypass);
         EncryptedDns = EncryptedDnsChoices.Single(c => c.Value == current.EncryptedDns);
+
+        AutoLockChoices = [new(0, Strings.Never), .. AutoLockMinutes.Select(m => new Choice<int>(m, string.Format(CultureInfo.CurrentCulture, MinutesFormat, m)))];
+        int minutes = shell.AutoLockMinutes;
+        AutoLock = AutoLockChoices.FirstOrDefault(c => c.Value == minutes) ?? AutoLockChoices.Single(c => c.Value == ShellViewModel.DefaultAutoLockMinutes);
+    }
+
+    /// <summary>Security settings only apply when the data has a password.</summary>
+    public bool HasPassword => _shell.Vault?.IsEncrypted == true;
+
+    public bool CanRemember => HasPassword && RememberedKey.IsSupported;
+
+    public bool RememberOnDevice
+    {
+        get => _shell.IsRemembered;
+        set
+        {
+            if (value != _shell.IsRemembered)
+            {
+                _shell.SetRemembered(value);
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public IReadOnlyList<Choice<int>> AutoLockChoices { get; }
+
+    [ObservableProperty]
+    public partial Choice<int> AutoLock { get; set; }
+
+    partial void OnAutoLockChanged(Choice<int> value)
+    {
+        if (value is not null && value.Value != _shell.AutoLockMinutes)
+        {
+            _shell.AutoLockMinutes = value.Value;
+        }
     }
 
     public IReadOnlyList<Choice<SniBypass>> SniBypassChoices { get; } =

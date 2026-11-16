@@ -13,15 +13,22 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     private static readonly TimeSpan TimeSyncInterval = TimeSpan.FromHours(1);
     private static readonly TimeSpan ProxyCheckInterval = TimeSpan.FromMinutes(15);
 
+    public const string AutoLockKey = "security.auto_lock_minutes";
+    public const int DefaultAutoLockMinutes = 15;
+
     private readonly Dictionary<ulong, (AccountConnection Connection, CancellationTokenSource Stop)> _connections = [];
     private CancellationTokenSource _background = new();
     private bool _proxyChecksRunning;
     private NetworkPolicy _network = new(new NetworkOptions());
+    private readonly Avalonia.Threading.DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(30) };
+    private DateTime _lastActivity = DateTime.UtcNow;
 
     public ShellViewModel(string dataFolder, IPlatformServices platform)
     {
         DataFolder = dataFolder;
         Platform = platform;
+        _idleTimer.Tick += (_, _) => LockIfIdle();
+        _idleTimer.Start();
 
         if (!Vault.Exists(dataFolder))
         {
@@ -31,7 +38,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
         Vault = Vault.Open(dataFolder);
         LoadNetworkOptions();
-        if (Vault.IsUnlocked)
+        if (Vault.IsUnlocked || UnlockWithRememberedKey())
         {
             ShowMain();
         }
@@ -69,7 +76,45 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         Vault = vault;
         LoadNetworkOptions();
+        _lastActivity = DateTime.UtcNow;
     }
+
+    /// <summary>Minutes without input before the app locks itself; 0 means never.</summary>
+    public int AutoLockMinutes
+    {
+        get => int.TryParse(Vault?.GetSetting(AutoLockKey), out int minutes) ? minutes : DefaultAutoLockMinutes;
+        set => Vault?.SetSetting(AutoLockKey, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    public bool IsRemembered => RememberedKey.Exists(DataFolder);
+
+    /// <summary>Saves or forgets the data key on this device (DPAPI). Needs the app unlocked to save.</summary>
+    public void SetRemembered(bool remember)
+    {
+        if (!remember)
+        {
+            RememberedKey.Forget(DataFolder);
+            return;
+        }
+
+        if (Vault is not { IsEncrypted: true, IsUnlocked: true } vault)
+        {
+            return;
+        }
+
+        byte[] key = vault.ExportDataKey();
+        try
+        {
+            RememberedKey.Save(DataFolder, key);
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    /// <summary>Called on any keyboard or mouse input; resets the auto-lock countdown.</summary>
+    public void NoteActivity() => _lastActivity = DateTime.UtcNow;
 
     /// <summary>Saves new network settings and rebuilds every account connection with them.</summary>
     public void ApplyNetworkOptions(NetworkOptions options)
@@ -160,7 +205,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void LockApp()
     {
-        if (Vault is not { IsEncrypted: true })
+        if (Vault is not { IsEncrypted: true, IsUnlocked: true })
         {
             return;
         }
@@ -172,11 +217,45 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        _idleTimer.Stop();
         (CurrentPage as IDisposable)?.Dispose();
         CloseConnections();
         _background.Dispose();
         _network.Dispose();
         Vault?.Dispose();
+    }
+
+    private bool UnlockWithRememberedKey()
+    {
+        if (Vault is null || RememberedKey.Load(DataFolder) is not { } key)
+        {
+            return false;
+        }
+
+        try
+        {
+            if (Vault.TryUnlockWithKey(key))
+            {
+                return true;
+            }
+
+            // Saved for another vault that used to live in this folder.
+            RememberedKey.Forget(DataFolder);
+            return false;
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    private void LockIfIdle()
+    {
+        int minutes = Vault is { IsEncrypted: true, IsUnlocked: true } ? AutoLockMinutes : 0;
+        if (minutes > 0 && DateTime.UtcNow - _lastActivity >= TimeSpan.FromMinutes(minutes))
+        {
+            LockApp();
+        }
     }
 
     private void LoadNetworkOptions()
