@@ -31,9 +31,9 @@
     </Border>
 
     <!-- Filters: segments with nothing in them are hidden -->
-    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="24,10">
       <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Orientation="Horizontal" Spacing="4">
+        <StackPanel Orientation="Horizontal" Spacing="6">
           <RadioButton Theme="{DynamicResource ButtonRadioButton}" GroupName="inbox-filter" IsChecked="{Binding IsAll}" Content="{Binding AllLabel}" />
           <RadioButton Theme="{DynamicResource ButtonRadioButton}" GroupName="inbox-filter" IsChecked="{Binding IsTrades}" Content="{Binding TradesLabel}" IsVisible="{Binding HasTrades}" />
           <RadioButton Theme="{DynamicResource ButtonRadioButton}" GroupName="inbox-filter" IsChecked="{Binding IsMarket}" Content="{Binding MarketLabel}" IsVisible="{Binding HasMarket}" />
@@ -45,7 +45,7 @@
     </Border>
 
     <!-- Batch undo window -->
-    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding IsBatchPending}">
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="24,10" IsVisible="{Binding IsBatchPending}">
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock VerticalAlignment="Center" Text="{Binding BatchText}" />
         <Button Grid.Column="1" Content="{x:Static res:Strings.Undo}" Command="{Binding UndoBatchCommand}" />
@@ -53,7 +53,7 @@
     </Border>
 
     <!-- Selection bar -->
-    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding ShowSelectionBar}">
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="24,10" IsVisible="{Binding ShowSelectionBar}">
       <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
         <TextBlock VerticalAlignment="Center" Text="{Binding SelectionText}" />
         <TextBlock Grid.Column="1" Classes="caption hint" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
@@ -74,9 +74,9 @@
         <ItemsControl ItemsSource="{Binding Entries}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:InboxEntryViewModel">
-              <Border Classes="divider-bottom" Padding="16,10">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                  <CheckBox VerticalAlignment="Top" Margin="0,7,0,0" IsChecked="{Binding IsSelected}"
+              <Border Classes="divider-bottom" Padding="24,16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                  <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected}"
                             IsEnabled="{Binding Item.IsIdle}" AutomationProperties.Name="{Binding Item.Headline}" />
                   <views:ConfirmationRow Grid.Column="1" ShowAccount="True" DataContext="{Binding Item}" />
                 </Grid>

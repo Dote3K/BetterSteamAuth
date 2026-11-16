@@ -70,7 +70,7 @@
         <ListBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:AccountItemViewModel">
-              <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8" Height="24" Background="Transparent">
+              <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10" Height="32" Margin="4,0" Background="Transparent">
                 <Grid.ContextMenu>
                   <ContextMenu>
                     <MenuItem Header="{x:Static res:Strings.CopyCode}"
@@ -87,15 +87,16 @@
                 <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
                 <PathIcon Grid.Column="1" Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}"
                           IsVisible="{Binding HasProblem}" ToolTip.Tip="{Binding Problem}" />
-                <TextBlock Grid.Column="2" Classes="caption accent" VerticalAlignment="Center"
-                           Text="{Binding PendingCount}" IsVisible="{Binding HasPending}" />
+                <Border Grid.Column="2" Classes="count-pill" VerticalAlignment="Center" IsVisible="{Binding HasPending}">
+                  <TextBlock Classes="caption accent" HorizontalAlignment="Center" Text="{Binding PendingCount}" />
+                </Border>
                 <TextBlock Grid.Column="3" Classes="code-list" VerticalAlignment="Center" Text="{Binding Code}" />
               </Grid>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
 
-        <Border Grid.Column="1" Classes="divider-left" Padding="20,16">
+        <Border Grid.Column="1" Classes="divider-left" Padding="28,22">
           <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
                       IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
             <TextBlock Classes="title" Text="{Binding Name}" />
@@ -114,7 +115,7 @@
                        Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
 
             <!-- Problem banner: only when something is wrong -->
-            <Border Classes="banner-warning" Margin="0,16,0,0" Padding="10,8" IsVisible="{Binding HasProblem}">
+            <Border Classes="banner-warning" Margin="0,20,0,0" Padding="12,10" IsVisible="{Binding HasProblem}">
               <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                 <PathIcon Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
                 <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Problem}" />
@@ -129,7 +130,7 @@
               </Grid>
             </Border>
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,24,0,4">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,32,0,6">
               <TextBlock Classes="title" Text="{x:Static res:Strings.Confirmations}" />
               <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="4,0"
                       Content="{x:Static res:Strings.ReviewAll}" IsVisible="{Binding HasPending}"
@@ -139,7 +140,7 @@
             <ItemsControl ItemsSource="{Binding Confirmations}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConfirmationItemViewModel">
-                  <Border Classes="divider-bottom" Padding="0,10">
+                  <Border Classes="divider-bottom" Padding="0,16">
                     <views:ConfirmationRow />
                   </Border>
                 </DataTemplate>

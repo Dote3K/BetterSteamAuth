@@ -69,12 +69,19 @@
   </Style>
   <Style Selector="Border.danger-row">
     <Setter Property="Background" Value="{DynamicResource SemiColorDangerLight}" />
-    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusSmall}" />
-    <Setter Property="Padding" Value="8,10" />
+    <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
+    <Setter Property="Margin" Value="-12,-10" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.count-pill">
+    <Setter Property="Background" Value="{DynamicResource SemiColorPrimaryLight}" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Padding" Value="7,1" />
+    <Setter Property="MinWidth" Value="20" />
   </Style>
   <Style Selector="Border.conf-icon">
-    <Setter Property="Width" Value="34" />
-    <Setter Property="Height" Value="34" />
+    <Setter Property="Width" Value="36" />
+    <Setter Property="Height" Value="36" />
     <Setter Property="CornerRadius" Value="{StaticResource SemiBorderRadiusMedium}" />
     <Setter Property="Background" Value="{DynamicResource SemiColorFill1}" />
   </Style>
