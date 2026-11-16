@@ -66,6 +66,8 @@ public sealed partial class ImportViewModel : ObservableObject
 
     public bool IsSdaSource => Source == ImportSource.SdaFolder;
 
+    public string PickLabel => IsSdaSource ? Strings.ChooseFolder : Strings.ChooseFiles;
+
     public string Title { get; }
 
     public string Subtitle { get; }
@@ -286,10 +288,15 @@ public sealed partial class ImportViewModel : ObservableObject
             return;
         }
 
-        if (proxies == 0)
+        if (proxies == 0 && Paste.ErrorCount == 0)
         {
             ProxySummary = null;
             ProxySummaryIsError = false;
+        }
+        else if (Paste.ErrorCount > 0)
+        {
+            ProxySummary = Strings.FixUnreadableLines;
+            ProxySummaryIsError = true;
         }
         else if (proxies < accounts)
         {

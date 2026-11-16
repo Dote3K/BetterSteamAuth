@@ -14,11 +14,10 @@
       <!-- Source picker -->
       <Border Classes="well" Padding="16">
         <StackPanel Spacing="8" HorizontalAlignment="Center">
-          <Button HorizontalAlignment="Center" Command="{Binding PickCommand}">
+          <Button HorizontalAlignment="Center" Command="{Binding PickCommand}" AutomationProperties.Name="{Binding PickLabel}">
             <StackPanel Orientation="Horizontal" Spacing="6">
               <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconFolderOpen}" />
-              <TextBlock Text="{x:Static res:Strings.ChooseFolder}" IsVisible="{Binding IsSdaSource}" />
-              <TextBlock Text="{x:Static res:Strings.ChooseFiles}" IsVisible="{Binding !IsSdaSource}" />
+              <TextBlock Text="{Binding PickLabel}" />
             </StackPanel>
           </Button>
           <TextBlock Classes="caption" HorizontalAlignment="Center" MaxWidth="400" TextTrimming="CharacterEllipsis"
