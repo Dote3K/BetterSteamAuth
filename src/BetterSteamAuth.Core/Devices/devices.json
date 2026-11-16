@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "version": "2026-11-16",
+  "devices": [
+    { "model": "SM-S921B", "name": "Galaxy S24", "weight": 8, "builds": [ { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-S911B", "name": "Galaxy S23", "weight": 8, "builds": [ { "android": "13", "id": "TP1A.220624.014" }, { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-S918B", "name": "Galaxy S23 Ultra", "weight": 6, "builds": [ { "android": "13", "id": "TP1A.220624.014" }, { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-A546B", "name": "Galaxy A54 5G", "weight": 9, "builds": [ { "android": "13", "id": "TP1A.220624.014" }, { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-A556B", "name": "Galaxy A55 5G", "weight": 8, "builds": [ { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-A346B", "name": "Galaxy A34 5G", "weight": 6, "builds": [ { "android": "13", "id": "TP1A.220624.014" }, { "android": "14", "id": "UP1A.231005.007" } ] },
+    { "model": "SM-A155F", "name": "Galaxy A15", "weight": 7, "builds": [ { "android": "14", "id": "UP1A.231005.007" }, { "android": "15", "id": "AP3A.240905.015" } ] },
+    { "model": "SM-G991B", "name": "Galaxy S21 5G", "weight": 4, "builds": [ { "android": "13", "id": "TP1A.220624.014" }, { "android": "14", "id": "UP1A.231005.007" } ] },
+    { "model": "Pixel 6a", "name": "Pixel 6a", "weight": 4, "builds": [ { "android": "13", "id": "TQ3A.230901.001" }, { "android": "14", "id": "UQ1A.240205.004" }, { "android": "15", "id": "AP3A.241005.015" } ] },
+    { "model": "Pixel 7", "name": "Pixel 7", "weight": 5, "builds": [ { "android": "13", "id": "TQ3A.230901.001" }, { "android": "14", "id": "UQ1A.240205.004" }, { "android": "15", "id": "AP3A.241005.015" } ] },
+    { "model": "Pixel 7a", "name": "Pixel 7a", "weight": 5, "builds": [ { "android": "14", "id": "UQ1A.240205.004" }, { "android": "15", "id": "AP3A.241005.015" } ] },
+    { "model": "Pixel 8", "name": "Pixel 8", "weight": 5, "builds": [ { "android": "14", "id": "UQ1A.240205.004" }, { "android": "15", "id": "AP3A.241005.015" } ] },
+    { "model": "2211133G", "name": "Xiaomi 13", "weight": 3, "builds": [ { "android": "13", "id": "TKQ1.221114.001" }, { "android": "14", "id": "UKQ1.230804.001" } ] },
+    { "model": "23021RAA2Y", "name": "Redmi Note 12", "weight": 6, "builds": [ { "android": "13", "id": "TKQ1.221114.001" }, { "android": "14", "id": "UKQ1.230804.001" } ] },
+    { "model": "CPH2449", "name": "OnePlus 11", "weight": 3, "builds": [ { "android": "13", "id": "TP1A.220905.001" }, { "android": "14", "id": "UKQ1.230924.001" } ] },
+    { "model": "CPH2581", "name": "OnePlus 12", "weight": 3, "builds": [ { "android": "14", "id": "UKQ1.230924.001" } ] }
+  ]
+}
