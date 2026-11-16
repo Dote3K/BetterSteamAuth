@@ -178,6 +178,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void MoveFromPhone() => _shell.ShowMoveFromPhone();
 
+    [RelayCommand]
+    private void BackUp() => _shell.ShowBackup(fromSettings: false);
+
     /// <summary>"Removed {name} · Undo" (or a notice without Undo), shown for a few seconds after removing an account.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasRemoved))]

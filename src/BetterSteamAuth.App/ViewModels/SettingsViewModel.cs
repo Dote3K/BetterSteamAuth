@@ -34,7 +34,19 @@ public sealed partial class SettingsViewModel : ObservableObject
 
         // Names come from the files in encrypted vaults; the count alone is enough here.
         RemovedCount = shell.Vault?.ListRemoved().Count ?? 0;
+        LastBackupText = shell.Vault is { } vault ? BackupViewModel.LastBackup(vault) : null;
     }
+
+    /// <summary>"Last backup: 3d" under Back up, or the generic description if there's never been one.</summary>
+    public string? LastBackupText { get; }
+
+    public string BackupDetail => LastBackupText ?? Strings.BackUpBody;
+
+    [RelayCommand]
+    private void OpenBackup() => _shell.ShowBackup(fromSettings: true);
+
+    [RelayCommand]
+    private void OpenRestore() => _shell.ShowRestore();
 
     /// <summary>Settings → Data → Removed accounts (N); hidden when there are none.</summary>
     public int RemovedCount { get; }

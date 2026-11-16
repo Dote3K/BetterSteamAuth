@@ -339,6 +339,14 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowRemovedAccounts() => SwitchTo(new RemovedAccountsViewModel(this));
 
+    /// <summary>Back up now; <paramref name="fromSettings"/> decides where Back returns.</summary>
+    public void ShowBackup(bool fromSettings) => SwitchTo(new BackupViewModel(this, fromSettings ? ShowSettings : ShowMain));
+
+    public void ShowRestore() => SwitchTo(new RestoreViewModel(this, ShowSettings));
+
+    /// <summary>The app's version, written into backups.</summary>
+    public static string? AppVersion => typeof(ShellViewModel).Assembly.GetName().Version?.ToString(3);
+
     public void ShowLogin(ulong steamId, string accountName, Action? done = null)
         => SwitchTo(new LoginViewModel(this, steamId, accountName, done ?? ShowMain));
 

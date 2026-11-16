@@ -38,6 +38,7 @@
               <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
               <MenuItem Header="{x:Static res:Strings.LinkNewAuthenticatorMenu}" Command="{Binding LinkNewCommand}" />
               <MenuItem Header="{x:Static res:Strings.MoveFromPhone}" Command="{Binding MoveFromPhoneCommand}" />
+              <MenuItem Header="{x:Static res:Strings.BackUpMenu}" Command="{Binding BackUpCommand}" />
               <Separator />
               <MenuItem Header="{x:Static res:Strings.Proxies}" Command="{Binding OpenProxiesCommand}" />
               <MenuItem Header="{x:Static res:Strings.Settings}" Command="{Binding OpenSettingsCommand}" />

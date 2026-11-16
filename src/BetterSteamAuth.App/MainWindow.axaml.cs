@@ -11,6 +11,7 @@ namespace BetterSteamAuth.App;
 public partial class MainWindow : Window, IPlatformServices
 {
     private static readonly FilePickerFileType MaFileType = new("maFile") { Patterns = ["*.maFile"] };
+    private static readonly FilePickerFileType BackupFileType = new("BetterSteamAuth backup") { Patterns = ["*" + Storage.VaultBackup.Extension] };
 
     public MainWindow()
     {
@@ -51,9 +52,19 @@ public partial class MainWindow : Window, IPlatformServices
         {
             Title = title,
             SuggestedFileName = suggestedName,
-            FileTypeChoices = [MaFileType],
+            FileTypeChoices = [suggestedName.EndsWith(Storage.VaultBackup.Extension, StringComparison.OrdinalIgnoreCase) ? BackupFileType : MaFileType],
         });
         return file?.TryGetLocalPath();
+    }
+
+    public async Task<string?> PickBackupAsync(string title)
+    {
+        var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            FileTypeFilter = [BackupFileType, FilePickerFileTypes.All],
+        });
+        return files.Count > 0 ? files[0].TryGetLocalPath() : null;
     }
 
     public void RevealFile(string path)

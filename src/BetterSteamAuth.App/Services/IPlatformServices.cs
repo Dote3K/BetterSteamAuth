@@ -11,6 +11,9 @@ public interface IPlatformServices
 
     Task<IReadOnlyList<string>> PickMaFilesAsync(string title);
 
+    /// <summary>Asks for one <c>.bsabackup</c> file; null when cancelled.</summary>
+    Task<string?> PickBackupAsync(string title);
+
     /// <summary>Asks where to save a file; null when cancelled.</summary>
     Task<string?> SaveFileAsync(string title, string suggestedName);
 

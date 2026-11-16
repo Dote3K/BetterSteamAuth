@@ -1,0 +1,79 @@
+<!-- Restore from backup into this app. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.RestoreView"
+             x:DataType="vm:RestoreViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.RestoreFromBackup}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <Grid Width="420" Margin="24,28,24,24">
+        <!-- 1. Pick the file -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsPick}">
+          <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RestoreBody}" />
+          <Button Margin="0,12,0,0" HorizontalAlignment="Left" Command="{Binding PickCommand}" IsEnabled="{Binding IsIdle}"
+                  AutomationProperties.Name="{x:Static res:Strings.ChooseBackupFile}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconFolderOpen}" />
+              <TextBlock Text="{x:Static res:Strings.ChooseBackupFile}" />
+            </StackPanel>
+          </Button>
+          <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        </StackPanel>
+
+        <!-- 2. The backup's password -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsPassword}">
+          <TextBlock FontWeight="SemiBold" Text="{Binding Summary}" />
+          <TextBlock Classes="secondary" TextWrapping="Wrap" Margin="0,0,0,8" Text="{x:Static res:Strings.BackupPasswordPrompt}" />
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.Password}"
+                   Text="{Binding Password}" IsEnabled="{Binding IsIdle}" AutomationProperties.Name="{x:Static res:Strings.Password}" />
+          <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+          <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+            <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding BackCommand}" />
+            <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                    Content="{x:Static res:Strings.Continue}" Command="{Binding UnlockCommand}" IsEnabled="{Binding IsIdle}" />
+          </Grid>
+        </StackPanel>
+
+        <!-- 3. What will happen -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsPreview}">
+          <TextBlock FontWeight="SemiBold" Text="{Binding Summary}" />
+          <Border Classes="well" Padding="14,12" Margin="0,8,0,0">
+            <StackPanel Spacing="4">
+              <TextBlock TextWrapping="Wrap" Text="{Binding WillAdd}" />
+              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding AlreadyHere}"
+                         IsVisible="{Binding AlreadyHere, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            </StackPanel>
+          </Border>
+          <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+          <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+            <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding BackCommand}" />
+            <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                    Content="{x:Static res:Strings.RestoreButton}" Command="{Binding RestoreCommand}" IsEnabled="{Binding CanRestore}" />
+          </Grid>
+        </StackPanel>
+
+        <!-- 4. Done -->
+        <StackPanel Spacing="8" IsVisible="{Binding IsDone}">
+          <PathIcon Width="40" Height="40" Classes="success" Data="{StaticResource SemiIconTickCircle}" />
+          <TextBlock Classes="heading" TextAlignment="Center" Text="{Binding DoneText}" />
+          <Button Margin="0,12,0,0" HorizontalAlignment="Center" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.OpenApp}" Command="{Binding OpenCommand}" />
+        </StackPanel>
+      </Grid>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

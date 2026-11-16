@@ -360,4 +360,32 @@
   <data name="RestoreRemovedFailed" xml:space="preserve"><value>Couldn't restore this account. Its file may have been moved or changed.</value></data>
   <data name="DeleteRemovedFailed" xml:space="preserve"><value>Couldn't delete the file.</value></data>
   <data name="Open" xml:space="preserve"><value>Open</value></data>
+  <data name="BackUpTitle" xml:space="preserve"><value>Back up</value></data>
+  <data name="BackUpMenu" xml:space="preserve"><value>Back up…</value></data>
+  <data name="BackUpButton" xml:space="preserve"><value>Choose where to save…</value></data>
+  <data name="BackingUp" xml:space="preserve"><value>Backing up…</value></data>
+  <data name="BackUpBody" xml:space="preserve"><value>Saves your accounts and the app's settings to one file. The program itself isn't included.</value></data>
+  <data name="BackupProtected" xml:space="preserve"><value>Protected with your app password. You'll need the password you have today to restore it.</value></data>
+  <data name="BackupSetPassword" xml:space="preserve"><value>Set a password for this backup. You'll need it to restore.</value></data>
+  <data name="BackupPassword" xml:space="preserve"><value>Backup password</value></data>
+  <data name="SaveWithoutPassword" xml:space="preserve"><value>Save without a password</value></data>
+  <data name="UseAPassword" xml:space="preserve"><value>Use a password</value></data>
+  <data name="BackupPlainWarning" xml:space="preserve"><value>Anyone with this file can use your accounts.</value></data>
+  <data name="BackupPasswordNeeded" xml:space="preserve"><value>Enter a password for the backup.</value></data>
+  <data name="BackedUpFormat" xml:space="preserve"><value>Backed up {0} accounts</value></data>
+  <data name="LastBackupFormat" xml:space="preserve"><value>Last backup: {0}</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Couldn't write the backup. Check the folder and try again.</value></data>
+  <data name="RestoreFromBackup" xml:space="preserve"><value>Restore from backup</value></data>
+  <data name="RestoreMenu" xml:space="preserve"><value>Restore…</value></data>
+  <data name="RestoreBody" xml:space="preserve"><value>Adds accounts from a backup that aren't in the app. Accounts already here stay as they are.</value></data>
+  <data name="ChooseBackupFile" xml:space="preserve"><value>Choose backup file…</value></data>
+  <data name="NotABackup" xml:space="preserve"><value>This file isn't a BetterSteamAuth backup.</value></data>
+  <data name="BackupPasswordPrompt" xml:space="preserve"><value>Enter the password this backup was made with.</value></data>
+  <data name="BackupSummaryFormat" xml:space="preserve"><value>Backup from {0} · {1} accounts</value></data>
+  <data name="RestoreWillAddFormat" xml:space="preserve"><value>{0} will be added</value></data>
+  <data name="RestoreAlreadyHereFormat" xml:space="preserve"><value>{0} already here, kept as they are</value></data>
+  <data name="RestoreNothingToAdd" xml:space="preserve"><value>Every account in this backup is already here.</value></data>
+  <data name="RestoreButton" xml:space="preserve"><value>Restore</value></data>
+  <data name="RestoredFormat" xml:space="preserve"><value>Restored {0} accounts</value></data>
+  <data name="RestoreFailed" xml:space="preserve"><value>Couldn't restore. Nothing was changed for accounts that weren't added.</value></data>
 </root>

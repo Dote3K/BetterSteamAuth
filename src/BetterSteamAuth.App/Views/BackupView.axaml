@@ -1,0 +1,72 @@
+<!-- Back up now. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.BackupView"
+             x:DataType="vm:BackupViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.BackUpTitle}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel Width="420" Margin="24,28,24,24" Spacing="8" IsEnabled="{Binding IsIdle}">
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.BackUpBody}" />
+        <TextBlock Classes="caption secondary" Text="{Binding LastBackupText}" IsVisible="{Binding HasLastBackup}" />
+
+        <!-- Protection -->
+        <Border Classes="well" Padding="14,12" Margin="0,12,0,0" IsVisible="{Binding HasAppPassword}">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <PathIcon Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" Classes="success" Data="{StaticResource SemiIconLock}" />
+            <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{x:Static res:Strings.BackupProtected}" />
+          </Grid>
+        </Border>
+
+        <StackPanel Spacing="8" Margin="0,12,0,0" IsVisible="{Binding AsksPassword}">
+          <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.BackupSetPassword}" />
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.BackupPassword}"
+                   Text="{Binding Password}" AutomationProperties.Name="{x:Static res:Strings.BackupPassword}" />
+          <TextBox Classes="revealPasswordButton" PasswordChar="•" PlaceholderText="{x:Static res:Strings.ConfirmPassword}"
+                   Text="{Binding ConfirmPassword}" AutomationProperties.Name="{x:Static res:Strings.ConfirmPassword}" />
+          <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Padding="0"
+                  Content="{x:Static res:Strings.SaveWithoutPassword}" Command="{Binding SaveWithoutPasswordCommand}" />
+        </StackPanel>
+
+        <StackPanel Spacing="6" Margin="0,12,0,0" IsVisible="{Binding ShowsPlainWarning}">
+          <Border Classes="banner-warning" Padding="14,12">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+              <PathIcon Width="14" Height="14" VerticalAlignment="Top" Margin="0,2,0,0" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+              <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{x:Static res:Strings.BackupPlainWarning}" />
+            </Grid>
+          </Border>
+          <Button HorizontalAlignment="Left" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0"
+                  Content="{x:Static res:Strings.UseAPassword}" Command="{Binding UsePasswordCommand}" />
+        </StackPanel>
+
+        <TextBlock Classes="danger" TextWrapping="Wrap" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        <StackPanel Orientation="Horizontal" Spacing="12" IsVisible="{Binding HasResult}">
+          <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="success" Data="{StaticResource SemiIconTickCircle}" />
+          <TextBlock VerticalAlignment="Center" Text="{Binding Result}" />
+          <Button Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="0" VerticalAlignment="Center"
+                  Content="{x:Static res:Strings.ShowInFolder}" Command="{Binding ShowInFolderCommand}" />
+        </StackPanel>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,16,0,0">
+          <Button Content="{x:Static res:Strings.Back}" Command="{Binding BackCommand}" />
+          <Button Grid.Column="2" Theme="{DynamicResource SolidButton}" Classes="Primary" IsDefault="True"
+                  Content="{Binding BackUpLabel}" Command="{Binding BackUpCommand}" />
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>
