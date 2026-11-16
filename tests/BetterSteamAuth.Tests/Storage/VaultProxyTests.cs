@@ -55,4 +55,23 @@ public sealed class VaultProxyTests : IDisposable
         Assert.Empty(vault.ListProxies());
         Assert.Null(vault.ListAccounts().Single().ProxyId);
     }
+
+    [Fact]
+    public void Editing_a_proxy_keeps_its_accounts_and_rejects_duplicates()
+    {
+        using var vault = Vault.Create(_folder, "pw", FastKdf);
+        vault.Add(new MaFile { SharedSecret = "abc=", Session = new MaFileSession { SteamId = SteamId } });
+        vault.AddProxies([new ProxySettings(ProxyScheme.Socks5, "10.0.0.1", 1080), new ProxySettings(ProxyScheme.Http, "10.0.0.2", 3128)]);
+        long id = vault.ListProxies()[0].Id;
+        vault.SetAccountProxy(SteamId, id);
+        var edited = new ProxySettings(ProxyScheme.Http, "10.0.0.9", 8080, "user", "new-pass");
+
+        Assert.False(vault.UpdateProxy(id, new ProxySettings(ProxyScheme.Http, "10.0.0.2", 3128)));
+        Assert.True(vault.UpdateProxy(id, edited));
+
+        Assert.Equal(edited, vault.GetProxySettings(id));
+        Assert.Equal(id, vault.ListAccounts().Single().ProxyId);
+        Assert.True(ProxyParser.TryParse(ProxyParser.ToLine(edited with { Password = "p@ss:word" }), out var roundTrip));
+        Assert.Equal("p@ss:word", roundTrip!.Password);
+    }
 }

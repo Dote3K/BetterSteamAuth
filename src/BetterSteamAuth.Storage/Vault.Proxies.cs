@@ -91,6 +91,33 @@ public sealed partial class Vault
         return added;
     }
 
+    /// <summary>
+    /// Replaces a proxy's address and login, keeping its accounts. Its health resets until the next check.
+    /// Returns false when another proxy in the pool already has that address and login.
+    /// </summary>
+    public bool UpdateProxy(long proxyId, ProxySettings proxy)
+    {
+        ArgumentNullException.ThrowIfNull(proxy);
+        using var connection = _db.Open();
+        using var tx = connection.BeginTransaction();
+        var key = new { scheme = SchemeName(proxy.Scheme), host = proxy.Host, port = proxy.Port, user = proxy.Username, proxyId };
+        if (connection.ExecuteScalar<long>(
+                "SELECT COUNT(*) FROM proxies WHERE scheme = @scheme AND host = @host AND port = @port AND username IS @user AND id <> @proxyId",
+                key, tx) > 0)
+        {
+            return false;
+        }
+
+        var (secret, nonce) = ProtectPassword(proxy);
+        connection.Execute(
+            "UPDATE proxies SET scheme = @scheme, host = @host, port = @port, username = @user, password_enc = @secret, " +
+            "password_nonce = @nonce, status = 'unknown', latency_ms = NULL, last_error = NULL, last_check_at = NULL WHERE id = @proxyId",
+            new { key.scheme, key.host, key.port, key.user, secret, nonce, proxyId },
+            tx);
+        tx.Commit();
+        return true;
+    }
+
     /// <summary>The proxy with its password, ready to connect. Needs the vault unlocked if it has a password.</summary>
     public ProxySettings? GetProxySettings(long proxyId)
     {

@@ -8,6 +8,17 @@ namespace BetterSteamAuth.Core.Accounts;
 /// </summary>
 public static class ProxyParser
 {
+    /// <summary>The proxy as one line that <see cref="TryParse"/> reads back, including its login.</summary>
+    public static string ToLine(ProxySettings proxy)
+    {
+        ArgumentNullException.ThrowIfNull(proxy);
+        string login = proxy.Username is null
+            ? ""
+            : $"{Uri.EscapeDataString(proxy.Username)}:{Uri.EscapeDataString(proxy.Password ?? "")}@";
+        return string.Create(CultureInfo.InvariantCulture,
+            $"{proxy.Scheme.ToString().ToLowerInvariant()}://{login}{proxy.Host}:{proxy.Port}");
+    }
+
     public static bool TryParse(string? line, out ProxySettings? proxy)
     {
         proxy = null;
