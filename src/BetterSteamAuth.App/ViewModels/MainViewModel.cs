@@ -181,11 +181,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         // UI review without a real account: BSA_SAMPLE_CONFIRMATIONS=1 shows sample rows. Sending is simulated.
         if (Environment.GetEnvironmentVariable("BSA_SAMPLE_CONFIRMATIONS") == "1")
         {
-            account.SetConfirmations(SampleConfirmations.Create(), async (item, _) =>
-            {
-                await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
-                account.Remove(item);
-            });
+            account.SetConfirmations(SampleConfirmations.Create(), c => new ConfirmationItemViewModel(
+                c, account.Name, _shell.ConfirmationPolicy, async (item, _) =>
+                {
+                    await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
+                    account.Remove(item);
+                }));
             return;
         }
 #endif
@@ -208,7 +209,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             var list = await Confirmations.GetAsync(connection, maFile.IdentitySecret, maFile.DeviceId, cancellationToken)
                 .ConfigureAwait(true);
             account.Problem = null;
-            account.SetConfirmations(list, (item, accept) => RespondAsync(account, item, accept));
+            account.SetConfirmations(list, c => new ConfirmationItemViewModel(
+                c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept)));
         }
         catch (SessionExpiredException)
         {

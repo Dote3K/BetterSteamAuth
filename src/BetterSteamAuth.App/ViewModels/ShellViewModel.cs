@@ -52,6 +52,14 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public NetworkOptions NetworkOptions => _network.Options;
 
+    public ConfirmationPolicy ConfirmationPolicy { get; } = new();
+
+    public void SetAcceptTradesInBulk(bool value)
+    {
+        ConfirmationPolicy.AcceptTradesInBulk = value;
+        Vault?.SetSetting(ConfirmationPolicy.BulkTradesKey, value ? "on" : "off");
+    }
+
     public NetworkPolicy Network => _network;
 
     /// <summary>Raised on the UI thread after proxy health was rechecked.</summary>
@@ -173,6 +181,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     private void LoadNetworkOptions()
     {
+        ConfirmationPolicy.AcceptTradesInBulk = Vault?.GetSetting(ConfirmationPolicy.BulkTradesKey) == "on";
+
         var options = NetworkOptions.FromSettings(
             Vault?.GetSetting(NetworkOptions.SniBypassKey),
             Vault?.GetSetting(NetworkOptions.EncryptedDnsKey));

@@ -64,13 +64,13 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
     /// Replaces the list with what Steam returned, keeping rows the user is acting on
     /// (their undo window or send is still running).
     /// </summary>
-    public void SetConfirmations(IReadOnlyList<MobileConfirmation> latest, Func<ConfirmationItemViewModel, bool, Task> send)
+    public void SetConfirmations(IReadOnlyList<MobileConfirmation> latest, Func<MobileConfirmation, ConfirmationItemViewModel> create)
     {
         var busy = Confirmations.Where(c => !c.IsIdle).ToDictionary(c => c.Id);
         Confirmations.Clear();
         foreach (var confirmation in latest)
         {
-            Confirmations.Add(busy.Remove(confirmation.Id, out var kept) ? kept : new ConfirmationItemViewModel(confirmation, send));
+            Confirmations.Add(busy.Remove(confirmation.Id, out var kept) ? kept : create(confirmation));
         }
 
         HasLoaded = true;

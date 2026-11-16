@@ -47,6 +47,19 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     partial void OnEncryptedDnsChanged(Choice<EncryptedDns> value) => Apply();
 
+    public bool AcceptTradesInBulk
+    {
+        get => _shell.ConfirmationPolicy.AcceptTradesInBulk;
+        set
+        {
+            if (value != _shell.ConfirmationPolicy.AcceptTradesInBulk)
+            {
+                _shell.SetAcceptTradesInBulk(value);
+                OnPropertyChanged();
+            }
+        }
+    }
+
     [RelayCommand]
     private void Back() => _shell.ShowMain();
 

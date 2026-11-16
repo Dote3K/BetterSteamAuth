@@ -8,14 +8,23 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BetterSteamAuth.App.ViewModels;
 
+/// <summary>App-wide confirmation rules the user can change in Settings.</summary>
+public sealed class ConfirmationPolicy
+{
+    public const string BulkTradesKey = "confirmations.bulk_trades";
+
+    /// <summary>Trades without warnings behave like market listings: quick accept and bulk accept.</summary>
+    public bool AcceptTradesInBulk { get; set; }
+}
+
 public enum ConfirmationState
 {
     Idle,
 
-    /// <summary>Trade ✓ pressed: inline "accept this trade?" while trade checks don't exist yet.</summary>
+    /// <summary>Trade ✓ pressed: inline "accept this trade?" (needs review).</summary>
     ConfirmingTrade,
 
-    /// <summary>Waiting out the undo window before sending.</summary>
+    /// <summary>Waiting out the undo window (its own, or a batch's) before sending.</summary>
     Pending,
 
     Sending,
@@ -33,16 +42,23 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     private static readonly CompositeFormat RejectedFormat = CompositeFormat.Parse(Strings.RejectedSendingFormat);
 
     private readonly Func<ConfirmationItemViewModel, bool, Task> _send;
+    private readonly ConfirmationPolicy _policy;
     private DispatcherTimer? _countdown;
     private int _secondsLeft;
+    private bool _accepting;
 
-    public ConfirmationItemViewModel(MobileConfirmation confirmation, Func<ConfirmationItemViewModel, bool, Task> send)
+    public ConfirmationItemViewModel(
+        MobileConfirmation confirmation, string accountName, ConfirmationPolicy policy, Func<ConfirmationItemViewModel, bool, Task> send)
     {
         Confirmation = confirmation;
+        AccountName = accountName;
+        _policy = policy;
         _send = send;
     }
 
     public MobileConfirmation Confirmation { get; }
+
+    public string AccountName { get; }
 
     public ulong Id => Confirmation.Id;
 
@@ -52,14 +68,25 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     public bool IsDangerous => Confirmation.Kind == ConfirmationKind.Dangerous;
 
-    /// <summary>Dangerous types never get a quick accept.</summary>
-    public bool CanQuickAccept => !IsDangerous;
+    public string? Warning => Confirmation.Warning;
+
+    public bool HasWarning => Warning is not null;
+
+    /// <summary>Trades with a warning always need review; others only while bulk trades are off.</summary>
+    public bool NeedsTradeReview => IsTrade && (HasWarning || !_policy.AcceptTradesInBulk);
+
+    /// <summary>Whether this row may be part of a bulk accept. Dangerous types never are.</summary>
+    public bool CanBulkAccept => IsMarket || (IsTrade && !NeedsTradeReview);
+
+    public string TradeConfirmText => HasWarning ? Strings.AcceptFlaggedTradeTitle : Strings.AcceptTradeTitle;
 
     public string Headline => Confirmation.Headline ?? Confirmation.TypeName ?? Strings.Confirmation;
 
     public string Summary => string.Join(" · ", Confirmation.Summary.Where(s => !string.IsNullOrWhiteSpace(s)));
 
     public string Meta => $"{TypeLabel} · {Age(Confirmation.CreationTime)}";
+
+    public string MetaWithAccount => $"{AccountName} · {Meta}";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsIdle), nameof(IsConfirmingTrade), nameof(IsPending), nameof(IsSending))]
@@ -73,13 +100,20 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     public bool IsSending => State == ConfirmationState.Sending;
 
+    /// <summary>True while a batch (not this row's own timer) holds the row.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowOwnUndo))]
+    public partial bool InBatch { get; private set; }
+
+    public bool ShowOwnUndo => IsPending && !InBatch;
+
+    partial void OnStateChanged(ConfirmationState value) => OnPropertyChanged(nameof(ShowOwnUndo));
+
     [ObservableProperty]
     public partial string PendingText { get; private set; } = "";
 
     [ObservableProperty]
     public partial string? Error { get; set; }
-
-    private bool _accepting;
 
     private string TypeLabel => Confirmation.Kind switch
     {
@@ -91,12 +125,7 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     [RelayCommand]
     private void Accept()
     {
-        if (IsDangerous)
-        {
-            return;
-        }
-
-        if (IsTrade && State == ConfirmationState.Idle)
+        if (NeedsTradeReview && State == ConfirmationState.Idle)
         {
             State = ConfirmationState.ConfirmingTrade;
             return;
@@ -115,10 +144,29 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     private void Undo()
     {
         StopCountdown();
+        InBatch = false;
         State = ConfirmationState.Idle;
     }
 
-    /// <summary>Called when the account's page goes away: pending actions are dropped, not sent.</summary>
+    /// <summary>Held by a batch's shared undo window.</summary>
+    public void JoinBatch(bool accept)
+    {
+        StopCountdown();
+        Error = null;
+        InBatch = true;
+        PendingText = accept ? Strings.Accepting : Strings.Rejecting;
+        State = ConfirmationState.Pending;
+    }
+
+    public void LeaveBatch()
+    {
+        InBatch = false;
+        State = ConfirmationState.Idle;
+    }
+
+    public void MarkSending() => State = ConfirmationState.Sending;
+
+    /// <summary>Called when the page goes away: pending actions are dropped, not sent.</summary>
     public void Abandon() => StopCountdown();
 
     private void StartCountdown(bool accept)
@@ -126,6 +174,7 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
         Error = null;
         _accepting = accept;
         _secondsLeft = UndoSeconds;
+        InBatch = false;
         State = ConfirmationState.Pending;
         UpdatePendingText();
 

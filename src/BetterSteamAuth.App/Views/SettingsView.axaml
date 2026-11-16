@@ -20,6 +20,16 @@
 
     <ScrollViewer>
       <StackPanel MaxWidth="640" Margin="24,20" Spacing="4" HorizontalAlignment="Stretch">
+        <TextBlock Classes="caption" Text="{x:Static res:Strings.Confirmations}" Margin="0,0,0,8" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AcceptTradesInBulk}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AcceptTradesInBulkBody}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding AcceptTradesInBulk}"
+                        AutomationProperties.Name="{x:Static res:Strings.AcceptTradesInBulk}" />
+        </Grid>
+
         <TextBlock Classes="caption" Text="{x:Static res:Strings.AdvancedNetwork}" Margin="0,0,0,8" />
 
         <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">

@@ -11,7 +11,9 @@ internal static class SampleConfirmations
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         return
         [
-            new() { Id = 1, Type = 2, TypeName = "Trade Offer", Headline = "buyer_88", CreationTime = now - 120, Summary = ["You will give 3 items", "You will receive nothing"] },
+            new() { Id = 1, Type = 2, TypeName = "Trade Offer", Headline = "buyer_88", CreationTime = now - 120, Summary = ["You will give 3 items", "You will receive nothing"],
+                    Extra = new() { ["warn"] = System.Text.Json.JsonDocument.Parse("\"An item in this trade was recently in another trade that was cancelled.\"").RootElement } },
+            new() { Id = 4, Type = 2, TypeName = "Trade Offer", Headline = "skinswap_bot", CreationTime = now - 1800, Summary = ["You will give 1 item", "You will receive 2 items"] },
             new() { Id = 2, Type = 3, TypeName = "Market Listing", Headline = "AK-47 | Redline (Field-Tested)", CreationTime = now - 540, Summary = ["List for $12.40", "You receive $10.78"] },
             new() { Id = 3, Type = 9, TypeName = "Web API Key", Headline = "Create Web API key", CreationTime = now - 20, Summary = ["Domain: steam-trade.example"] },
         ];

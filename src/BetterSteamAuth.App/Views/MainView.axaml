@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:views="using:BetterSteamAuth.App.Views"
              xmlns:res="using:BetterSteamAuth.App.Resources"
              x:Class="BetterSteamAuth.App.Views.MainView"
              x:DataType="vm:MainViewModel">
@@ -124,55 +125,8 @@
             <ItemsControl ItemsSource="{Binding Confirmations}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConfirmationItemViewModel">
-                  <Border Classes="divider-bottom" Classes.danger-row="{Binding IsDangerous}" Padding="0,10">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                      <Border Classes="conf-icon" VerticalAlignment="Top">
-                        <Panel>
-                          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
-                          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
-                          <PathIcon Width="16" Height="16" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
-                        </Panel>
-                      </Border>
-
-                      <StackPanel Grid.Column="1" Spacing="2">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                          <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Text="{Binding Headline}" />
-                          <TextBlock Grid.Column="1" Classes="caption hint" Text="{Binding Meta}" />
-                        </Grid>
-                        <TextBlock Classes="caption" TextWrapping="Wrap" MaxLines="2" Text="{Binding Summary}" />
-                        <TextBlock Classes="caption danger" TextWrapping="Wrap" Text="{x:Static res:Strings.DangerousHint}"
-                                   IsVisible="{Binding IsDangerous}" />
-                        <TextBlock Classes="caption danger" Text="{Binding Error}"
-                                   IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
-
-                        <StackPanel Spacing="6" Margin="0,6,0,0" IsVisible="{Binding IsConfirmingTrade}">
-                          <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AcceptTradeTitle}" />
-                          <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Classes="Small" Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelTradeCommand}" />
-                            <Button Classes="Small Primary" Theme="{DynamicResource SolidButton}"
-                                    Content="{x:Static res:Strings.AcceptTrade}" Command="{Binding AcceptCommand}" />
-                          </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0" IsVisible="{Binding IsPending}">
-                          <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding PendingText}" />
-                          <Button Theme="{DynamicResource BorderlessButton}" Classes="Small Primary" Padding="4,0"
-                                  Content="{x:Static res:Strings.Undo}" Command="{Binding UndoCommand}" />
-                        </StackPanel>
-                        <TextBlock Classes="caption" Text="{x:Static res:Strings.Sending}" IsVisible="{Binding IsSending}" />
-                      </StackPanel>
-
-                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2" VerticalAlignment="Top" IsVisible="{Binding IsIdle}">
-                        <Button Classes="quick accept" IsVisible="{Binding CanQuickAccept}" Command="{Binding AcceptCommand}"
-                                AutomationProperties.Name="{x:Static res:Strings.Accept}" ToolTip.Tip="{x:Static res:Strings.Accept}">
-                          <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconTick}" />
-                        </Button>
-                        <Button Classes="quick reject" Command="{Binding RejectCommand}"
-                                AutomationProperties.Name="{x:Static res:Strings.Reject}" ToolTip.Tip="{x:Static res:Strings.Reject}">
-                          <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconClose}" />
-                        </Button>
-                      </StackPanel>
-                    </Grid>
+                  <Border Classes="divider-bottom" Padding="0,10">
+                    <views:ConfirmationRow />
                   </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>

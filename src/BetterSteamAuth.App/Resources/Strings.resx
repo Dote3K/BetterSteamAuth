@@ -88,7 +88,7 @@
   <data name="AcceptTrade" xml:space="preserve"><value>Accept trade</value></data>
   <data name="Accept" xml:space="preserve"><value>Accept</value></data>
   <data name="Reject" xml:space="preserve"><value>Reject</value></data>
-  <data name="DangerousHint" xml:space="preserve"><value>Account changes can't be accepted here. Open the Steam app to review it.</value></data>
+  <data name="DangerousHint" xml:space="preserve"><value>Account change. Accept only if you started it yourself.</value></data>
   <data name="Fix" xml:space="preserve"><value>Fix</value></data>
   <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
   <data name="SignInToLoadConfirmations" xml:space="preserve"><value>Sign in again to load confirmations</value></data>
@@ -130,4 +130,9 @@
   <data name="UsedByFormat" xml:space="preserve"><value>used by {0} more</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
   <data name="ProxyNotResponding" xml:space="preserve"><value>Proxy isn't responding</value></data>
+  <data name="AcceptFlaggedTradeTitle" xml:space="preserve"><value>Steam flagged this trade. Check it carefully before accepting.</value></data>
+  <data name="Accepting" xml:space="preserve"><value>Accepting…</value></data>
+  <data name="Rejecting" xml:space="preserve"><value>Rejecting…</value></data>
+  <data name="AcceptTradesInBulk" xml:space="preserve"><value>Accept trades in bulk</value></data>
+  <data name="AcceptTradesInBulkBody" xml:space="preserve"><value>Trades without a warning can be accepted with one click and together with market listings. Trades Steam warns about always need a separate check.</value></data>
 </root>
