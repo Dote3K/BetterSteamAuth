@@ -12,7 +12,7 @@ namespace BetterSteamAuth.App.ViewModels;
 
 /// <summary>
 /// Re-login for one account. The password is sent to Steam through the account's own
-/// connection and never stored; the resulting tokens go into the maFile.
+/// connection and only kept if "Remember password" is ticked; the resulting tokens go into the maFile.
 /// </summary>
 public sealed partial class LoginViewModel : ObservableObject
 {

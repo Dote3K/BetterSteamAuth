@@ -64,7 +64,7 @@
   <data name="Relogin" xml:space="preserve"><value>Re-login</value></data>
   <data name="CopyCode" xml:space="preserve"><value>Copy code</value></data>
   <data name="SignInTitleFormat" xml:space="preserve"><value>Sign in to {0}</value></data>
-  <data name="SignInBody" xml:space="preserve"><value>Your password is sent only to Steam and isn't saved. The Steam Guard code is filled in for you.</value></data>
+  <data name="SignInBody" xml:space="preserve"><value>Your password is sent only to Steam. The Steam Guard code is filled in for you.</value></data>
   <data name="SignIn" xml:space="preserve"><value>Sign in</value></data>
   <data name="EmailCodePrompt" xml:space="preserve"><value>Steam sent a code to the account's email. Enter it to continue.</value></data>
   <data name="EmailCode" xml:space="preserve"><value>Email code</value></data>
