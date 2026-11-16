@@ -89,21 +89,26 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
     [ObservableProperty] public partial bool HasProxy { get; private set; }
     [ObservableProperty] public partial string? ProxyHealth { get; private set; }
     [ObservableProperty] public partial bool ProxyDead { get; private set; }
+
+    /// <summary>The last error, shown on hover.</summary>
+    [ObservableProperty] public partial string? ProxyError { get; private set; }
     [ObservableProperty] public partial bool IsTesting { get; private set; }
 
     // Steam Guard
     public bool HasRevocationCode { get; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRevocationHidden))]
+    [NotifyPropertyChangedFor(nameof(IsRevocationHidden), nameof(ShowMaskedCode))]
     public partial string? RevealedCode { get; private set; }
 
     public bool IsRevocationHidden => RevealedCode is null && !IsAskingPassword;
 
-    public string MaskedRevocationCode => HasRevocationCode ? "R•••••" : Strings.NotInMaFile;
+    public bool ShowMaskedCode => HasRevocationCode && IsRevocationHidden;
+
+    public bool ShowNoCode => !HasRevocationCode;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsRevocationHidden))]
+    [NotifyPropertyChangedFor(nameof(IsRevocationHidden), nameof(ShowMaskedCode))]
     public partial bool IsAskingPassword { get; private set; }
 
     [ObservableProperty] public partial string RevealPassword { get; set; } = "";
@@ -385,10 +390,11 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
         HasProxy = proxy is not null;
         ProxyText = proxy?.Address ?? Strings.DirectConnection;
         ProxyDead = proxy?.Status == ProxyStatus.Dead;
+        ProxyError = ProxyDead ? proxy!.LastError : null;
         ProxyHealth = proxy switch
         {
             null => null,
-            { Status: ProxyStatus.Dead } => proxy.LastError is { } error ? $"{Strings.NotResponding} · {error}" : Strings.NotResponding,
+            { Status: ProxyStatus.Dead } => Strings.NotResponding,
             { LatencyMs: { } ms } => string.Format(CultureInfo.CurrentCulture, LatencyFormat, ms),
             _ => Strings.NotCheckedYet,
         };

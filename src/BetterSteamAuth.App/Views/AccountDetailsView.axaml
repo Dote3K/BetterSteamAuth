@@ -118,7 +118,8 @@
         <Grid Classes="row" ColumnDefinitions="170,*,Auto">
           <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Proxy}" />
           <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
-                     TextTrimming="CharacterEllipsis" Text="{Binding ProxyText}" />
+                     TextTrimming="CharacterEllipsis" Text="{Binding ProxyText}" IsVisible="{Binding HasProxy}" />
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding ProxyText}" IsVisible="{Binding !HasProxy}" />
           <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
                   Content="{x:Static res:Strings.Change}" Command="{Binding ChangeProxyCommand}" />
         </Grid>
@@ -126,7 +127,8 @@
           <TextBlock Classes="label secondary" Text="{x:Static res:Strings.LastCheck}" />
           <Panel Grid.Column="1" VerticalAlignment="Center">
             <TextBlock Classes="hint" Text="{x:Static res:Strings.Checking}" IsVisible="{Binding IsTesting}" />
-            <TextBlock TextWrapping="Wrap" Classes.danger="{Binding ProxyDead}" Text="{Binding ProxyHealth}" IsVisible="{Binding !IsTesting}" />
+            <TextBlock TextWrapping="Wrap" Classes.danger="{Binding ProxyDead}" Text="{Binding ProxyHealth}" IsVisible="{Binding !IsTesting}"
+                       ToolTip.Tip="{Binding ProxyError}" />
           </Panel>
           <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
                   Content="{x:Static res:Strings.Test}" Command="{Binding TestProxyCommand}" IsEnabled="{Binding !IsTesting}" />
@@ -138,10 +140,11 @@
           <TextBlock Classes="label secondary" Text="{x:Static res:Strings.RevocationCode}" />
           <!-- Hidden -->
           <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource Bsa.Font.Code}"
-                     Text="{Binding MaskedRevocationCode}" IsVisible="{Binding IsRevocationHidden}" />
+                     Text="R•••••" IsVisible="{Binding ShowMaskedCode}" />
+          <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="hint"
+                     Text="{x:Static res:Strings.NotInMaFile}" IsVisible="{Binding ShowNoCode}" />
           <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
-                  Content="{x:Static res:Strings.Reveal}" Command="{Binding RevealCommand}"
-                  IsVisible="{Binding IsRevocationHidden}" IsEnabled="{Binding HasRevocationCode}" />
+                  Content="{x:Static res:Strings.Reveal}" Command="{Binding RevealCommand}" IsVisible="{Binding ShowMaskedCode}" />
           <!-- Asking for the password -->
           <Grid Grid.Column="1" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,4"
                 IsVisible="{Binding IsAskingPassword}">
