@@ -29,6 +29,10 @@ public sealed partial class Vault : IDisposable
     private const string MetaSalt = "salt";
     private const string MetaWrappedKey = "wrapped_dek";
     private const string MetaWrappedNonce = "wrapped_dek_nonce";
+    private const string MetaKeyCheck = "key_check";
+    private const string MetaKeyCheckNonce = "key_check_nonce";
+
+    private static readonly byte[] KeyCheckPlaintext = "BetterSteamAuth data key"u8.ToArray();
 
     private const string TrashFolder = ".trash";
     private const string BackupFolder = ".backup";
@@ -71,6 +75,7 @@ public sealed partial class Vault : IDisposable
         {
             byte[] dataKey = VaultCrypto.NewDataKey();
             StoreWrappedKey(connection, tx, VaultCrypto.WrapDataKey(dataKey, password, kdf ?? KdfParameters.Default));
+            StoreKeyCheck(connection, tx, dataKey);
             vault._dataKey = dataKey;
         }
 
@@ -106,7 +111,49 @@ public sealed partial class Vault : IDisposable
 
         using var connection = _db.Open();
         _dataKey = VaultCrypto.UnwrapDataKey(ReadWrappedKey(connection), password);
+        if (VaultDatabase.GetMeta(connection, MetaKeyCheck) is null)
+        {
+            // Vaults created before the key check existed get one on their next unlock.
+            using var tx = connection.BeginTransaction();
+            StoreKeyCheck(connection, tx, _dataKey);
+            tx.Commit();
+        }
     }
+
+    /// <summary>
+    /// Unlocks with a data key saved earlier by <see cref="ExportDataKey"/> ("remember on this device").
+    /// Returns false when the key doesn't belong to this vault.
+    /// </summary>
+    public bool TryUnlockWithKey(ReadOnlySpan<byte> dataKey)
+    {
+        if (!IsEncrypted)
+        {
+            return true;
+        }
+
+        using var connection = _db.Open();
+        byte[]? check = VaultDatabase.GetMeta(connection, MetaKeyCheck);
+        byte[]? nonce = VaultDatabase.GetMeta(connection, MetaKeyCheckNonce);
+        if (check is null || nonce is null || dataKey.Length != VaultCrypto.KeySize)
+        {
+            return false;
+        }
+
+        try
+        {
+            VaultCrypto.Open(dataKey, nonce, check, KeyCheckPlaintext);
+        }
+        catch (System.Security.Cryptography.AuthenticationTagMismatchException)
+        {
+            return false;
+        }
+
+        _dataKey = dataKey.ToArray();
+        return true;
+    }
+
+    /// <summary>A copy of the data key, for the caller to protect (DPAPI) and clear after use.</summary>
+    public byte[] ExportDataKey() => (byte[])RequireKey().Clone();
 
     /// <summary>Forgets the data key. Encrypted maFiles can't be read until <see cref="Unlock"/>.</summary>
     public void Lock()
@@ -307,6 +354,14 @@ public sealed partial class Vault : IDisposable
         VaultDatabase.SetMeta(connection, MetaSalt, key.Salt, tx);
         VaultDatabase.SetMeta(connection, MetaWrappedNonce, key.Nonce, tx);
         VaultDatabase.SetMeta(connection, MetaWrappedKey, key.Ciphertext, tx);
+    }
+
+    /// <summary>An empty message sealed with the data key, so a remembered key can be verified without the password.</summary>
+    private static void StoreKeyCheck(Microsoft.Data.Sqlite.SqliteConnection connection, Microsoft.Data.Sqlite.SqliteTransaction tx, byte[] dataKey)
+    {
+        var (nonce, ciphertext) = VaultCrypto.Seal(dataKey, [], KeyCheckPlaintext);
+        VaultDatabase.SetMeta(connection, MetaKeyCheckNonce, nonce, tx);
+        VaultDatabase.SetMeta(connection, MetaKeyCheck, ciphertext, tx);
     }
 
     private static WrappedKey ReadWrappedKey(Microsoft.Data.Sqlite.SqliteConnection connection)

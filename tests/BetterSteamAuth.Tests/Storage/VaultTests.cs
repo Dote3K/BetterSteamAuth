@@ -47,6 +47,23 @@ public sealed class VaultTests : IDisposable
     }
 
     [Fact]
+    public void Remembered_key_unlocks_only_its_own_vault()
+    {
+        byte[] key;
+        using (var created = Vault.Create(_folder, "pw", FastKdf))
+        {
+            created.Add(FakeMaFile());
+            key = created.ExportDataKey();
+        }
+
+        using var vault = Vault.Open(_folder);
+        Assert.False(vault.TryUnlockWithKey(VaultCrypto.NewDataKey()));
+        Assert.False(vault.IsUnlocked);
+        Assert.True(vault.TryUnlockWithKey(key));
+        Assert.Equal("fake-refresh", vault.Load(SteamId).Session?.RefreshToken);
+    }
+
+    [Fact]
     public void ChangePassword_keeps_files_readable_with_the_new_password_only()
     {
         using (var created = Vault.Create(_folder, "old", FastKdf))
