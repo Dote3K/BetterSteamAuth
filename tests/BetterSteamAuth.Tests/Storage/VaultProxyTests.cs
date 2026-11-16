@@ -74,4 +74,23 @@ public sealed class VaultProxyTests : IDisposable
         Assert.True(ProxyParser.TryParse(ProxyParser.ToLine(edited with { Password = "p@ss:word" }), out var roundTrip));
         Assert.Equal("p@ss:word", roundTrip!.Password);
     }
+
+    [Fact]
+    public void Linked_account_is_saved_with_its_proxy_and_device_profile()
+    {
+        using var vault = Vault.Create(_folder, password: null);
+        vault.AddProxies([new ProxySettings(ProxyScheme.Socks5, "10.0.0.1", 1080)]);
+        long proxyId = vault.ListProxies().Single().Id;
+        var profile = new BetterSteamAuth.Core.Devices.DeviceProfile("SM-S911B", "Galaxy S23", "14", "UP1A.231005.007", [1, 2, 3]);
+
+        vault.Add(new MaFile { SharedSecret = "abc=", Session = new MaFileSession { SteamId = SteamId } }, proxyId, profile);
+
+        Assert.Equal(proxyId, vault.ListAccounts().Single().ProxyId);
+        var saved = vault.GetDeviceProfile(SteamId);
+        Assert.Equal(profile with { MachineId = saved!.MachineId }, saved);
+        Assert.Equal(profile.MachineId, saved.MachineId);
+
+        vault.Remove(SteamId);
+        Assert.Null(vault.GetDeviceProfile(SteamId));
+    }
 }

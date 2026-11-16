@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using BetterSteamAuth.Core.Accounts;
+using BetterSteamAuth.Core.Devices;
 using BetterSteamAuth.Core.Security;
 using Dapper;
 
@@ -239,8 +240,11 @@ public sealed partial class Vault : IDisposable
         return connection.ExecuteScalar<long>("SELECT COUNT(*) FROM accounts WHERE steam_id = @id", new { id = (long)steamId }) > 0;
     }
 
-    /// <summary>Adds a new account: writes its maFile first, then indexes it.</summary>
-    public AccountEntry Add(MaFile maFile)
+    /// <summary>
+    /// Adds a new account: writes its maFile first, then indexes it. A linked account also gets its
+    /// proxy and generated device profile in the same database transaction.
+    /// </summary>
+    public AccountEntry Add(MaFile maFile, long? proxyId = null, DeviceProfile? deviceProfile = null)
     {
         ArgumentNullException.ThrowIfNull(maFile);
         ulong steamId = maFile.SteamId ?? throw new InvalidDataException("The maFile has no SteamID.");
@@ -254,11 +258,32 @@ public sealed partial class Vault : IDisposable
 
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         using var connection = _db.Open();
+        using var tx = connection.BeginTransaction();
         connection.Execute(
-            "INSERT INTO accounts(steam_id, account_name, filename, created_at, updated_at) VALUES (@id, @name, @file, @now, @now)",
-            new { id = (long)steamId, name = IsEncrypted ? null : maFile.AccountName, file = fileName, now });
+            "INSERT INTO accounts(steam_id, account_name, filename, proxy_id, created_at, updated_at) VALUES (@id, @name, @file, @proxyId, @now, @now)",
+            new { id = (long)steamId, name = IsEncrypted ? null : maFile.AccountName, file = fileName, proxyId, now },
+            tx);
+        if (deviceProfile is not null)
+        {
+            connection.Execute(
+                "INSERT INTO device_profiles(steam_id, model, friendly_name, android_version, build_id, machine_id, created_at) " +
+                "VALUES (@id, @Model, @FriendlyName, @AndroidVersion, @BuildId, @MachineId, @now)",
+                new { id = (long)steamId, deviceProfile.Model, deviceProfile.FriendlyName, deviceProfile.AndroidVersion, deviceProfile.BuildId, deviceProfile.MachineId, now },
+                tx);
+        }
 
-        return new AccountEntry(steamId, IsEncrypted ? null : maFile.AccountName, fileName, null, null, null, 0);
+        tx.Commit();
+        return new AccountEntry(steamId, IsEncrypted ? null : maFile.AccountName, fileName, proxyId, null, null, 0);
+    }
+
+    /// <summary>The account's generated device profile, or null for imported accounts (default profile).</summary>
+    public DeviceProfile? GetDeviceProfile(ulong steamId)
+    {
+        using var connection = _db.Open();
+        var row = connection.QuerySingleOrDefault<DeviceProfileRow>(
+            "SELECT model AS Model, friendly_name AS FriendlyName, android_version AS AndroidVersion, build_id AS BuildId, " +
+            "machine_id AS MachineId FROM device_profiles WHERE steam_id = @id", new { id = (long)steamId });
+        return row is null ? null : new DeviceProfile(row.Model, row.FriendlyName, row.AndroidVersion, row.BuildId, row.MachineId);
     }
 
     public MaFile Load(ulong steamId)
@@ -314,7 +339,9 @@ public sealed partial class Vault : IDisposable
         }
 
         using var connection = _db.Open();
-        connection.Execute("DELETE FROM accounts WHERE steam_id = @id", new { id = (long)steamId });
+        connection.Execute(
+            "DELETE FROM device_profiles WHERE steam_id = @id; DELETE FROM accounts WHERE steam_id = @id",
+            new { id = (long)steamId });
     }
 
     public void Dispose()
@@ -373,6 +400,8 @@ public sealed partial class Vault : IDisposable
                   ?? throw new InvalidDataException("vault.db has invalid KDF parameters.");
         return new WrappedKey(Need(MetaSalt), Need(MetaWrappedNonce), Need(MetaWrappedKey), kdf);
     }
+
+    private sealed record DeviceProfileRow(string Model, string FriendlyName, string AndroidVersion, string BuildId, byte[] MachineId);
 
     private sealed record AccountRow(long SteamId, string? AccountName, string FileName, long? ProxyId, long? GroupId, string? Note, long SortOrder)
     {
