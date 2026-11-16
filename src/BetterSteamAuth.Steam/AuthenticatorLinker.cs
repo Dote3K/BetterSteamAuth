@@ -34,6 +34,20 @@ public enum FinalizeStatus
 /// <param name="PhoneHint">The last digits of the phone the SMS went to, when Steam says.</param>
 public sealed record AddResult(AddStatus Status, MaFile? MaFile, bool SentToEmail, string? PhoneHint);
 
+/// <summary>What Steam Guard becomes once the mobile authenticator is removed.</summary>
+public enum GuardAfterRemoval
+{
+    /// <summary>Steam Guard codes by email (steamguard_scheme 1).</summary>
+    Email = 1,
+
+    /// <summary>No Steam Guard at all (steamguard_scheme 2).</summary>
+    None = 2,
+}
+
+/// <param name="Removed">Steam removed the authenticator.</param>
+/// <param name="AttemptsRemaining">Revocation code attempts left, when Steam says (only on failure).</param>
+public sealed record RemoveResult(bool Removed, int? AttemptsRemaining);
+
 /// <param name="Active">Steam reports an active mobile authenticator.</param>
 /// <param name="DeviceId">The device ID it was linked with.</param>
 public sealed record AuthenticatorStatus(bool Active, string? DeviceId);
@@ -62,7 +76,7 @@ public sealed class LinkFailedException : Exception
 }
 
 /// <summary>
-/// Adds Steam Guard Mobile Authenticator to an account (ITwoFactorService), through the account's own
+/// Adds and removes Steam Guard Mobile Authenticator on an account (ITwoFactorService), through the account's own
 /// connection. Status values follow SteamAuth/SDA; to be checked with a real account.
 /// </summary>
 public static class AuthenticatorLinker
@@ -178,6 +192,30 @@ public static class AuthenticatorLinker
         }
 
         return FinalizeStatus.CodesRejected;
+    }
+
+    /// <summary>
+    /// Removes the mobile authenticator with the revocation code. Never retry this on your own: every wrong
+    /// code uses up one of the account's few attempts.
+    /// </summary>
+    public static async Task<RemoveResult> RemoveAsync(
+        AccountConnection connection, string accessToken, ulong steamId, string revocationCode, GuardAfterRemoval after,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrEmpty(accessToken);
+        ArgumentException.ThrowIfNullOrEmpty(revocationCode);
+
+        var (r, _) = await Call<CTwoFactor_RemoveAuthenticator_Response, CTwoFactor_RemoveAuthenticator_Request>(
+            connection, accessToken, "RemoveAuthenticator", new()
+            {
+                revocation_code = revocationCode.Trim(),
+                steamguard_scheme = (uint)after,
+            }, allowErrorResult: true, cancellationToken).ConfigureAwait(false);
+
+        return r.success
+            ? new RemoveResult(true, null)
+            : new RemoveResult(false, r.ShouldSerializerevocation_attempts_remaining() ? (int)r.revocation_attempts_remaining : null);
     }
 
     /// <summary>Whether the account has an active mobile authenticator, and with which device ID.</summary>
