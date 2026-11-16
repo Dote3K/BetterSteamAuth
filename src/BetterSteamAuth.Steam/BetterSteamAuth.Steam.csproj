@@ -5,4 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BetterSteamAuth.Core\BetterSteamAuth.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="BetterSteamAuth.Tests" />
+  </ItemGroup>
 </Project>
