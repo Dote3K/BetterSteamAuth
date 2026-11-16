@@ -73,7 +73,7 @@ public sealed partial class LoginViewModel : ObservableObject
             var connection = _shell.ConnectionFor(_steamId);
             try
             {
-                var tokens = await SteamLogin.LoginAsync(connection, AccountName, Password, sharedSecret, AskEmailCodeAsync)
+                var tokens = await SteamLogin.LoginAsync(connection, AccountName, Password, sharedSecret, AskEmailCodeAsync, vault.GetDeviceProfile(_steamId))
                     .ConfigureAwait(true);
                 Save(maFile, tokens);
             }

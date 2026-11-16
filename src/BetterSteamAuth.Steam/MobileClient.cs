@@ -1,3 +1,4 @@
+using BetterSteamAuth.Core.Devices;
 using SteamKit2;
 
 namespace BetterSteamAuth.Steam;
@@ -18,6 +19,20 @@ public static class MobileClient
     public const string DefaultDeviceName = "Pixel 7";
 
     public const EOSType DefaultOsType = EOSType.Android9;
+
+    /// <summary>
+    /// Steam's OS type for a device profile. SteamKit2 only names Android 6–9; newer versions report
+    /// AndroidUnknown until the real app's values are confirmed.
+    /// </summary>
+    public static int OsTypeFor(DeviceProfile? device) => device?.AndroidMajor switch
+    {
+        null => (int)DefaultOsType,
+        6 => (int)EOSType.Android6,
+        7 => (int)EOSType.Android7,
+        8 => (int)EOSType.Android8,
+        9 => (int)EOSType.Android9,
+        _ => (int)EOSType.AndroidUnknown,
+    };
 
     /// <summary>Steam's gaming device type for a phone.</summary>
     public const uint PhoneDeviceType = 528;

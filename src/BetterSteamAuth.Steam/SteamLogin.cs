@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using BetterSteamAuth.Core.Devices;
 using BetterSteamAuth.Core.Guard;
 using SteamKit2;
 using SteamKit2.Internal;
@@ -48,12 +49,14 @@ public static class SteamLogin
 
     /// <param name="sharedSecret">The authenticator's shared secret, used to answer the Steam Guard code prompt.</param>
     /// <param name="askGuardCode">Called when Steam needs a code we can't produce (an email code). Return null to cancel.</param>
+    /// <param name="device">The account's generated device profile; null uses the default profile.</param>
     public static async Task<LoginTokens> LoginAsync(
         AccountConnection connection,
         string accountName,
         string password,
         byte[]? sharedSecret,
         Func<GuardChallenge, Task<string?>> askGuardCode,
+        DeviceProfile? device = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
@@ -87,9 +90,9 @@ public static class SteamLogin
                 website_id = MobileClient.WebsiteId,
                 device_details = new CAuthentication_DeviceDetails
                 {
-                    device_friendly_name = MobileClient.DefaultDeviceName,
+                    device_friendly_name = device?.FriendlyName ?? MobileClient.DefaultDeviceName,
                     platform_type = EAuthTokenPlatformType.k_EAuthTokenPlatformType_MobileApp,
-                    os_type = (int)MobileClient.DefaultOsType,
+                    os_type = MobileClient.OsTypeFor(device),
                     gaming_device_type = MobileClient.PhoneDeviceType,
                 },
             }).ConfigureAwait(false);
