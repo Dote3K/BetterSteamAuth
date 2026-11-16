@@ -19,7 +19,7 @@ public static class ProxyHealth
         ArgumentNullException.ThrowIfNull(proxy);
 
         // A throwaway connection: no cookies, no account.
-        using var connection = new AccountConnection(0, proxy, MobileClient.DefaultUserAgent, network);
+        using var connection = new AccountConnection(0, proxy, network);
         using var http = connection.CreateHttpClient();
         http.Timeout = TimeSpan.FromSeconds(15);
 

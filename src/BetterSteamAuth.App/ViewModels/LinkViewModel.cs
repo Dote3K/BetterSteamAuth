@@ -209,7 +209,7 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
         {
             // The new account's own connection: its proxy and its generated device.
             _ownConnection?.Dispose();
-            _ownConnection = new AccountConnection(0, proxySettings, _profile.UserAgent, _shell.Network);
+            _ownConnection = new AccountConnection(0, proxySettings, _shell.Network);
             _connection = _ownConnection;
             await SampleOr(async () => { await TimeSync.SyncAsync(_connection).ConfigureAwait(true); return true; }, () => true).ConfigureAwait(true);
 

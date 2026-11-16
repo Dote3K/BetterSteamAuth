@@ -92,7 +92,7 @@ public static class SteamLogin
                 {
                     device_friendly_name = device?.FriendlyName ?? MobileClient.DefaultDeviceName,
                     platform_type = EAuthTokenPlatformType.k_EAuthTokenPlatformType_MobileApp,
-                    os_type = MobileClient.OsTypeFor(device),
+                    os_type = (int)MobileClient.OsType,
                     gaming_device_type = MobileClient.PhoneDeviceType,
                 },
             }).ConfigureAwait(false);

@@ -10,12 +10,6 @@ namespace BetterSteamAuth.Core.Devices;
 /// </summary>
 public sealed record DeviceProfile(string Model, string FriendlyName, string AndroidVersion, string BuildId, byte[] MachineId)
 {
-    /// <summary>User-Agent in the format Android's HTTP stack sends.</summary>
-    public string UserAgent => $"Dalvik/2.1.0 (Linux; U; Android {AndroidVersion}; {Model} Build/{BuildId})";
-
-    /// <summary>Android major version, e.g. 14.</summary>
-    public int AndroidMajor => int.TryParse(AndroidVersion.Split('.')[0], out int major) ? major : 0;
-
     /// <summary>A new authenticator device ID: <c>android:</c> plus a random UUID, never derived from the SteamID.</summary>
     public static string NewDeviceId() => "android:" + Guid.NewGuid().ToString("D");
 }

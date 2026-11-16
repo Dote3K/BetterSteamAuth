@@ -14,13 +14,12 @@ public sealed class AccountConnection : IDisposable
 {
     private readonly HttpMessageHandler _handler;
 
-    public AccountConnection(ulong steamId, ProxySettings? proxy, string userAgent, NetworkPolicy network)
+    public AccountConnection(ulong steamId, ProxySettings? proxy, NetworkPolicy network)
     {
         ArgumentNullException.ThrowIfNull(network);
 
         SteamId = steamId;
         Proxy = proxy;
-        UserAgent = userAgent;
 
         var sockets = new SocketsHttpHandler
         {
@@ -45,7 +44,8 @@ public sealed class AccountConnection : IDisposable
 
     public ProxySettings? Proxy { get; }
 
-    public string UserAgent { get; }
+    /// <summary>The same for every account, as the real app sends it.</summary>
+    public static string UserAgent => MobileClient.UserAgent;
 
     public CookieContainer Cookies { get; } = new();
 

@@ -135,9 +135,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         if (!_connections.TryGetValue(steamId, out var entry))
         {
             var proxy = Vault?.GetAccountProxyId(steamId) is { } proxyId ? Vault.GetProxySettings(proxyId) : null;
-            // Accounts linked here present their own device; imported ones use the default profile.
-            string userAgent = Vault?.GetDeviceProfile(steamId)?.UserAgent ?? MobileClient.DefaultUserAgent;
-            var connection = new AccountConnection(steamId, proxy, userAgent, _network);
+            var connection = new AccountConnection(steamId, proxy, _network);
             var stop = CancellationTokenSource.CreateLinkedTokenSource(_background.Token);
             entry = (connection, stop);
             _connections[steamId] = entry;
