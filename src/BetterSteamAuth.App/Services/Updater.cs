@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Core.Updates;
 using BetterSteamAuth.Storage;
 using Velopack;
@@ -38,6 +41,10 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     public const string BetaKey = "update.beta";
     private const string RepoUrl = "https://github.com/Dote3K/BetterSteamAuth";
     private const int MaxSumsBytes = 64 * 1024;
+    private static readonly CompositeFormat NotSignedFormat = CompositeFormat.Parse(Strings.UpdateNotSignedFormat);
+    private static readonly CompositeFormat NoSignatureFormat = CompositeFormat.Parse(Strings.UpdateNoSignatureFormat);
+    private static readonly CompositeFormat BadSignatureFormat = CompositeFormat.Parse(Strings.UpdateBadSignatureFormat);
+    private static readonly CompositeFormat DownloadMismatchFormat = CompositeFormat.Parse(Strings.UpdateDownloadMismatchFormat);
     private static readonly TimeSpan Interval = TimeSpan.FromHours(6);
 
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30), MaxResponseContentBufferSize = MaxSumsBytes };
@@ -119,7 +126,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
                 if (!sums.TryGetValue(asset.FileName, out string? hash)
                     || !string.Equals(hash, asset.SHA256, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new UpdateRejectedException($"{asset.FileName} isn't in the signed SHA256SUMS with the same hash.");
+                    throw new UpdateRejectedException(Format(NotSignedFormat, asset.FileName));
                 }
             }
 
@@ -175,7 +182,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     {
         if (ReleaseKeys.Trusted.Count == 0)
         {
-            throw new UpdateRejectedException("This build has no release key, so it can't verify updates.");
+            throw new UpdateRejectedException(Strings.UpdateNoReleaseKey);
         }
 
         string baseUrl = $"{RepoUrl}/releases/download/v{Uri.EscapeDataString(version)}/";
@@ -187,12 +194,12 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
-            throw new UpdateRejectedException($"Version {version} has no release signature.");
+            throw new UpdateRejectedException(Format(NoSignatureFormat, version));
         }
 
         if (!ReleaseSignature.Verify(sums, signature, ReleaseKeys.Trusted))
         {
-            throw new UpdateRejectedException($"The release signature of version {version} isn't valid.");
+            throw new UpdateRejectedException(Format(BadSignatureFormat, version));
         }
 
         try
@@ -201,7 +208,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
         }
         catch (FormatException ex)
         {
-            throw new UpdateRejectedException(ex.Message);
+            throw new UpdateRejectedException(Strings.UpdateBadSumsList, ex);
         }
     }
 
@@ -209,7 +216,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     private static async Task CheckDownloadedAsync(VelopackAsset target, string expected)
     {
         string folder = VelopackLocator.Current.PackagesDir
-            ?? throw new UpdateRejectedException("Couldn't find the downloaded update.");
+            ?? throw new UpdateRejectedException(Strings.UpdateDownloadMissing);
         string path = Path.Combine(folder, target.FileName);
         string actual;
         await using (var stream = File.OpenRead(path))
@@ -221,9 +228,11 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
         {
             // Velopack applies a downloaded package on the next start; never leave a bad one behind.
             File.Delete(path);
-            throw new UpdateRejectedException($"The downloaded {target.FileName} doesn't match the signed SHA256SUMS.");
+            throw new UpdateRejectedException(Format(DownloadMismatchFormat, target.FileName));
         }
     }
+
+    private static string Format(CompositeFormat format, object? arg) => string.Format(CultureInfo.CurrentCulture, format, arg);
 
     private static bool IsPrerelease(string? version) => version?.Contains('-', StringComparison.Ordinal) == true;
 
@@ -235,4 +244,4 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
 }
 
 /// <summary>An update that failed verification. Its message is shown under Settings → Updates → Details.</summary>
-public sealed class UpdateRejectedException(string message) : Exception(message);
+public sealed class UpdateRejectedException(string message, Exception? inner = null) : Exception(message, inner);

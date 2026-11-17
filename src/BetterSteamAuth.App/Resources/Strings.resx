@@ -444,4 +444,11 @@
   <data name="UpdateCheckFailed" xml:space="preserve"><value>Couldn't check for updates. Try again later.</value></data>
   <data name="UpdatesNotInstalled" xml:space="preserve"><value>Updates work in the installed app.</value></data>
   <data name="MoreUpdateReady" xml:space="preserve"><value>More, update ready</value></data>
+  <data name="UpdateNotSignedFormat" xml:space="preserve"><value>{0} isn't in the signed list of release files, or its hash differs.</value></data>
+  <data name="UpdateNoReleaseKey" xml:space="preserve"><value>This build has no release key, so it can't verify updates.</value></data>
+  <data name="UpdateNoSignatureFormat" xml:space="preserve"><value>Version {0} has no release signature.</value></data>
+  <data name="UpdateBadSignatureFormat" xml:space="preserve"><value>The release signature of version {0} isn't valid.</value></data>
+  <data name="UpdateBadSumsList" xml:space="preserve"><value>The signed list of release files isn't valid.</value></data>
+  <data name="UpdateDownloadMissing" xml:space="preserve"><value>Couldn't find the downloaded update.</value></data>
+  <data name="UpdateDownloadMismatchFormat" xml:space="preserve"><value>The downloaded {0} doesn't match the signed list of release files.</value></data>
 </root>
