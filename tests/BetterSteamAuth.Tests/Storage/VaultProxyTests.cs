@@ -30,7 +30,17 @@ public sealed class VaultProxyTests : IDisposable
         // The DB is open in WAL mode, so check both files without locking them.
         foreach (string file in Directory.GetFiles(_folder, "vault.db*"))
         {
-            using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            FileStream stream;
+            try
+            {
+                stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            }
+            catch (FileNotFoundException)
+            {
+                continue; // SQLite removes vault.db-wal when the last pooled connection closes
+            }
+
+            using var owned = stream;
             using var memory = new MemoryStream();
             stream.CopyTo(memory);
             Assert.Equal(-1, memory.ToArray().AsSpan().IndexOf("secret-pass"u8));
