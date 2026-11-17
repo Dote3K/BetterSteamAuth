@@ -9,5 +9,7 @@ public static class ReleaseKeys
 {
     public static IReadOnlyList<string> Trusted { get; } =
     [
+        // Created 2026-11-17.
+        "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEgvTVd+fmL4e/3gIL4oMIJ3GxZcskVQuOggORvdE2DLJJdJyuLRqXI5gEbhQGqjs9h+viMoxR+zbu45govYQGxg==",
     ];
 }

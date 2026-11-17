@@ -29,6 +29,20 @@ public class ReleaseSignatureTests
         Assert.False(ReleaseSignature.Verify(Sums, signature, []));
     }
 
+    // A mistyped key would make the app reject every update without any build error.
+    [Fact]
+    public void Trusted_release_keys_are_valid_p256_public_keys()
+    {
+        Assert.NotEmpty(ReleaseKeys.Trusted);
+        foreach (string publicKey in ReleaseKeys.Trusted)
+        {
+            using var key = ECDsa.Create();
+            key.ImportSubjectPublicKeyInfo(Convert.FromBase64String(publicKey), out int read);
+            Assert.Equal(Convert.FromBase64String(publicKey).Length, read);
+            Assert.Equal("nistP256", key.ExportParameters(false).Curve.Oid.FriendlyName);
+        }
+    }
+
     [Fact]
     public void Parses_sha256sum_output()
     {
