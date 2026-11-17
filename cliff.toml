@@ -22,6 +22,7 @@ commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->New" },
   { message = "^fix", group = "<!-- 1 -->Fixed" },
   { message = "^perf", group = "<!-- 2 -->Faster" },
-  { message = '^build\(deps\)', group = "<!-- 3 -->Dependencies" },
+  # Dependabot titles: "build: Bump X from 1 to 2" (NuGet groups) or "build(deps): bump X".
+  { message = '^build(\(deps\))?: [Bb]ump', group = "<!-- 3 -->Dependencies" },
   { message = "^(refactor|test|docs|build|ci|chore|style)", skip = true },
 ]
