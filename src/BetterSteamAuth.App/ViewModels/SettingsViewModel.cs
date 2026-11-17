@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using Avalonia.Threading;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.App.Services;
 using BetterSteamAuth.Steam.Network;
@@ -14,8 +15,11 @@ public sealed record Choice<T>(T Value, string Label)
 }
 
 /// <summary>Settings page: security, confirmations, data, Advanced → Network.</summary>
-public sealed partial class SettingsViewModel : ObservableObject
+public sealed partial class SettingsViewModel : ObservableObject, IDisposable
 {
+    private static readonly CompositeFormat VersionFormat = CompositeFormat.Parse(Strings.VersionFormat);
+    private static readonly CompositeFormat UpToDateFormat = CompositeFormat.Parse(Strings.UpdateUpToDateFormat);
+    private static readonly CompositeFormat UpdateReadyFormat = CompositeFormat.Parse(Strings.UpdateReadyFormat);
     private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
     private static readonly int[] AutoLockMinutes = [5, 15, 30, 60];
     private static readonly int[] KeepCounts = [5, 10, 20, 50];
@@ -47,7 +51,99 @@ public sealed partial class SettingsViewModel : ObservableObject
         LastAutoBackupText = auto.LastAt is { } at
             ? string.Format(CultureInfo.CurrentCulture, LastAutoBackupFormat, ConfirmationItemViewModel.Age(at))
             : null;
+
+        // Opening Settings is seeing the details of a rejected update, so the main window's bar goes away.
+        shell.Updater.AcknowledgeRejected();
+        shell.Updater.StatusChanged += OnUpdaterChanged;
     }
+
+    public void Dispose() => _shell.Updater.StatusChanged -= OnUpdaterChanged;
+
+    // Updates
+    public static string VersionText => string.Format(CultureInfo.CurrentCulture, VersionFormat, ShellViewModel.AppVersion ?? "dev");
+
+    /// <summary>One line under the version; empty until there's something to say.</summary>
+    public string? UpdateStatusText
+    {
+        get
+        {
+            var updater = _shell.Updater;
+            return updater.State switch
+            {
+                UpdateState.NotInstalled => Strings.UpdatesNotInstalled,
+                UpdateState.Checking => Strings.UpdateChecking,
+                UpdateState.Downloading => Strings.UpdateDownloading,
+                UpdateState.Ready => string.Format(CultureInfo.CurrentCulture, UpdateReadyFormat, updater.ReadyVersion),
+                UpdateState.Rejected => Strings.UpdateRejected,
+                UpdateState.CheckFailed => Strings.UpdateCheckFailed,
+                UpdateState.UpToDate when updater.LastCheckedAt is { } at && DateTimeOffset.UtcNow - at >= TimeSpan.FromMinutes(1)
+                    => string.Format(CultureInfo.CurrentCulture, UpToDateFormat, ConfirmationItemViewModel.Age(at)),
+                UpdateState.UpToDate => Strings.UpdateUpToDate,
+                _ => null,
+            };
+        }
+    }
+
+    public bool HasUpdateStatus => UpdateStatusText is not null;
+
+    /// <summary>Why the update was rejected or the check failed, under Details.</summary>
+    public string? UpdateDetails => _shell.Updater.State is UpdateState.Rejected or UpdateState.CheckFailed
+        ? _shell.Updater.FailureDetails
+        : null;
+
+    public bool HasUpdateDetails => UpdateDetails is not null;
+
+    public bool IsUpdateReady => _shell.Updater.State == UpdateState.Ready;
+
+    public bool CanCheckForUpdates => !IsUpdateReady
+        && _shell.Updater.State is not (UpdateState.Checking or UpdateState.Downloading);
+
+    public bool AutoCheckUpdates
+    {
+        get => _shell.Updater.AutoCheck;
+        set
+        {
+            if (value != _shell.Updater.AutoCheck)
+            {
+                _shell.Updater.AutoCheck = value;
+                OnPropertyChanged();
+                _shell.Updater.CheckIfDue();
+            }
+        }
+    }
+
+    public bool IncludeBetaUpdates
+    {
+        get => _shell.Updater.IncludeBeta;
+        set
+        {
+            if (value != _shell.Updater.IncludeBeta)
+            {
+                _shell.Updater.IncludeBeta = value;
+                OnPropertyChanged();
+                if (value)
+                {
+                    _ = _shell.Updater.CheckAsync();
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    private Task CheckForUpdatesAsync() => _shell.Updater.CheckAsync();
+
+    [RelayCommand]
+    private void RestartToUpdate() => _shell.RestartToUpdate();
+
+    private void OnUpdaterChanged(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() =>
+    {
+        OnPropertyChanged(nameof(UpdateStatusText));
+        OnPropertyChanged(nameof(HasUpdateStatus));
+        OnPropertyChanged(nameof(UpdateDetails));
+        OnPropertyChanged(nameof(HasUpdateDetails));
+        OnPropertyChanged(nameof(IsUpdateReady));
+        OnPropertyChanged(nameof(CanCheckForUpdates));
+    });
 
     // Automatic backups
     public bool AutoBackupAvailable => _shell.AutoBackup.IsAvailable;

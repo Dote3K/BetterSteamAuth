@@ -130,6 +130,40 @@
         </StackPanel>
         <Border Height="12" />
 
+        <!-- Updates. -->
+        <TextBlock Classes="caption" Text="{x:Static res:Strings.Updates}" Margin="0,0,0,8" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static vm:SettingsViewModel.VersionText}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding UpdateStatusText}" IsVisible="{Binding HasUpdateStatus}" />
+            <Expander Header="{x:Static res:Strings.Details}" IsVisible="{Binding HasUpdateDetails}" Margin="0,4,0,0">
+              <SelectableTextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding UpdateDetails}" />
+            </Expander>
+          </StackPanel>
+          <Panel Grid.Column="1" VerticalAlignment="Top">
+            <Button Content="{x:Static res:Strings.CheckNow}" Command="{Binding CheckForUpdatesCommand}"
+                    IsEnabled="{Binding CanCheckForUpdates}" IsVisible="{Binding !IsUpdateReady}" />
+            <Button Classes="Primary" Theme="{DynamicResource SolidButton}" Content="{x:Static res:Strings.RestartToUpdate}"
+                    Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding IsUpdateReady}" />
+          </Panel>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.CheckForUpdatesAuto}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.CheckForUpdatesAutoBody}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding AutoCheckUpdates}"
+                        AutomationProperties.Name="{x:Static res:Strings.CheckForUpdatesAuto}" />
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.IncludeBeta}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.IncludeBetaBody}" />
+          </StackPanel>
+          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding IncludeBetaUpdates}"
+                        AutomationProperties.Name="{x:Static res:Strings.IncludeBeta}" />
+        </Grid>
+
         <TextBlock Classes="caption" Text="{x:Static res:Strings.AdvancedNetwork}" Margin="0,0,0,8" />
 
         <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">

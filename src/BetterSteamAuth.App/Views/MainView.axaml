@@ -30,10 +30,17 @@
           </StackPanel>
         </Button>
         <Button Grid.Column="3" Theme="{DynamicResource BorderlessButton}" Padding="8"
-                AutomationProperties.Name="{x:Static res:Strings.More}" ToolTip.Tip="{x:Static res:Strings.More}">
-          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
+                AutomationProperties.Name="{Binding MoreName}" ToolTip.Tip="{Binding MoreName}">
+          <Panel>
+            <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconMore}" />
+            <!-- Update ready: a small dot, nothing more. -->
+            <Ellipse Width="6" Height="6" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-2,0"
+                     Fill="{DynamicResource SemiColorPrimary}" IsVisible="{Binding HasUpdateReady}" />
+          </Panel>
           <Button.Flyout>
             <MenuFlyout Placement="BottomEdgeAlignedRight">
+              <MenuItem Header="{Binding UpdateReadyText}" Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding HasUpdateReady}" />
+              <Separator IsVisible="{Binding HasUpdateReady}" />
               <MenuItem Header="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
               <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
               <MenuItem Header="{x:Static res:Strings.LinkNewAuthenticatorMenu}" Command="{Binding LinkNewCommand}" />
@@ -60,6 +67,16 @@
       <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
         <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
         <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{x:Static res:Strings.AutoBackupFailed}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                Content="{x:Static res:Strings.Details}" Command="{Binding OpenSettingsCommand}" />
+      </Grid>
+    </Border>
+
+    <!-- Couldn't verify the update · Details -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding UpdateRejected}">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+        <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static res:Strings.UpdateRejected}" />
         <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
                 Content="{x:Static res:Strings.Details}" Command="{Binding OpenSettingsCommand}" />
       </Grid>

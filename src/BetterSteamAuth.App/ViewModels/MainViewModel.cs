@@ -21,6 +21,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(60);
     private static readonly CompositeFormat RemovedFormat = CompositeFormat.Parse(Strings.RemovedFormat);
+    private static readonly CompositeFormat RestartToUpdateFormat = CompositeFormat.Parse(Strings.RestartToUpdateFormat);
     private int _removedSecondsLeft = 10 * 4;
 
     private readonly List<AccountItemViewModel> _all = [];
@@ -193,6 +194,22 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     public partial bool AutoBackupFailed { get; private set; }
 
     public bool CanUndoRemove => _removed is not null;
+
+    /// <summary>"Restart to update (1.4.0)" in the ⋯ menu, with a dot on the button, once an update is downloaded and verified.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdateReady), nameof(MoreName))]
+    public partial string? UpdateReadyText { get; private set; }
+
+    public bool HasUpdateReady => UpdateReadyText is not null;
+
+    public string MoreName => HasUpdateReady ? Strings.MoreUpdateReady : Strings.More;
+
+    /// <summary>An update didn't verify: one quiet bar until Settings has shown the details.</summary>
+    [ObservableProperty]
+    public partial bool UpdateRejected { get; private set; }
+
+    [RelayCommand]
+    private void RestartToUpdate() => _shell.RestartToUpdate();
 
     [RelayCommand]
     private void UndoRemove()
@@ -464,6 +481,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void Tick()
     {
         AutoBackupFailed = _shell.AutoBackup.LastFailed;
+        var updater = _shell.Updater;
+        UpdateReadyText = updater.State == Services.UpdateState.Ready
+            ? string.Format(CultureInfo.CurrentCulture, RestartToUpdateFormat, updater.ReadyVersion)
+            : null;
+        UpdateRejected = updater.RejectedNoticePending;
         if (RemovedText is not null && --_removedSecondsLeft <= 0)
         {
             RemovedText = null;

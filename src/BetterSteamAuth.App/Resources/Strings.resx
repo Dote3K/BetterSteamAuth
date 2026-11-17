@@ -426,4 +426,22 @@
   <data name="LastAutoBackupFormat" xml:space="preserve"><value>Last automatic backup: {0}</value></data>
   <data name="AutoBackupFailed" xml:space="preserve"><value>Automatic backup failed</value></data>
   <data name="ChooseBackupFolder" xml:space="preserve"><value>Folder for automatic backups</value></data>
+  <data name="Updates" xml:space="preserve"><value>Updates</value></data>
+  <data name="VersionFormat" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="CheckForUpdatesAuto" xml:space="preserve"><value>Check for updates automatically</value></data>
+  <data name="CheckForUpdatesAutoBody" xml:space="preserve"><value>Checks GitHub every few hours. Nothing about your accounts is sent.</value></data>
+  <data name="IncludeBeta" xml:space="preserve"><value>Include beta versions</value></data>
+  <data name="IncludeBetaBody" xml:space="preserve"><value>Get new features earlier. Betas can have rough edges.</value></data>
+  <data name="CheckNow" xml:space="preserve"><value>Check now</value></data>
+  <data name="RestartToUpdate" xml:space="preserve"><value>Restart to update</value></data>
+  <data name="RestartToUpdateFormat" xml:space="preserve"><value>Restart to update ({0})</value></data>
+  <data name="UpdateUpToDateFormat" xml:space="preserve"><value>Up to date · checked {0} ago</value></data>
+  <data name="UpdateUpToDate" xml:space="preserve"><value>Up to date</value></data>
+  <data name="UpdateChecking" xml:space="preserve"><value>Checking for updates…</value></data>
+  <data name="UpdateDownloading" xml:space="preserve"><value>Downloading the update…</value></data>
+  <data name="UpdateReadyFormat" xml:space="preserve"><value>{0} is ready. It installs when you close the app.</value></data>
+  <data name="UpdateRejected" xml:space="preserve"><value>Couldn't verify the update. It wasn't installed.</value></data>
+  <data name="UpdateCheckFailed" xml:space="preserve"><value>Couldn't check for updates. Try again later.</value></data>
+  <data name="UpdatesNotInstalled" xml:space="preserve"><value>Updates work in the installed app.</value></data>
+  <data name="MoreUpdateReady" xml:space="preserve"><value>More, update ready</value></data>
 </root>
