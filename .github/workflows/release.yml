@@ -77,7 +77,7 @@ jobs:
         env:
           PRE: ${{ steps.version.outputs.prerelease }}
         run: |
-          $pre = if ($env:PRE -eq 'true') { @('--pre') } else { @() }
+          $pre = @(if ($env:PRE -eq 'true') { '--pre' }) # @() keeps one item an array, so @pre splats it whole
           dotnet vpk download github --repoUrl "https://github.com/${{ github.repository }}" -o Releases @pre
 
       - name: Pack
@@ -95,9 +95,9 @@ jobs:
           PRE: ${{ steps.version.outputs.prerelease }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          $pre = if ($env:PRE -eq 'true') { @('--pre') } else { @() }
+          $pre = @(if ($env:PRE -eq 'true') { '--pre' }) # @() keeps one item an array, so @pre splats it whole
           dotnet vpk upload github --repoUrl "https://github.com/${{ github.repository }}" -o Releases `
-            --token $env:GH_TOKEN --tag $env:TAG --releaseName "BetterSteamAuth $env:VERSION" --publish false @pre
+            --token $env:GH_TOKEN --tag $env:TAG --releaseName "BetterSteamAuth $env:VERSION" @pre # stays a draft until it is signed
 
           # SHA256SUMS lists every asset of the draft; it is signed offline, outside CI.
           $assets = gh release view $env:TAG --json assets --jq '.assets[].name'
