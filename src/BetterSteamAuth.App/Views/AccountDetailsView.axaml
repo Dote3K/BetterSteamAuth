@@ -227,7 +227,7 @@
               <Grid ColumnDefinitions="170,*" ColumnSpacing="12">
                 <TextBlock Classes="label secondary" Margin="0,8,0,0" Text="{x:Static res:Strings.Group}" />
                 <AutoCompleteBox Grid.Column="1" ItemsSource="{Binding Groups}" Text="{Binding GroupName}"
-                                 FilterMode="ContainsOrdinal" MinimumPrefixLength="0" Watermark="{x:Static res:Strings.NoGroup}"
+                                 FilterMode="ContainsOrdinal" MinimumPrefixLength="0" PlaceholderText="{x:Static res:Strings.NoGroup}"
                                  AutomationProperties.Name="{x:Static res:Strings.Group}" />
               </Grid>
             </Border>

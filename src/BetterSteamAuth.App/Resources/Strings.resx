@@ -184,7 +184,6 @@
   <data name="ProxyAlreadyAdded" xml:space="preserve"><value>This proxy is already in the list</value></data>
   <data name="ConnectionTitle" xml:space="preserve"><value>How should these accounts connect?</value></data>
   <data name="ConnectionSubtitle" xml:space="preserve"><value>Nothing is sent to Steam until you choose. You can change this later.</value></data>
-  <data name="DirectConnection" xml:space="preserve"><value>Direct connection</value></data>
   <data name="DirectHintFormat" xml:space="preserve"><value>All {0} accounts share your IP address</value></data>
   <data name="DirectHintOne" xml:space="preserve"><value>The account uses your IP address</value></data>
   <data name="UseProxies" xml:space="preserve"><value>Use proxies</value></data>
