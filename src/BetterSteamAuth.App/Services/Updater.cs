@@ -119,20 +119,18 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
                 return;
             }
 
+            // Skipping versions means one delta per skipped release; each is checked against its own release's list.
             var target = info.TargetFullRelease;
-            var sums = await FetchVerifiedSumsAsync(target.Version.ToString()).ConfigureAwait(false);
-            foreach (var asset in info.DeltasToTarget.Prepend(target))
+            var files = info.DeltasToTarget.Append(target)
+                .Select(asset => new ReleaseFile(asset.FileName, asset.Version.ToString(), asset.SHA256));
+            if (await SignedRelease.FindUnsignedAsync(files, FetchVerifiedSumsAsync).ConfigureAwait(false) is { } unsigned)
             {
-                if (!sums.TryGetValue(asset.FileName, out string? hash)
-                    || !string.Equals(hash, asset.SHA256, StringComparison.OrdinalIgnoreCase))
-                {
-                    throw new UpdateRejectedException(Format(NotSignedFormat, asset.FileName));
-                }
+                throw new UpdateRejectedException(Format(NotSignedFormat, unsigned));
             }
 
             Set(UpdateState.Downloading);
             await manager.DownloadUpdatesAsync(info).ConfigureAwait(false);
-            await CheckDownloadedAsync(target, sums[target.FileName]).ConfigureAwait(false);
+            await CheckDownloadedAsync(target).ConfigureAwait(false);
 
             _manager = manager;
             _ready = target;
@@ -212,8 +210,11 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
         }
     }
 
-    /// <summary>Re-hashes the package Velopack assembled (deltas included); deletes it if it doesn't match.</summary>
-    private static async Task CheckDownloadedAsync(VelopackAsset target, string expected)
+    /// <summary>
+    /// Re-hashes the package Velopack assembled (deltas included) against the target's hash, which was checked
+    /// against the signed list before downloading. Deletes the package if it doesn't match.
+    /// </summary>
+    private static async Task CheckDownloadedAsync(VelopackAsset target)
     {
         string folder = VelopackLocator.Current.PackagesDir
             ?? throw new UpdateRejectedException(Strings.UpdateDownloadMissing);
@@ -224,7 +225,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
             actual = await ReleaseSignature.HashAsync(stream).ConfigureAwait(false);
         }
 
-        if (actual != expected)
+        if (!string.Equals(actual, target.SHA256, StringComparison.OrdinalIgnoreCase))
         {
             // Velopack applies a downloaded package on the next start; never leave a bad one behind.
             File.Delete(path);

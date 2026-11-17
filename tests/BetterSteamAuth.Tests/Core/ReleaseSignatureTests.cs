@@ -52,6 +52,41 @@ public class ReleaseSignatureTests
         Assert.Equal(new string('2', 64), sums["BetterSteamAuth-win-Setup.exe"]);
     }
 
+    // 1.0.0 → 1.3.0 skips two releases: one delta per release, each listed only in its own release's SHA256SUMS.
+    [Fact]
+    public async Task Update_that_skips_versions_checks_each_delta_against_its_own_release()
+    {
+        string Hash(char c) => new(c, 64);
+        var signed = new Dictionary<string, IReadOnlyDictionary<string, string>>
+        {
+            ["1.1.0"] = new Dictionary<string, string> { ["App-1.1.0-delta.nupkg"] = Hash('a') },
+            ["1.2.0"] = new Dictionary<string, string> { ["App-1.2.0-delta.nupkg"] = Hash('b') },
+            ["1.3.0"] = new Dictionary<string, string> { ["App-1.3.0-delta.nupkg"] = Hash('c'), ["App-1.3.0-full.nupkg"] = Hash('d') },
+        };
+        var fetched = new List<string>();
+        Task<IReadOnlyDictionary<string, string>> Fetch(string version)
+        {
+            fetched.Add(version);
+            return Task.FromResult(signed[version]);
+        }
+
+        ReleaseFile[] files =
+        [
+            new("App-1.1.0-delta.nupkg", "1.1.0", Hash('a')),
+            new("App-1.2.0-delta.nupkg", "1.2.0", Hash('B')), // feeds may use upper-case hex
+            new("App-1.3.0-delta.nupkg", "1.3.0", Hash('c')),
+            new("App-1.3.0-full.nupkg", "1.3.0", Hash('d')),
+        ];
+        Assert.Null(await SignedRelease.FindUnsignedAsync(files, Fetch));
+        Assert.Equal(["1.1.0", "1.2.0", "1.3.0"], fetched);
+
+        // A delta whose hash differs from its release's signed list, or that has no hash, is rejected.
+        files[1] = files[1] with { Sha256 = Hash('e') };
+        Assert.Equal("App-1.2.0-delta.nupkg", await SignedRelease.FindUnsignedAsync(files, Fetch));
+        files[1] = files[1] with { Sha256 = null };
+        Assert.Equal("App-1.2.0-delta.nupkg", await SignedRelease.FindUnsignedAsync(files, Fetch));
+    }
+
     [Theory]
     [InlineData("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  a.zip")] // upper case
     [InlineData("aaaa  a.zip")] // short hash
