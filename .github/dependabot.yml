@@ -27,16 +27,31 @@ updates:
         patterns: [Velopack, vpk]
       tests:
         patterns: [xunit*, Microsoft.NET.Test.Sdk, coverlet*]
-      # SteamKit2 is not in any group: it always gets its own pull request.
+      # Everything else. Leaves out the groups above (a package must not land in two pull requests)
+      # and SteamKit2, which always gets its own pull request.
       minor-and-patch:
         patterns: ["*"]
-        exclude-patterns: [SteamKit2]
+        exclude-patterns:
+          - SteamKit2
+          - Avalonia*
+          - AvaloniaUI.*
+          - Semi.Avalonia
+          - Irihi.Ursa*
+          - Velopack
+          - vpk
+          - xunit*
+          - Microsoft.NET.Test.Sdk
+          - coverlet*
         update-types: [minor, patch]
 
   - package-ecosystem: dotnet-sdk
     directory: /
     schedule:
       interval: weekly
+    # Stay on the SDK of the .NET version the app targets (10, LTS); moving to the next one is a deliberate change.
+    ignore:
+      - dependency-name: dotnet-sdk
+        update-types: ["version-update:semver-major"]
     labels: [dependencies]
     commit-message:
       prefix: build
