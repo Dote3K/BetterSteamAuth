@@ -33,6 +33,10 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      - name: Check vpk and Velopack versions match
+        shell: pwsh
+        run: ./build/Check-VelopackVersions.ps1
+
       - name: Restore (locked)
         run: dotnet restore --locked-mode
 
