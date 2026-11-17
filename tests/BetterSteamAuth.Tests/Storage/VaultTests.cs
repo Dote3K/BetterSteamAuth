@@ -105,4 +105,59 @@ public sealed class VaultTests : IDisposable
         Assert.Contains("\"phone_number_hint\":\"12\"", saved, StringComparison.Ordinal);
         Assert.Contains("\"WebCookie\":\"w\"", saved, StringComparison.Ordinal);
     }
+
+    // Data from an older version: pending migrations run, but only after a copy of vault.db is kept.
+    [Fact]
+    public void Migrating_older_data_keeps_a_copy_from_before()
+    {
+        using (var created = Vault.Create(_folder, password: null))
+        {
+            created.Add(FakeMaFile());
+        }
+
+        // Turn it back into a schema-2 database, as an app from before migration 003 left it.
+        Sql("DROP TABLE removed_accounts; PRAGMA user_version = 2;");
+
+        using (var opened = Vault.Open(_folder))
+        {
+            Assert.Single(opened.ListAccounts());
+        }
+
+        string copy = Path.Combine(_folder, ".backup", "vault.db.before-003");
+        Assert.True(File.Exists(copy));
+        Assert.Equal(2L, UserVersion(copy));
+        Assert.Equal(3L, UserVersion(Path.Combine(_folder, "vault.db")));
+    }
+
+    // Data from a newer version: refused, and left exactly as it was.
+    [Fact]
+    public void Opening_data_from_a_newer_version_is_refused_without_changes()
+    {
+        Vault.Create(_folder, password: null).Dispose();
+        Sql("PRAGMA user_version = 99;");
+
+        var ex = Assert.Throws<VaultTooNewException>(() => Vault.Open(_folder));
+
+        Assert.Equal(99L, ex.DataVersion);
+        Assert.Equal(99L, UserVersion(Path.Combine(_folder, "vault.db")));
+        Assert.False(Directory.Exists(Path.Combine(_folder, ".backup")));
+    }
+
+    private void Sql(string sql)
+    {
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={Path.Combine(_folder, "vault.db")};Pooling=False");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = sql;
+        command.ExecuteNonQuery();
+    }
+
+    private static long UserVersion(string path)
+    {
+        using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={path};Mode=ReadOnly;Pooling=False");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA user_version;";
+        return (long)command.ExecuteScalar()!;
+    }
 }

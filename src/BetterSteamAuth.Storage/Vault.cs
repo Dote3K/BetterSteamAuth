@@ -506,6 +506,21 @@ public sealed class VaultLockedException : InvalidOperationException
     }
 }
 
+/// <summary>The data was saved by a newer version of the app (a database migration this version doesn't know). Nothing was changed.</summary>
+public sealed class VaultTooNewException : IOException
+{
+    public VaultTooNewException(long dataVersion, int supportedVersion)
+        : base($"The data has schema version {dataVersion}; this version of the app supports up to {supportedVersion}.")
+    {
+        DataVersion = dataVersion;
+        SupportedVersion = supportedVersion;
+    }
+
+    public long DataVersion { get; }
+
+    public int SupportedVersion { get; }
+}
+
 public sealed class DuplicateAccountException : InvalidOperationException
 {
     public DuplicateAccountException(ulong steamId) : base($"Account {steamId} is already added.")
