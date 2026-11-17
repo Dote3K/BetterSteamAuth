@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>BetterSteamAuth</AssemblyName>
+    <RootNamespace>BetterSteamAuth.App</RootNamespace>
+    <Product>BetterSteamAuth</Product>
+    <Company>BetterSteamAuth</Company>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>

@@ -6,7 +6,7 @@
   <Application.Styles>
     <semi:SemiTheme Locale="en-US" />
     <semi:UrsaSemiTheme Locale="en-US" />
-    <StyleInclude Source="avares://BetterSteamAuth.App/Themes/Typography.axaml" />
+    <StyleInclude Source="avares://BetterSteamAuth/Themes/Typography.axaml" />
   </Application.Styles>
   <Application.Resources>
     <ResourceDictionary>

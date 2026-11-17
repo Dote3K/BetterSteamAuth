@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using BetterSteamAuth.App.Services;
 using BetterSteamAuth.Steam;
 using BetterSteamAuth.Steam.Network;
@@ -407,8 +408,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
     }
 
-    /// <summary>The app's version, written into backups.</summary>
-    public static string? AppVersion => typeof(ShellViewModel).Assembly.GetName().Version?.ToString(3);
+    /// <summary>The app's SemVer version from the git tag (MinVer), without build metadata. Written into backups.</summary>
+    public static string? AppVersion { get; } = typeof(ShellViewModel).Assembly
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0];
 
     public void ShowLogin(ulong steamId, string accountName, Action? done = null)
         => SwitchTo(new LoginViewModel(this, steamId, accountName, done ?? ShowMain));
