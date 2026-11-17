@@ -10,6 +10,7 @@
   <Window.DataTemplates>
     <DataTemplate DataType="vm:FirstRunViewModel"><views:FirstRunView /></DataTemplate>
     <DataTemplate DataType="vm:UnlockViewModel"><views:UnlockView /></DataTemplate>
+    <DataTemplate DataType="vm:DataTooNewViewModel"><views:DataTooNewView /></DataTemplate>
     <DataTemplate DataType="vm:ImportViewModel"><views:ImportView /></DataTemplate>
     <DataTemplate DataType="vm:MainViewModel"><views:MainView /></DataTemplate>
     <DataTemplate DataType="vm:SettingsViewModel"><views:SettingsView /></DataTemplate>

@@ -63,25 +63,23 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     public static string VersionText => string.Format(CultureInfo.CurrentCulture, VersionFormat, ShellViewModel.AppVersion ?? "dev");
 
     /// <summary>One line under the version; empty until there's something to say.</summary>
-    public string? UpdateStatusText
+    public string? UpdateStatusText => StatusText(_shell.Updater);
+
+    internal static string? StatusText(Updater updater)
     {
-        get
+        return updater.State switch
         {
-            var updater = _shell.Updater;
-            return updater.State switch
-            {
-                UpdateState.NotInstalled => Strings.UpdatesNotInstalled,
-                UpdateState.Checking => Strings.UpdateChecking,
-                UpdateState.Downloading => Strings.UpdateDownloading,
-                UpdateState.Ready => string.Format(CultureInfo.CurrentCulture, UpdateReadyFormat, updater.ReadyVersion),
-                UpdateState.Rejected => Strings.UpdateRejected,
-                UpdateState.CheckFailed => Strings.UpdateCheckFailed,
-                UpdateState.UpToDate when updater.LastCheckedAt is { } at && DateTimeOffset.UtcNow - at >= TimeSpan.FromMinutes(1)
-                    => string.Format(CultureInfo.CurrentCulture, UpToDateFormat, ConfirmationItemViewModel.Age(at)),
-                UpdateState.UpToDate => Strings.UpdateUpToDate,
-                _ => null,
-            };
-        }
+            UpdateState.NotInstalled => Strings.UpdatesNotInstalled,
+            UpdateState.Checking => Strings.UpdateChecking,
+            UpdateState.Downloading => Strings.UpdateDownloading,
+            UpdateState.Ready => string.Format(CultureInfo.CurrentCulture, UpdateReadyFormat, updater.ReadyVersion),
+            UpdateState.Rejected => Strings.UpdateRejected,
+            UpdateState.CheckFailed => Strings.UpdateCheckFailed,
+            UpdateState.UpToDate when updater.LastCheckedAt is { } at && DateTimeOffset.UtcNow - at >= TimeSpan.FromMinutes(1)
+                => string.Format(CultureInfo.CurrentCulture, UpToDateFormat, ConfirmationItemViewModel.Age(at)),
+            UpdateState.UpToDate => Strings.UpdateUpToDate,
+            _ => null,
+        };
     }
 
     public bool HasUpdateStatus => UpdateStatusText is not null;

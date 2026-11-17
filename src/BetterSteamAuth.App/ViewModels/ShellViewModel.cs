@@ -50,7 +50,17 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
             return;
         }
 
-        Vault = Vault.Open(dataFolder);
+        try
+        {
+            Vault = Vault.Open(dataFolder);
+        }
+        catch (VaultTooNewException)
+        {
+            // Saved by a newer version: open nothing, change nothing, offer the update.
+            CurrentPage = new DataTooNewViewModel(this);
+            return;
+        }
+
         LoadNetworkOptions();
         if (Vault.IsUnlocked || UnlockWithRememberedKey())
         {

@@ -112,6 +112,11 @@ public sealed partial class RestoreViewModel : ObservableObject, IDisposable
                 Step = RestoreStep.Password;
             }
         }
+        catch (VaultTooNewException)
+        {
+            CloseBackup();
+            Error = Strings.BackupTooNew;
+        }
         catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException
                                        or Microsoft.Data.Sqlite.SqliteException)
         {

@@ -451,4 +451,8 @@
   <data name="UpdateBadSumsList" xml:space="preserve"><value>The signed list of release files isn't valid.</value></data>
   <data name="UpdateDownloadMissing" xml:space="preserve"><value>Couldn't find the downloaded update.</value></data>
   <data name="UpdateDownloadMismatchFormat" xml:space="preserve"><value>The downloaded {0} doesn't match the signed list of release files.</value></data>
+  <data name="DataTooNewTitle" xml:space="preserve"><value>Update needed</value></data>
+  <data name="DataTooNewBody" xml:space="preserve"><value>This data was saved by a newer version of BetterSteamAuth. Update the app to open it. Nothing has been changed.</value></data>
+  <data name="BackupTooNew" xml:space="preserve"><value>This backup was made by a newer version of BetterSteamAuth. Update the app to restore it.</value></data>
+  <data name="CheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
 </root>
