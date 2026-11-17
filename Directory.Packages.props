@@ -23,6 +23,8 @@
   </ItemGroup>
   <ItemGroup Label="Build">
     <PackageVersion Include="MinVer" Version="8.0.0" />
+    <!-- Keep in step with the vpk tool in .config/dotnet-tools.json (CI checks it). -->
+    <PackageVersion Include="Velopack" Version="1.2.161" />
   </ItemGroup>
   <ItemGroup Label="Tests">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
