@@ -36,7 +36,12 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _idleTimer.Tick += (_, _) => LockIfIdle();
         _idleTimer.Start();
         AutoBackup = new AutoBackup(() => Vault);
-        _autoBackupTimer.Tick += (_, _) => CheckAutoBackup();
+        Updater = new Updater(() => Vault);
+        _autoBackupTimer.Tick += (_, _) =>
+        {
+            CheckAutoBackup();
+            Updater.CheckIfDue();
+        };
         _autoBackupTimer.Start();
 
         if (!Vault.Exists(dataFolder))
@@ -299,6 +304,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         SwitchTo(new MainViewModel(this));
         StartProxyChecks();
         CheckAutoBackup();
+        Updater.CheckIfDue();
     }
 
     /// <summary>Main window with this account selected.</summary>
@@ -431,6 +437,12 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        if (!_restartingToUpdate)
+        {
+            Updater.ApplyOnExit();
+        }
+
+        Updater.Dispose();
         _idleTimer.Stop();
         _autoBackupTimer.Stop();
         (CurrentPage as IDisposable)?.Dispose();
@@ -518,6 +530,19 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
         _connections.Clear();
         _proxyChecksRunning = false;
+    }
+
+    private bool _restartingToUpdate;
+
+    /// <summary>In-app updates.</summary>
+    public Updater Updater { get; }
+
+    /// <summary>Closes the data cleanly, then installs the downloaded update and starts the new version.</summary>
+    public void RestartToUpdate()
+    {
+        _restartingToUpdate = true;
+        Dispose();
+        Updater.ApplyAndRestart();
     }
 
     /// <summary>Optional automatic backups.</summary>
