@@ -1,3 +1,5 @@
+<img src="src/BetterSteamAuth.App/Assets/logo-512.png" width="96" alt="">
+
 # BetterSteamAuth
 
 A Steam Guard desktop authenticator for Windows, with its own connection and proxy for each account.
