@@ -106,6 +106,30 @@ public sealed class VaultTests : IDisposable
         Assert.Contains("\"WebCookie\":\"w\"", saved, StringComparison.Ordinal);
     }
 
+    // Changing the password re-wraps the same data key: the old password stops working, a remembered key keeps working.
+    [Fact]
+    public void Changing_the_password_keeps_the_data_and_the_remembered_key()
+    {
+        byte[] remembered;
+        using (var vault = Vault.Create(_folder, "old-password", FastKdf))
+        {
+            vault.Add(FakeMaFile());
+            remembered = vault.ExportDataKey();
+            Assert.Throws<WrongPasswordException>(() => vault.ChangePassword("not-it", "new-password"));
+            vault.ChangePassword("old-password", "new-password");
+        }
+
+        using (var reopened = Vault.Open(_folder))
+        {
+            Assert.Throws<WrongPasswordException>(() => reopened.Unlock("old-password"));
+            reopened.Unlock("new-password");
+            Assert.NotNull(reopened.Load(SteamId).SharedSecret);
+        }
+
+        using var withKey = Vault.Open(_folder);
+        Assert.True(withKey.TryUnlockWithKey(remembered));
+    }
+
     // Data from an older version: pending migrations run, but only after a copy of vault.db is kept.
     [Fact]
     public void Migrating_older_data_keeps_a_copy_from_before()
