@@ -28,9 +28,10 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
 
     private readonly ShellViewModel _shell;
 
-    public SettingsViewModel(ShellViewModel shell)
+    public SettingsViewModel(ShellViewModel shell, string? notice = null)
     {
         _shell = shell;
+        PasswordNotice = notice;
         var current = shell.NetworkOptions;
         SniBypass = SniBypassChoices.Single(c => c.Value == current.SniBypass);
         EncryptedDns = EncryptedDnsChoices.Single(c => c.Value == current.EncryptedDns);
@@ -239,6 +240,18 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
 
     /// <summary>Security settings only apply when the data has a password.</summary>
     public bool HasPassword => _shell.Vault?.IsEncrypted == true;
+
+    public string PasswordBody => HasPassword ? Strings.AppPasswordBody : Strings.NoAppPasswordBody;
+
+    public string PasswordButton => HasPassword ? Strings.ChangePasswordMenu : Strings.SetPasswordMenu;
+
+    /// <summary>"Password changed." after coming back from the password page.</summary>
+    public string? PasswordNotice { get; }
+
+    public bool HasPasswordNotice => PasswordNotice is not null;
+
+    [RelayCommand]
+    private void OpenPassword() => _shell.ShowPassword();
 
     public bool CanRemember => HasPassword && RememberedKey.IsSupported;
 

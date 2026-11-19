@@ -455,4 +455,20 @@
   <data name="DataTooNewBody" xml:space="preserve"><value>This data was saved by a newer version of BetterSteamAuth. Update the app to open it. Nothing has been changed.</value></data>
   <data name="BackupTooNew" xml:space="preserve"><value>This backup was made by a newer version of BetterSteamAuth. Update the app to restore it.</value></data>
   <data name="CheckForUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="AppPassword" xml:space="preserve"><value>App password</value></data>
+  <data name="AppPasswordBody" xml:space="preserve"><value>Unlocks the app. Your Steam accounts are encrypted with it.</value></data>
+  <data name="NoAppPasswordBody" xml:space="preserve"><value>Not set. Your Steam accounts are stored unencrypted on this computer.</value></data>
+  <data name="ChangePasswordMenu" xml:space="preserve"><value>Change…</value></data>
+  <data name="SetPasswordMenu" xml:space="preserve"><value>Set a password…</value></data>
+  <data name="ChangePasswordTitle" xml:space="preserve"><value>Change password</value></data>
+  <data name="ChangePasswordBody" xml:space="preserve"><value>Only the password that unlocks the app changes. Your accounts stay as they are.</value></data>
+  <data name="SetPasswordLaterBody" xml:space="preserve"><value>Your Steam accounts get encrypted with this password. It can't be recovered, so keep it safe. Accounts in Removed accounts are deleted for good.</value></data>
+  <data name="CurrentPassword" xml:space="preserve"><value>Current password</value></data>
+  <data name="NewPassword" xml:space="preserve"><value>New password</value></data>
+  <data name="ChangePassword" xml:space="preserve"><value>Change password</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving…</value></data>
+  <data name="PasswordChanged" xml:space="preserve"><value>Password changed.</value></data>
+  <data name="PasswordSetDone" xml:space="preserve"><value>Password set. Your Steam accounts are now encrypted.</value></data>
+  <data name="OldDataNotDeletedFormat" xml:space="preserve"><value>Password set, but the old unencrypted folder couldn't be deleted. Delete it yourself: {0}</value></data>
+  <data name="PasswordNotSaved" xml:space="preserve"><value>Couldn't save the password. Nothing was changed.</value></data>
 </root>

@@ -20,8 +20,17 @@
 
     <ScrollViewer>
       <StackPanel MaxWidth="640" Margin="24,20" Spacing="4" HorizontalAlignment="Stretch">
+        <TextBlock Classes="caption" Text="{x:Static res:Strings.Security}" Margin="0,0,0,8" />
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AppPassword}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding PasswordBody}" />
+            <TextBlock Classes="success" TextWrapping="Wrap" Text="{Binding PasswordNotice}" IsVisible="{Binding HasPasswordNotice}" />
+          </StackPanel>
+          <Button Grid.Column="1" VerticalAlignment="Top" Content="{Binding PasswordButton}" Command="{Binding OpenPasswordCommand}" />
+        </Grid>
+        <Border Height="12" IsVisible="{Binding !HasPassword}" />
         <StackPanel Spacing="4" IsVisible="{Binding HasPassword}">
-          <TextBlock Classes="caption" Text="{x:Static res:Strings.Security}" Margin="0,0,0,8" />
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16" IsVisible="{Binding CanRemember}">
             <StackPanel Spacing="2">
               <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RememberOnDevice}" />

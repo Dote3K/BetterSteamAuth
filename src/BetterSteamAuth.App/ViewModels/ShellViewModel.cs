@@ -362,6 +362,45 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowSettings() => SwitchTo(new SettingsViewModel(this));
 
+    /// <summary>Settings with a one-line note under App password, e.g. "Password changed."</summary>
+    public void ShowSettings(string? notice) => SwitchTo(new SettingsViewModel(this, notice));
+
+    public void ShowPassword() => SwitchTo(new PasswordViewModel(this));
+
+    /// <summary>
+    /// Gives an app without a password one: the data folder is replaced by an encrypted copy, then the old plain
+    /// folder is deleted. Returns the old folder's path if it couldn't be deleted.
+    /// </summary>
+    public async Task<string?> SetAppPasswordAsync(string password, bool remember)
+    {
+        var vault = Vault ?? throw new InvalidOperationException("No data is open.");
+        string? kept;
+        using (var copy = await Task.Run(() => VaultBackup.CreateEncryptedCopy(vault, password, AppVersion)).ConfigureAwait(true))
+        {
+            kept = ReplaceDataWithBackup(copy, VaultBackup.KeptFolderFor(DataFolder, DateTime.Now));
+        }
+
+        if (remember)
+        {
+            SetRemembered(true);
+        }
+
+        if (kept is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            await Task.Run(() => Directory.Delete(kept, recursive: true)).ConfigureAwait(true);
+            return null;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return kept;
+        }
+    }
+
     public void ShowRemovedAccounts() => SwitchTo(new RemovedAccountsViewModel(this));
 
     /// <summary>Back up now; <paramref name="fromSettings"/> decides where Back returns.</summary>
