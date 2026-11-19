@@ -20,7 +20,7 @@
     </Border>
 
     <ScrollViewer>
-      <Grid Width="420" Margin="24,28,24,24">
+      <Grid Width="420" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center">
         <!-- 1. Pick the file -->
         <StackPanel Spacing="8" IsVisible="{Binding IsPick}">
           <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Body}" />

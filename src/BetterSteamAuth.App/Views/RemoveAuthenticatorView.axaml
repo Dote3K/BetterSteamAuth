@@ -21,7 +21,7 @@
     </Border>
 
     <ScrollViewer>
-      <StackPanel Width="440" Margin="24,28,24,24" Spacing="8" IsEnabled="{Binding IsIdle}">
+      <StackPanel Width="440" Margin="24" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8" IsEnabled="{Binding IsIdle}">
         <TextBlock Classes="heading" Text="{x:Static res:Strings.RemoveAuthTitle}" />
         <TextBlock Classes="secondary" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
 
