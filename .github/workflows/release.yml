@@ -85,7 +85,7 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: >
           dotnet vpk pack -u BetterSteamAuth -v $env:VERSION -p publish -e BetterSteamAuth.exe
-          --packTitle BetterSteamAuth --packAuthors BetterSteamAuth
+          --packTitle BetterSteamAuth --packAuthors BetterSteamAuth --icon src/BetterSteamAuth.App/Assets/app.ico
           --releaseNotes RELEASE_NOTES.md -o Releases
 
       - name: Upload draft release
