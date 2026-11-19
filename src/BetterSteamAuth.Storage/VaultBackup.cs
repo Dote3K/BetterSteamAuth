@@ -188,6 +188,35 @@ public static class VaultBackup
         return kept;
     }
 
+    /// <summary>
+    /// Builds an encrypted copy of an app that has no password, unlocked with <paramref name="newPassword"/>, ready
+    /// to replace its data folder with <see cref="ReplaceDataFolder"/>. Setting a password this way leaves no plain
+    /// copy behind in the new folder (old maFile versions, trash, database). Removed accounts aren't carried over.
+    /// </summary>
+    public static OpenedBackup CreateEncryptedCopy(Vault vault, string newPassword, string? appVersion, KdfParameters? kdf = null)
+    {
+        ArgumentNullException.ThrowIfNull(vault);
+        ArgumentException.ThrowIfNullOrEmpty(newPassword);
+        if (vault.IsEncrypted)
+        {
+            throw new InvalidOperationException("The app already has a password; change it instead.");
+        }
+
+        string work = NewTempFolder();
+        try
+        {
+            string file = Path.Combine(work, "copy" + Extension);
+            Create(vault, file, newPassword, appVersion, kdf);
+            var copy = Open(file);
+            copy.Vault.Unlock(newPassword);
+            return copy;
+        }
+        finally
+        {
+            DeleteFolder(work);
+        }
+    }
+
     internal static void DeleteFolder(string folder)
     {
         try

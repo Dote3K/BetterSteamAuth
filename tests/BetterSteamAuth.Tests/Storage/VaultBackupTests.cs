@@ -131,6 +131,48 @@ public sealed class VaultBackupTests : IDisposable
         Assert.NotEqual(before, vault.ComputeFingerprint());
     }
 
+    // Settings → Set a password: the data folder is replaced by an encrypted copy, so no plain secret survives in it
+    // (not in maFiles, their .bak copies, or the database).
+    [Fact]
+    public void Setting_a_password_replaces_the_data_with_an_encrypted_copy()
+    {
+        const string Secret = "ZmFrZS1zaGFyZWQtc2VjcmV0LTEyMzQ=";
+        const string ProxyPassword = "fake-proxy-pw";
+        string data = Path.Combine(_root, "data");
+        OpenedBackup copy;
+        using (var plain = Vault.Create(data, password: null))
+        {
+            plain.AddProxies([new ProxySettings(ProxyScheme.Http, "10.0.0.2", 8080, "fake-user", ProxyPassword)]);
+            long proxyId = plain.ListProxies().Single().Id;
+            plain.Add(NewMaFile(First, "first", Secret), proxyId);
+            plain.Save(NewMaFile(First, "first", Secret)); // leaves a plain .bak of the previous version
+
+            copy = VaultBackup.CreateEncryptedCopy(plain, "new-pw", "test", FastKdf);
+        }
+
+        using (copy)
+        {
+            Assert.True(copy.Vault.IsUnlocked);
+            copy.Vault.Dispose();
+            Assert.NotNull(VaultBackup.ReplaceDataFolder(copy, data, data + ".old"));
+        }
+
+        using var reopened = Vault.Open(data);
+        Assert.True(reopened.IsEncrypted);
+        Assert.False(reopened.IsUnlocked);
+        reopened.Unlock("new-pw");
+        Assert.Equal(Secret, reopened.Load(First).SharedSecret);
+        Assert.Equal(ProxyPassword, reopened.GetProxySettings(reopened.ListProxies().Single().Id)!.Password);
+
+        Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+        foreach (string file in Directory.GetFiles(data, "*", SearchOption.AllDirectories))
+        {
+            string text = System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(file));
+            Assert.DoesNotContain(Secret, text, StringComparison.Ordinal);
+            Assert.DoesNotContain(ProxyPassword, text, StringComparison.Ordinal);
+        }
+    }
+
     private static MaFile NewMaFile(ulong steamId, string name, string sharedSecret)
         => new() { AccountName = name, SharedSecret = sharedSecret, Session = new MaFileSession { SteamId = steamId } };
 }
