@@ -77,6 +77,20 @@ public sealed class MobileConfirmation
 public static class Confirmations
 {
     private const string BaseUrl = "https://steamcommunity.com/mobileconf/";
+    private const string Community = "https://steamcommunity.com";
+
+    /// <summary>
+    /// A client for mobileconf requests. Steam accepts them without these headers, but other
+    /// authenticators send them, so requests look the same as theirs.
+    /// </summary>
+    internal static HttpClient CreateClient(AccountConnection connection)
+    {
+        var http = connection.CreateHttpClient();
+        http.DefaultRequestHeaders.Add("Origin", Community);
+        http.DefaultRequestHeaders.Referrer = new Uri(Community);
+        http.DefaultRequestHeaders.AcceptLanguage.ParseAdd("en-US");
+        return http;
+    }
 
     public static async Task<IReadOnlyList<MobileConfirmation>> GetAsync(
         AccountConnection connection, string identitySecret, string deviceId, CancellationToken cancellationToken = default)
@@ -84,7 +98,7 @@ public static class Confirmations
         ArgumentNullException.ThrowIfNull(connection);
         string url = BaseUrl + "getlist?" + Query(connection, identitySecret, deviceId, ConfirmationTag.List);
 
-        using var http = connection.CreateHttpClient();
+        using var http = CreateClient(connection);
         using var response = await http.GetAsync(new Uri(url), cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -116,7 +130,7 @@ public static class Confirmations
         string tag = accept ? ConfirmationTag.Accept : ConfirmationTag.Reject;
         string query = $"op={op}&" + Query(connection, identitySecret, deviceId, tag);
 
-        using var http = connection.CreateHttpClient();
+        using var http = CreateClient(connection);
         HttpResponseMessage response;
         if (confirmations.Count == 1)
         {
@@ -133,7 +147,6 @@ public static class Confirmations
             {
                 Content = new StringContent(body, System.Text.Encoding.UTF8, "application/x-www-form-urlencoded"),
             };
-            request.Headers.Add("Origin", "https://steamcommunity.com");
             response = await http.SendAsync(request, cancellationToken).ConfigureAwait(false);
         }
 
