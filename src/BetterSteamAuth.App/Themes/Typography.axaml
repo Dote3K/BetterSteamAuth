@@ -152,6 +152,17 @@
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="1,0,0,0" />
   </Style>
+  <Style Selector="Border.title-bar">
+    <Setter Property="Background" Value="{DynamicResource SemiColorBackground0}" />
+  </Style>
+  <!-- Drawn window decorations: our title bar shows the icon and name, so hide the theme's title text; fullscreen
+       isn't something this app offers. The :not(:fullscreen) trigger outranks the template's own values. -->
+  <Style Selector="WindowDrawnDecorations:not(:fullscreen) /template/ Panel#PART_TitleTextPanel">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+  <Style Selector="WindowDrawnDecorations:not(:fullscreen) /template/ Button#PART_FullScreenButton">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
   <Style Selector="Border.divider-bottom">
     <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />

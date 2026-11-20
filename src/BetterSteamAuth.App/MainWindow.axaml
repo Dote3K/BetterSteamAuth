@@ -3,11 +3,13 @@
         xmlns:vm="using:BetterSteamAuth.App.ViewModels"
         xmlns:views="using:BetterSteamAuth.App.Views"
         xmlns:res="using:BetterSteamAuth.App.Resources"
+        xmlns:chrome="using:Avalonia.Controls.Chrome"
         x:Class="BetterSteamAuth.App.MainWindow"
         x:DataType="vm:ShellViewModel"
         Title="{x:Static res:Strings.AppName}"
         Icon="avares://BetterSteamAuth/Assets/app.ico"
-        Width="900" Height="600" MinWidth="420" MinHeight="420">
+        Width="900" Height="600" MinWidth="420" MinHeight="420"
+        ExtendClientAreaToDecorationsHint="True">
   <Window.DataTemplates>
     <DataTemplate DataType="vm:FirstRunViewModel"><views:FirstRunView /></DataTemplate>
     <DataTemplate DataType="vm:UnlockViewModel"><views:UnlockView /></DataTemplate>
@@ -27,5 +29,16 @@
     <DataTemplate DataType="vm:RemoveAuthenticatorViewModel"><views:RemoveAuthenticatorView /></DataTemplate>
     <DataTemplate DataType="vm:AccountDetailsViewModel"><views:AccountDetailsView /></DataTemplate>
   </Window.DataTemplates>
-  <ContentControl Content="{Binding CurrentPage}" />
+  <DockPanel>
+    <!-- Our own title bar: the app's background instead of the system's, with Windows' own caption buttons
+         (and snap layouts) on the right. Dragging it moves the window. -->
+    <Border DockPanel.Dock="Top" Classes="title-bar" chrome:WindowDecorationProperties.ElementRole="TitleBar"
+            Height="{Binding $parent[Window].WindowDecorationMargin.Top}">
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="12,0" VerticalAlignment="Center" IsHitTestVisible="False">
+        <Image Width="16" Height="16" Source="avares://BetterSteamAuth/Assets/app.ico" />
+        <TextBlock Classes="caption" VerticalAlignment="Center" Text="{x:Static res:Strings.AppName}" />
+      </StackPanel>
+    </Border>
+    <ContentControl Content="{Binding CurrentPage}" />
+  </DockPanel>
 </Window>
