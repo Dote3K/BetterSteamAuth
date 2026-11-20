@@ -21,4 +21,13 @@ public class MobileConfirmationTests
         Assert.Equal(ConfirmationKind.Trade, confirmation.Kind);
         Assert.StartsWith("An item in this trade", confirmation.Warning, StringComparison.Ordinal);
     }
+
+    [Theory]
+    [InlineData(2, ConfirmationKind.Trade)]
+    [InlineData(3, ConfirmationKind.Market)]
+    [InlineData(12, ConfirmationKind.Market)]
+    [InlineData(9, ConfirmationKind.Dangerous)]
+    [InlineData(99, ConfirmationKind.Dangerous)]
+    public void Sorts_types_into_safety_tiers(int type, ConfirmationKind kind)
+        => Assert.Equal(kind, new MobileConfirmation { Type = type }.Kind);
 }

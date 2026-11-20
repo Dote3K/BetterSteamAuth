@@ -78,6 +78,7 @@
   <data name="Confirmation" xml:space="preserve"><value>Confirmation</value></data>
   <data name="Trade" xml:space="preserve"><value>Trade</value></data>
   <data name="Market" xml:space="preserve"><value>Market</value></data>
+  <data name="Purchase" xml:space="preserve"><value>Purchase</value></data>
   <data name="Account" xml:space="preserve"><value>Account</value></data>
   <data name="Now" xml:space="preserve"><value>now</value></data>
   <data name="AcceptedSendingFormat" xml:space="preserve"><value>Accepted · sending in {0}s</value></data>
@@ -157,6 +158,7 @@
   <data name="ReviewAll" xml:space="preserve"><value>Review all</value></data>
   <data name="TradeOffer" xml:space="preserve"><value>Trade offer</value></data>
   <data name="MarketListing" xml:space="preserve"><value>Market listing</value></data>
+  <data name="MarketPurchase" xml:space="preserve"><value>Market purchase</value></data>
   <data name="MemberSinceFormat" xml:space="preserve"><value>Steam member since {0}</value></data>
   <data name="SteamLevelFormat" xml:space="preserve"><value>Level {0}</value></data>
   <data name="FlagNewAccountFormat" xml:space="preserve"><value>Account created {0} days ago</value></data>

@@ -59,15 +59,21 @@ public sealed class MobileConfirmation
         }
     }
 
-    // Steam's EMobileConfirmationType: 2 = trade, 3 = market listing; 5 phone change, 6 recovery,
-    // 9 API key, 11 Steam Family and anything unknown are account-level.
+    /// <summary>Steam's type for buying on the Community Market (undocumented; Steam Inventory Helper uses it too).</summary>
+    public const int MarketPurchaseType = 12;
+
+    // Steam's EMobileConfirmationType: 2 = trade, 3 = market listing, 12 = market purchase; 5 phone change,
+    // 6 recovery, 9 API key, 11 Steam Family and anything unknown are account-level.
     [JsonIgnore]
     public ConfirmationKind Kind => Type switch
     {
         2 => ConfirmationKind.Trade,
-        3 => ConfirmationKind.Market,
+        3 or MarketPurchaseType => ConfirmationKind.Market,
         _ => ConfirmationKind.Dangerous,
     };
+
+    [JsonIgnore]
+    public bool IsMarketPurchase => Type == MarketPurchaseType;
 }
 
 /// <summary>

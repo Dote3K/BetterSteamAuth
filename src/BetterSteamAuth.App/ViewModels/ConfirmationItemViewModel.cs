@@ -172,7 +172,7 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     private string TypeLabel => Confirmation.Kind switch
     {
         ConfirmationKind.Trade => Strings.Trade,
-        ConfirmationKind.Market => Strings.Market,
+        ConfirmationKind.Market => Confirmation.IsMarketPurchase ? Strings.Purchase : Strings.Market,
         _ => Strings.Account,
     };
 

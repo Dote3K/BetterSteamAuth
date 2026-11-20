@@ -49,7 +49,10 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
         _close = close;
         Item = item;
 
-        Title = item.IsTrade ? Strings.TradeOffer : item.IsMarket ? Strings.MarketListing : item.Headline;
+        Title = item.IsTrade ? Strings.TradeOffer
+            : item.Confirmation.IsMarketPurchase ? Strings.MarketPurchase
+            : item.IsMarket ? Strings.MarketListing
+            : item.Headline;
         Subtitle = item.MetaWithAccount;
         SummaryLines = item.Confirmation.Summary.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
         (DangerTitle, DangerBody) = item.Confirmation.Type switch
