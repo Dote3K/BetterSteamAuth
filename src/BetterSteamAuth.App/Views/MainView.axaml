@@ -74,6 +74,17 @@
       </Grid>
     </Border>
 
+    <!-- Downloading 1.2.1… 42% / 1.2.1 is ready · Later · Restart now -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding HasUpdateBar}">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding UpdateBarText}" />
+        <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Later}"
+                Command="{Binding DismissUpdateBarCommand}" IsVisible="{Binding UpdateBarIsReady}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Content="{x:Static res:Strings.RestartNow}"
+                Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding UpdateBarIsReady}" />
+      </Grid>
+    </Border>
+
     <!-- Couldn't verify the update · Details -->
     <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding UpdateRejected}">
       <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">

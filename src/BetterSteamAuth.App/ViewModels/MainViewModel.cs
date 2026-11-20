@@ -21,6 +21,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private static readonly CompositeFormat RemovedFormat = CompositeFormat.Parse(Strings.RemovedFormat);
     private static readonly CompositeFormat RestartToUpdateFormat = CompositeFormat.Parse(Strings.RestartToUpdateFormat);
+    private static readonly CompositeFormat UpdateBarDownloadingFormat = CompositeFormat.Parse(Strings.UpdateBarDownloadingFormat);
+    private static readonly CompositeFormat UpdateBarReadyFormat = CompositeFormat.Parse(Strings.UpdateReadyFormat);
     private int _removedSecondsLeft = 10 * 4;
 
     private readonly List<AccountItemViewModel> _all = [];
@@ -226,6 +228,27 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void RestartToUpdate() => _shell.RestartToUpdate();
+
+    /// <summary>
+    /// A quiet bar at the bottom while an update downloads ("Downloading 1.2.1… 42%") and once it's ready
+    /// ("1.2.1 is ready…" with Restart now / Later). Later hides it for this session.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdateBar))]
+    public partial string? UpdateBarText { get; private set; }
+
+    public bool HasUpdateBar => UpdateBarText is not null;
+
+    /// <summary>Restart now and Later only once the update is ready.</summary>
+    [ObservableProperty]
+    public partial bool UpdateBarIsReady { get; private set; }
+
+    [RelayCommand]
+    private void DismissUpdateBar()
+    {
+        _shell.Updater.DismissReadyNotice();
+        UpdateBarText = null;
+    }
 
     [RelayCommand]
     private void UndoRemove()
@@ -523,6 +546,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             ? string.Format(CultureInfo.CurrentCulture, RestartToUpdateFormat, updater.ReadyVersion)
             : null;
         UpdateRejected = updater.RejectedNoticePending;
+        (UpdateBarText, UpdateBarIsReady) = updater.State switch
+        {
+            Services.UpdateState.Downloading => (string.Format(
+                CultureInfo.CurrentCulture, UpdateBarDownloadingFormat, updater.DownloadingVersion, updater.DownloadProgress), false),
+            Services.UpdateState.Ready when !updater.ReadyNoticeDismissed => (string.Format(
+                CultureInfo.CurrentCulture, UpdateBarReadyFormat, updater.ReadyVersion), true),
+            _ => ((string?)null, false),
+        };
         if (RemovedText is not null && --_removedSecondsLeft <= 0)
         {
             RemovedText = null;

@@ -452,6 +452,9 @@
   <data name="IncludeBetaBody" xml:space="preserve"><value>Get new features earlier. Betas can have rough edges.</value></data>
   <data name="CheckNow" xml:space="preserve"><value>Check now</value></data>
   <data name="RestartToUpdate" xml:space="preserve"><value>Restart to update</value></data>
+  <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
+  <data name="Later" xml:space="preserve"><value>Later</value></data>
+  <data name="UpdateBarDownloadingFormat" xml:space="preserve"><value>Downloading {0}… {1}%</value></data>
   <data name="RestartToUpdateFormat" xml:space="preserve"><value>Restart to update ({0})</value></data>
   <data name="UpdateUpToDateFormat" xml:space="preserve"><value>Up to date · checked {0} ago</value></data>
   <data name="UpdateUpToDate" xml:space="preserve"><value>Up to date</value></data>

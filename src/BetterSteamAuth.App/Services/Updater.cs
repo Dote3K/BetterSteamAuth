@@ -67,6 +67,14 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     /// <summary>The version waiting to be applied, when <see cref="State"/> is <see cref="UpdateState.Ready"/>.</summary>
     public string? ReadyVersion => _ready?.Version.ToString();
 
+    /// <summary>The version being downloaded, while <see cref="State"/> is <see cref="UpdateState.Downloading"/>.</summary>
+    public string? DownloadingVersion { get; private set; }
+
+    /// <summary>The main window's "is ready" bar was dismissed with Later; the ⋯ menu item and dot stay.</summary>
+    public bool ReadyNoticeDismissed { get; private set; }
+
+    public void DismissReadyNotice() => ReadyNoticeDismissed = true;
+
     /// <summary>Why the last update was rejected or the last check failed. Never contains secrets.</summary>
     public string? FailureDetails { get; private set; }
 
@@ -130,6 +138,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
 
             // Skipping versions means one delta per skipped release; each is checked against its own release's list.
             var target = info.TargetFullRelease;
+            DownloadingVersion = target.Version.ToString();
             var files = info.DeltasToTarget.Append(target)
                 .Select(asset => new ReleaseFile(asset.FileName, asset.Version.ToString(), asset.SHA256));
             if (await SignedRelease.FindUnsignedAsync(files, FetchVerifiedSumsAsync).ConfigureAwait(false) is { } unsigned)
