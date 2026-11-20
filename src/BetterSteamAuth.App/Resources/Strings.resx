@@ -181,6 +181,7 @@
   <data name="DangerRecoveryBody" xml:space="preserve"><value>Accept only if you started recovering this account yourself.</value></data>
   <data name="DangerFamilyTitle" xml:space="preserve"><value>Join a Steam Family</value></data>
   <data name="DangerFamilyBody" xml:space="preserve"><value>Accept only if you're joining this Steam Family yourself. Family members can play this account's games.</value></data>
+  <data name="UnknownConfirmationTypeFormat" xml:space="preserve"><value>Steam calls this "{0}" (type {1}). This app doesn't know this type yet, so it's treated as an account change.</value></data>
   <data name="DangerGenericTitle" xml:space="preserve"><value>Account change</value></data>
   <data name="DangerGenericBody" xml:space="preserve"><value>Steam needs a confirmation for a change to this account. Accept only if you started it yourself.</value></data>
   <data name="YouGiveOne" xml:space="preserve"><value>You give · 1 item</value></data>

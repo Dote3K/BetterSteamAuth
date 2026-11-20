@@ -31,6 +31,7 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
 
     private static readonly CompositeFormat MemberSinceFormat = CompositeFormat.Parse(Strings.MemberSinceFormat);
     private static readonly CompositeFormat LevelFormat = CompositeFormat.Parse(Strings.SteamLevelFormat);
+    private static readonly CompositeFormat UnknownTypeFormat = CompositeFormat.Parse(Strings.UnknownConfirmationTypeFormat);
     private static readonly CompositeFormat NewAccountFormat = CompositeFormat.Parse(Strings.FlagNewAccountFormat);
     private static readonly CompositeFormat GiveFormat = CompositeFormat.Parse(Strings.YouGiveFormat);
     private static readonly CompositeFormat ReceiveFormat = CompositeFormat.Parse(Strings.YouReceiveFormat);
@@ -59,6 +60,11 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
             11 => (Strings.DangerFamilyTitle, Strings.DangerFamilyBody),
             _ => (Strings.DangerGenericTitle, Strings.DangerGenericBody),
         };
+        if (item.IsDangerous && item.Confirmation.Type is not (5 or 6 or 9 or 11))
+        {
+            UnknownTypeText = string.Format(
+                CultureInfo.CurrentCulture, UnknownTypeFormat, item.Confirmation.TypeName ?? "?", item.Confirmation.Type);
+        }
 
         account.Confirmations.CollectionChanged += OnConfirmationsChanged;
         _ = LoadAsync();
@@ -77,6 +83,12 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
     public string DangerTitle { get; }
 
     public string DangerBody { get; }
+
+    /// <summary>
+    /// For types this app doesn't know yet: Steam's own name and number, so a new type can be identified and
+    /// sorted into the right tier. Unknown types are always treated as account changes until then.
+    /// </summary>
+    public string? UnknownTypeText { get; }
 
     // Market
     [ObservableProperty] public partial Bitmap? MarketImage { get; private set; }

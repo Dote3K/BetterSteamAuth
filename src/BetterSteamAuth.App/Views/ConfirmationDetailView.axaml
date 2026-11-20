@@ -165,6 +165,8 @@
               <TextBlock TextWrapping="Wrap" Text="{Binding DangerBody}" />
             </StackPanel>
           </Border>
+          <TextBlock Classes="caption hint" TextWrapping="Wrap" Text="{Binding UnknownTypeText}"
+                     IsVisible="{Binding UnknownTypeText, Converter={x:Static ObjectConverters.IsNotNull}}" />
           <ItemsControl ItemsSource="{Binding SummaryLines}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="x:String"><TextBlock Classes="secondary" Margin="0,1" Text="{Binding}" /></DataTemplate>
