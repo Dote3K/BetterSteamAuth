@@ -188,7 +188,15 @@
               </Grid>
             </Border>
 
-            <TextBlock Classes="title" Margin="0,32,0,6" Text="{x:Static res:Strings.Confirmations}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,26,0,0">
+              <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Confirmations}" />
+              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Padding="8"
+                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
+                      CommandParameter="{Binding}"
+                      AutomationProperties.Name="{x:Static res:Strings.Refresh}" ToolTip.Tip="{x:Static res:Strings.Refresh}">
+                <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconRefresh}" />
+              </Button>
+            </Grid>
             <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
             <ItemsControl ItemsSource="{Binding Confirmations}">
               <ItemsControl.ItemTemplate>
