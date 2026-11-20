@@ -8,7 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace BetterSteamAuth.App.ViewModels;
 
-/// <summary>Settings → Data → Removed accounts.</summary>
+/// <summary>Settings → Advanced → Removed accounts.</summary>
 public sealed partial class RemovedAccountsViewModel : ObservableObject
 {
     private readonly ShellViewModel _shell;

@@ -324,7 +324,7 @@ public sealed partial class Vault : IDisposable
     }
 
     /// <summary>
-    /// Moves the maFile to <c>.trash/</c>, records what's needed to restore it later (Settings → Data →
+    /// Moves the maFile to <c>.trash/</c>, records what's needed to restore it later (Settings → Advanced →
     /// Removed accounts), then removes the index rows. Returns what's needed to <see cref="Restore"/> it now (Undo).
     /// </summary>
     public RemovedAccount Remove(ulong steamId, RemovalReason reason = RemovalReason.Removed)

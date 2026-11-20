@@ -239,7 +239,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void OpenExport() => _shell.ShowExport();
 
-    /// <summary>Settings → Data → Removed accounts (N); hidden when there are none.</summary>
+    /// <summary>Settings → Advanced → Removed accounts (N); hidden when there are none.</summary>
     public int RemovedCount { get; }
 
     public bool HasRemoved => RemovedCount > 0;

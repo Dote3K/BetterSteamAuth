@@ -69,7 +69,7 @@
   <data name="EmailCode" xml:space="preserve"><value>Email code</value></data>
   <data name="LoginRateLimited" xml:space="preserve"><value>Too many attempts. Wait a while and try again.</value></data>
   <data name="LoginCodeRejected" xml:space="preserve"><value>Steam rejected the code. Check that this computer's clock is right, then try again.</value></data>
-  <data name="LoginNetwork" xml:space="preserve"><value>Couldn't reach Steam. Check your connection or Settings → Network.</value></data>
+  <data name="LoginNetwork" xml:space="preserve"><value>Couldn't reach Steam. Check your connection or Settings → Advanced.</value></data>
   <data name="SigningIn" xml:space="preserve"><value>Signing in…</value></data>
   <data name="Unlocking" xml:space="preserve"><value>Unlocking…</value></data>
   <data name="ImportFromSdaHint" xml:space="preserve"><value>Choose the maFiles folder next to SDA. Your files are copied; the folder isn't changed.</value></data>
