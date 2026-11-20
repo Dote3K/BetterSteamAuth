@@ -41,6 +41,7 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     private static readonly CompositeFormat AcceptedFormat = CompositeFormat.Parse(Strings.AcceptedSendingFormat);
     private static readonly CompositeFormat RejectedFormat = CompositeFormat.Parse(Strings.RejectedSendingFormat);
+    private static readonly CompositeFormat ItemsFormat = CompositeFormat.Parse(Strings.TradeItemsFormat);
 
     private readonly Func<ConfirmationItemViewModel, bool, Task> _send;
     private readonly ConfirmationPolicy _policy;
@@ -55,7 +56,16 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
         AccountName = accountName;
         _policy = policy;
         _send = send;
+        _counts = IsTrade ? ConfirmationSummary.ReadTrade(confirmation.Summary) : null;
+        MarketPayout = IsMarket ? ConfirmationSummary.ReadPayout(confirmation.Summary) : null;
+        if (MarketPayout is not null)
+        {
+            string rest = string.Join(" · ", confirmation.Summary.Where(s => !string.IsNullOrWhiteSpace(s) && s != MarketPayout));
+            MarketRest = rest.Length > 0 ? rest + " · " : "";
+        }
     }
+
+    private readonly TradeCounts? _counts;
 
     public MobileConfirmation Confirmation { get; }
 
@@ -76,8 +86,26 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     public bool HasWarning => Warning is not null;
 
-    /// <summary>Trades with a warning always need review; others only while bulk trades are off.</summary>
-    public bool NeedsTradeReview => IsTrade && (HasWarning || !_policy.AcceptTradesInBulk);
+    /// <summary>Trades with a warning or that give items for nothing always need review; others only while bulk trades are off.</summary>
+    public bool NeedsTradeReview => IsTrade && (HasWarning || GivesOnly || !_policy.AcceptTradesInBulk);
+
+    // Line 2, when Steam's wording is recognized: "↑ Give 3 items  ↓ Receive nothing" or "List for $X · **You receive $Y**".
+    public bool HasTradeCounts => _counts is not null;
+
+    public string GiveAmount => Amount(_counts?.Give ?? 0);
+
+    public string ReceiveAmount => Amount(_counts?.Receive ?? 0);
+
+    /// <summary>You give items and get nothing back: line 3 says so, and the trade needs review.</summary>
+    public bool GivesOnly => _counts?.GivesOnly == true;
+
+    public string? MarketPayout { get; }
+
+    public string MarketRest { get; } = "";
+
+    public bool HasMarketPayout => MarketPayout is not null;
+
+    public bool ShowPlainSummary => !HasTradeCounts && !HasMarketPayout;
 
     /// <summary>Whether this row may be part of a bulk accept. Dangerous types never are.</summary>
     public bool CanBulkAccept => IsMarket || (IsTrade && !NeedsTradeReview);
@@ -87,6 +115,13 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     public string Headline => Confirmation.Headline ?? Confirmation.TypeName ?? Strings.Confirmation;
 
     public string Summary => string.Join(" · ", Confirmation.Summary.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+    private static string Amount(int count) => count switch
+    {
+        0 => Strings.TradeNothing,
+        1 => Strings.TradeOneItem,
+        _ => string.Format(CultureInfo.CurrentCulture, ItemsFormat, count),
+    };
 
     public string Meta => $"{TypeLabel} · {Age(Confirmation.CreationTime)}";
 

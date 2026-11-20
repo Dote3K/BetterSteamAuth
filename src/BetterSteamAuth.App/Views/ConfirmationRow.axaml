@@ -27,12 +27,33 @@
           <TextBlock Grid.Column="1" Classes="caption hint" Text="{Binding MetaWithAccount}"
                      IsVisible="{Binding $parent[views:ConfirmationRow].ShowAccount}" />
         </Grid>
-        <TextBlock Classes="caption" TextWrapping="Wrap" MaxLines="2" Text="{Binding Summary}" />
+        <TextBlock Classes="caption" TextWrapping="Wrap" MaxLines="2" Text="{Binding Summary}" IsVisible="{Binding ShowPlainSummary}" />
+        <WrapPanel IsVisible="{Binding HasTradeCounts}">
+          <StackPanel Orientation="Horizontal" Spacing="3" Margin="0,0,14,0">
+            <PathIcon Width="10" Height="10" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconArrowUp}" />
+            <TextBlock Classes="caption" VerticalAlignment="Center">
+              <Run Text="{x:Static res:Strings.TradeGive}" /> <Run FontWeight="SemiBold" Text="{Binding GiveAmount}" />
+            </TextBlock>
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="3">
+            <PathIcon Width="10" Height="10" VerticalAlignment="Center" Classes="success" Data="{StaticResource SemiIconArrowDown}" />
+            <TextBlock Classes="caption" VerticalAlignment="Center">
+              <Run Text="{x:Static res:Strings.TradeReceive}" /> <Run FontWeight="SemiBold" Text="{Binding ReceiveAmount}" />
+            </TextBlock>
+          </StackPanel>
+        </WrapPanel>
+        <TextBlock Classes="caption" TextWrapping="Wrap" MaxLines="2" IsVisible="{Binding HasMarketPayout}">
+          <Run Text="{Binding MarketRest}" /><Run FontWeight="SemiBold" Text="{Binding MarketPayout}" />
+        </TextBlock>
 
         <!-- Line 3: only when something needs attention -->
         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" IsVisible="{Binding HasWarning}">
           <PathIcon Width="12" Height="12" VerticalAlignment="Top" Margin="0,2,0,0" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
           <TextBlock Grid.Column="1" Classes="caption" TextWrapping="Wrap" Text="{Binding Warning}" />
+        </Grid>
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" IsVisible="{Binding GivesOnly}">
+          <PathIcon Width="12" Height="12" VerticalAlignment="Top" Margin="0,2,0,0" Classes="warning" Data="{StaticResource SemiIconAlertTriangle}" />
+          <TextBlock Grid.Column="1" Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.GivesOnlyWarning}" />
         </Grid>
         <TextBlock Classes="caption danger" TextWrapping="Wrap" Text="{x:Static res:Strings.DangerousHint}"
                    IsVisible="{Binding IsDangerous}" />

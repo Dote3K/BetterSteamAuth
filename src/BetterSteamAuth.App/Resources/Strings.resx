@@ -88,6 +88,12 @@
   <data name="AcceptTrade" xml:space="preserve"><value>Accept trade</value></data>
   <data name="Accept" xml:space="preserve"><value>Accept</value></data>
   <data name="Reject" xml:space="preserve"><value>Reject</value></data>
+  <data name="TradeGive" xml:space="preserve"><value>Give</value></data>
+  <data name="TradeReceive" xml:space="preserve"><value>Receive</value></data>
+  <data name="TradeNothing" xml:space="preserve"><value>nothing</value></data>
+  <data name="TradeOneItem" xml:space="preserve"><value>1 item</value></data>
+  <data name="TradeItemsFormat" xml:space="preserve"><value>{0} items</value></data>
+  <data name="GivesOnlyWarning" xml:space="preserve"><value>You give items and get nothing back.</value></data>
   <data name="DangerousHint" xml:space="preserve"><value>Account change. Accept only if you started it yourself.</value></data>
   <data name="Fix" xml:space="preserve"><value>Fix</value></data>
   <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
