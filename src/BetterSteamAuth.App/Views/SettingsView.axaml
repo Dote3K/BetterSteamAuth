@@ -13,6 +13,9 @@
     <Style Selector="TextBlock.section">
       <Setter Property="Margin" Value="2,28,0,10" />
     </Style>
+    <Style Selector="TextBlock.section.first">
+      <Setter Property="Margin" Value="2,4,0,10" />
+    </Style>
     <Style Selector="Border.row">
       <Setter Property="Padding" Value="16,12" />
       <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
@@ -243,59 +246,74 @@
           </StackPanel>
         </Border>
 
-        <!-- Advanced: rarely needed -->
+        <!-- Advanced: rarely needed. Same sections and panels as above, collapsed by default. -->
         <Expander Margin="0,28,0,0" HorizontalAlignment="Stretch" Header="{x:Static res:Strings.Advanced}">
           <StackPanel>
-            <Border Classes="row">
-              <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="2">
-                  <TextBlock Text="{x:Static res:Strings.BypassSni}" />
-                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
-                </StackPanel>
-                <ComboBox Grid.Column="1" ItemsSource="{Binding SniBypassChoices}" SelectedItem="{Binding SniBypass}"
-                          AutomationProperties.Name="{x:Static res:Strings.BypassSni}" />
-              </Grid>
+            <TextBlock Classes="title section first" Text="{x:Static res:Strings.Network}" />
+            <Border Classes="panel">
+              <StackPanel>
+                <Border Classes="row">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{x:Static res:Strings.BypassSni}" />
+                      <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding SniBypassChoices}" SelectedItem="{Binding SniBypass}"
+                              AutomationProperties.Name="{x:Static res:Strings.BypassSni}" />
+                  </Grid>
+                </Border>
+                <Border Classes="row last">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{x:Static res:Strings.EncryptedDns}" />
+                      <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
+                              AutomationProperties.Name="{x:Static res:Strings.EncryptedDns}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
             </Border>
-            <Border Classes="row">
-              <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="2">
-                  <TextBlock Text="{x:Static res:Strings.EncryptedDns}" />
-                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
-                </StackPanel>
-                <ComboBox Grid.Column="1" ItemsSource="{Binding EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
-                          AutomationProperties.Name="{x:Static res:Strings.EncryptedDns}" />
-              </Grid>
+            <TextBlock Classes="title section" Text="{x:Static res:Strings.Updates}" />
+            <Border Classes="panel">
+              <StackPanel>
+                <Border Classes="row last">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{x:Static res:Strings.IncludeBeta}" />
+                      <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.IncludeBetaBody}" />
+                    </StackPanel>
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IncludeBetaUpdates}"
+                                  AutomationProperties.Name="{x:Static res:Strings.IncludeBeta}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
             </Border>
-            <Border Classes="row">
-              <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="2">
-                  <TextBlock Text="{x:Static res:Strings.IncludeBeta}" />
-                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.IncludeBetaBody}" />
-                </StackPanel>
-                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IncludeBetaUpdates}"
-                              AutomationProperties.Name="{x:Static res:Strings.IncludeBeta}" />
-              </Grid>
-            </Border>
-            <Border Classes="row" Classes.last="{Binding !HasRemoved}">
-              <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="2">
-                  <TextBlock Text="{x:Static res:Strings.ExportForSda}" />
-                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSettingsBody}" />
-                </StackPanel>
-                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
-                        Content="{x:Static res:Strings.ExportMenu}" Command="{Binding OpenExportCommand}" />
-              </Grid>
-            </Border>
-            <Border Classes="row last" IsVisible="{Binding HasRemoved}">
-              <Grid ColumnDefinitions="*,Auto">
-                <StackPanel Spacing="2">
-                  <TextBlock Text="{Binding RemovedLabel}" />
-                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
-                </StackPanel>
-                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
-                        Content="{x:Static res:Strings.Open}" Command="{Binding OpenRemovedCommand}"
-                        AutomationProperties.Name="{Binding RemovedLabel}" />
-              </Grid>
+            <TextBlock Classes="title section" Text="{x:Static res:Strings.Data}" />
+            <Border Classes="panel">
+              <StackPanel>
+                <Border Classes="row" Classes.last="{Binding !HasRemoved}">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{x:Static res:Strings.ExportForSda}" />
+                      <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSettingsBody}" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                            Content="{x:Static res:Strings.ExportMenu}" Command="{Binding OpenExportCommand}" />
+                  </Grid>
+                </Border>
+                <Border Classes="row last" IsVisible="{Binding HasRemoved}">
+                  <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{Binding RemovedLabel}" />
+                      <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                            Content="{x:Static res:Strings.Open}" Command="{Binding OpenRemovedCommand}"
+                            AutomationProperties.Name="{Binding RemovedLabel}" />
+                  </Grid>
+                </Border>
+              </StackPanel>
             </Border>
           </StackPanel>
         </Expander>
