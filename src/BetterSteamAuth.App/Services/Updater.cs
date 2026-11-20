@@ -134,9 +134,16 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
                 throw new UpdateRejectedException(Format(NotSignedFormat, unsigned));
             }
 
+            // With deltas, Velopack rebuilds the package from the installed one and re-zips it, so it never matches the
+            // released full package byte for byte. Each delta is checked by Velopack against the feed's hash (which
+            // matched the signed list above) before it's applied; only a full download can be re-hashed here.
+            bool mayUseDeltas = info.BaseRelease is not null && info.DeltasToTarget.Length > 0;
             Set(UpdateState.Downloading);
             await manager.DownloadUpdatesAsync(info).ConfigureAwait(false);
-            await CheckDownloadedAsync(target).ConfigureAwait(false);
+            if (!mayUseDeltas)
+            {
+                await CheckDownloadedAsync(target).ConfigureAwait(false);
+            }
 
             _manager = manager;
             _ready = target;
@@ -217,8 +224,8 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     }
 
     /// <summary>
-    /// Re-hashes the package Velopack assembled (deltas included) against the target's hash, which was checked
-    /// against the signed list before downloading. Deletes the package if it doesn't match.
+    /// Re-hashes a fully downloaded package against the target's hash, which was checked against the signed list
+    /// before downloading. Deletes the package if it doesn't match.
     /// </summary>
     private static async Task CheckDownloadedAsync(VelopackAsset target)
     {
