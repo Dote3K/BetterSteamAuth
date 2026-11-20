@@ -103,7 +103,7 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
 
         try
         {
-            var manager = new UpdateManager(new GithubSource(RepoUrl, accessToken: null, prerelease: IncludeBeta));
+            var manager = new UpdateManager(new GithubReleaseSource(RepoUrl, IncludeBeta));
             if (!manager.IsInstalled)
             {
                 Set(UpdateState.NotInstalled);
