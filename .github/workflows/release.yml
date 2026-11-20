@@ -73,7 +73,10 @@ jobs:
         env:
           OUTPUT: RELEASE_NOTES.md
 
+      # Without the previous release, vpk packs no delta. Set the repository variable RELEASE_DELTAS to "off" for a
+      # release that installed versions must download in full (e.g. one that fixes how they apply deltas).
       - name: Download the previous release (for delta packages)
+        if: vars.RELEASE_DELTAS != 'off'
         env:
           PRE: ${{ steps.version.outputs.prerelease }}
         run: |
