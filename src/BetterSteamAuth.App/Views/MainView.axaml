@@ -140,74 +140,108 @@
           </ListBox.ItemTemplate>
         </ListBox>
 
-        <Border Grid.Column="1" Classes="divider-left" Padding="28,22">
-          <StackPanel Spacing="4" DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
-                      IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Classes="title" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
-              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="6,2"
-                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenDetailsCommand}" CommandParameter="{Binding}"
-                      AutomationProperties.Name="{x:Static res:Strings.Details}">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                  <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Details}" />
-                  <PathIcon Width="10" Height="10" VerticalAlignment="Center" Data="{StaticResource SemiIconChevronRight}" />
-                </StackPanel>
-              </Button>
-            </Grid>
-            <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
-              <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
-              <Button Grid.Column="1" VerticalAlignment="Center"
-                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
-                      CommandParameter="{Binding}">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                  <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
-                  <TextBlock Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyLabel}" />
-                </StackPanel>
-              </Button>
-            </Grid>
-            <TextBlock Classes="caption"
-                       Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
-
-            <!-- Problem banner: only when something is wrong -->
-            <Border Classes="banner-warning" Margin="0,20,0,0" Padding="12,10" IsVisible="{Binding HasProblem}">
-              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                <PathIcon Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
-                <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Problem}" />
-                <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
-                        IsVisible="{Binding ProblemNeedsLogin}" Content="{x:Static res:Strings.Fix}"
-                        Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
-                        CommandParameter="{Binding}" />
-                <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
-                        IsVisible="{Binding IsLinkPending}" Content="{x:Static res:Strings.Fix}"
-                        Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).FinishLinkCommand}"
-                        CommandParameter="{Binding}" />
-                <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
-                        IsVisible="{Binding CanRefreshProblem}" Content="{x:Static res:Strings.Refresh}"
-                        Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
-                        CommandParameter="{Binding}" />
+        <Border Grid.Column="1" Classes="divider-left">
+          <DockPanel DataContext="{Binding SelectedAccount}" x:DataType="vm:AccountItemViewModel"
+                     IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <!-- Batch undo window -->
+            <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="20,10"
+                    IsVisible="{Binding Selection.IsBatchPending, FallbackValue=False}">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Selection.BatchText}" />
+                <Button Grid.Column="1" Content="{x:Static res:Strings.Undo}" Command="{Binding Selection.UndoBatchCommand}" />
               </Grid>
             </Border>
 
-            <Grid ColumnDefinitions="*,Auto" Margin="0,26,0,0">
-              <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Confirmations}" />
-              <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Padding="8"
-                      Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
-                      CommandParameter="{Binding}"
-                      AutomationProperties.Name="{x:Static res:Strings.Refresh}" ToolTip.Tip="{x:Static res:Strings.Refresh}">
-                <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconRefresh}" />
-              </Button>
-            </Grid>
-            <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
-            <ItemsControl ItemsSource="{Binding Confirmations}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:ConfirmationItemViewModel">
-                  <Border Classes="divider-bottom" Padding="0,16">
-                    <views:ConfirmationRow />
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-          </StackPanel>
+            <!-- Selection bar -->
+            <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="20,10"
+                    IsVisible="{Binding Selection.ShowSelectionBar, FallbackValue=False}">
+              <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                <TextBlock VerticalAlignment="Center" Text="{Binding Selection.SelectionText}" />
+                <TextBlock Grid.Column="1" Classes="caption hint" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                           Margin="4,0,0,0" Text="{Binding Selection.SkipText}" />
+                <Button Grid.Column="2" Content="{Binding Selection.RejectLabel}" Command="{Binding Selection.RejectSelectedCommand}" />
+                <Button Grid.Column="3" Theme="{DynamicResource SolidButton}" Classes="Primary"
+                        Content="{Binding Selection.AcceptLabel}" Command="{Binding Selection.AcceptSelectedCommand}"
+                        IsEnabled="{Binding Selection.CanAcceptSelection, FallbackValue=False}" />
+              </Grid>
+            </Border>
+
+            <ScrollViewer>
+              <StackPanel Spacing="4" Margin="28,22">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="title" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                  <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Classes="Primary Small" Padding="6,2"
+                          Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenDetailsCommand}" CommandParameter="{Binding}"
+                          AutomationProperties.Name="{x:Static res:Strings.Details}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Details}" />
+                      <PathIcon Width="10" Height="10" VerticalAlignment="Center" Data="{StaticResource SemiIconChevronRight}" />
+                    </StackPanel>
+                  </Button>
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+                  <TextBlock Classes="code-large" VerticalAlignment="Center" Text="{Binding Code}" />
+                  <Button Grid.Column="1" VerticalAlignment="Center"
+                          Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
+                          CommandParameter="{Binding}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconCopy}" />
+                      <TextBlock Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyLabel}" />
+                    </StackPanel>
+                  </Button>
+                </Grid>
+                <TextBlock Classes="caption"
+                           Text="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).SecondsLeftText}" />
+
+                <!-- Problem banner: only when something is wrong -->
+                <Border Classes="banner-warning" Margin="0,20,0,0" Padding="12,10" IsVisible="{Binding HasProblem}">
+                  <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <PathIcon Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}" />
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Problem}" />
+                    <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
+                            IsVisible="{Binding ProblemNeedsLogin}" Content="{x:Static res:Strings.Fix}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).ReloginCommand}"
+                            CommandParameter="{Binding}" />
+                    <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
+                            IsVisible="{Binding IsLinkPending}" Content="{x:Static res:Strings.Fix}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).FinishLinkCommand}"
+                            CommandParameter="{Binding}" />
+                    <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Classes="Primary" Padding="6,2"
+                            IsVisible="{Binding CanRefreshProblem}" Content="{x:Static res:Strings.Refresh}"
+                            Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
+                            CommandParameter="{Binding}" />
+                  </Grid>
+                </Border>
+
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,26,0,0">
+                  <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Confirmations}" />
+                  <CheckBox Grid.Column="1" VerticalAlignment="Center" Content="{x:Static res:Strings.SelectAll}"
+                            IsChecked="{Binding Selection.SelectAll}" IsVisible="{Binding Selection.CanMultiSelect, FallbackValue=False}" />
+                  <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Padding="8"
+                          Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).RefreshConfirmationsCommand}"
+                          CommandParameter="{Binding}"
+                          AutomationProperties.Name="{x:Static res:Strings.Refresh}" ToolTip.Tip="{x:Static res:Strings.Refresh}">
+                    <PathIcon Width="14" Height="14" Data="{StaticResource SemiIconRefresh}" />
+                  </Button>
+                </Grid>
+                <TextBlock Classes="hint" Text="{x:Static res:Strings.NothingToConfirm}" IsVisible="{Binding ShowNothingToConfirm}" />
+                <ItemsControl ItemsSource="{Binding Selection.Entries}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:InboxEntryViewModel">
+                      <Border Classes="divider-bottom" Padding="0,16">
+                        <Grid ColumnDefinitions="Auto,*">
+                          <CheckBox VerticalAlignment="Center" Margin="0,0,12,0" IsChecked="{Binding IsSelected}"
+                                    IsEnabled="{Binding Item.IsIdle}" AutomationProperties.Name="{Binding Item.Headline}"
+                                    IsVisible="{Binding $parent[ItemsControl].((vm:AccountItemViewModel)DataContext).Selection.CanMultiSelect, FallbackValue=False}" />
+                          <views:ConfirmationRow Grid.Column="1" DataContext="{Binding Item}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </ScrollViewer>
+          </DockPanel>
         </Border>
       </Grid>
     </Panel>

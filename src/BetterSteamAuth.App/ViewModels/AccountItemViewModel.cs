@@ -22,6 +22,10 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
 
     public ObservableCollection<ConfirmationItemViewModel> Confirmations { get; } = [];
 
+    /// <summary>Multi-select and bulk actions on this account's confirmations; set the first time it is selected.</summary>
+    [ObservableProperty]
+    public partial InboxViewModel? Selection { get; set; }
+
     /// <summary>When confirmations were last requested for this account.</summary>
     public DateTime LastCheckedUtc { get; set; } = DateTime.MinValue;
 

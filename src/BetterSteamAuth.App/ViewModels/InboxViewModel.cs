@@ -99,6 +99,9 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
     [ObservableProperty] public partial bool HasAccountItems { get; private set; }
     [ObservableProperty] public partial bool IsEmpty { get; private set; }
 
+    /// <summary>Checkboxes and Select all only make sense with two or more items.</summary>
+    [ObservableProperty] public partial bool CanMultiSelect { get; private set; }
+
     [ObservableProperty] public partial string? FailedText { get; private set; }
     [ObservableProperty] public partial string? FailedNames { get; private set; }
 
@@ -293,6 +296,7 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
         HasMarket = market > 0;
         HasAccountItems = accountItems > 0;
         IsEmpty = Entries.Count == 0;
+        CanMultiSelect = Entries.Count > 1;
         UpdateSelection();
         UpdateFailed();
     }

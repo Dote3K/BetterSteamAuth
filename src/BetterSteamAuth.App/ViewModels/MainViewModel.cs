@@ -115,6 +115,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     public partial AccountItemViewModel? SelectedAccount { get; set; }
 
+    partial void OnSelectedAccountChanged(AccountItemViewModel? value)
+    {
+        // Kept for the page's lifetime, so a batch's undo window keeps running when another account is selected.
+        if (value is { Selection: null })
+        {
+            value.Selection = new InboxViewModel([value], RespondBatchAsync, () => LoadConfirmationsAsync(value, _polling.Token), () => { });
+        }
+    }
+
     [ObservableProperty]
     public partial string SearchText { get; set; } = "";
 
@@ -320,6 +329,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         Detail?.Dispose();
         Inbox.Dispose();
+        foreach (var account in _all)
+        {
+            account.Selection?.Dispose();
+        }
+
         _polling.Cancel();
         _polling.Dispose();
         _timer.Stop();
