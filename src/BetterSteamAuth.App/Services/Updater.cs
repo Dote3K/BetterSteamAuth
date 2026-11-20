@@ -46,6 +46,8 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     private static readonly CompositeFormat BadSignatureFormat = CompositeFormat.Parse(Strings.UpdateBadSignatureFormat);
     private static readonly CompositeFormat DownloadMismatchFormat = CompositeFormat.Parse(Strings.UpdateDownloadMismatchFormat);
     private static readonly TimeSpan Interval = TimeSpan.FromHours(6);
+    // Just under the shell's hourly timer, so a failed check is retried on the next tick.
+    private static readonly TimeSpan RetryInterval = TimeSpan.FromMinutes(50);
 
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(30), MaxResponseContentBufferSize = MaxSumsBytes };
     private UpdateManager? _manager;
@@ -84,10 +86,14 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
 
     public void AcknowledgeRejected() => RejectedNoticePending = false;
 
-    /// <summary>Checks if automatic checks are on and the last check was 6 hours ago or more. Safe to call often.</summary>
+    /// <summary>
+    /// Checks if automatic checks are on and the last check was 6 hours ago or more (within the hour after a failed
+    /// check, which is usually a network hiccup). Safe to call often.
+    /// </summary>
     public void CheckIfDue()
     {
-        if (AutoCheck && (LastCheckedAt is not { } last || DateTimeOffset.UtcNow - last >= Interval))
+        TimeSpan interval = State == UpdateState.CheckFailed ? RetryInterval : Interval;
+        if (AutoCheck && (LastCheckedAt is not { } last || DateTimeOffset.UtcNow - last >= interval))
         {
             _ = CheckAsync();
         }
