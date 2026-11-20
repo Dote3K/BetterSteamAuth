@@ -14,12 +14,27 @@ public sealed class ConfirmationPolicy
 {
     public const string BulkTradesKey = "confirmations.bulk_trades";
     public const string UndoKey = "confirmations.undo";
+    public const string RefreshKey = "confirmations.refresh_seconds";
+
+    /// <summary>The refresh intervals Settings offers, in seconds; anything else falls back to the default.</summary>
+    public static readonly int[] RefreshChoices = [30, 60, 120, 300];
+
+    public const int DefaultRefreshSeconds = 60;
 
     /// <summary>Trades without warnings behave like market listings: quick accept and bulk accept.</summary>
     public bool AcceptTradesInBulk { get; set; }
 
     /// <summary>Wait a few seconds before sending so the action can be undone. On by default; off sends right away.</summary>
     public bool UndoEnabled { get; set; } = true;
+
+    /// <summary>How often each account checks for confirmations while they're on screen.</summary>
+    public int RefreshSeconds { get; set; } = DefaultRefreshSeconds;
+
+    public static int ParseRefreshSeconds(string? stored)
+        => int.TryParse(stored, System.Globalization.NumberStyles.None, CultureInfo.InvariantCulture, out int seconds)
+           && RefreshChoices.Contains(seconds)
+            ? seconds
+            : DefaultRefreshSeconds;
 }
 
 public enum ConfirmationState

@@ -21,6 +21,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat UpToDateFormat = CompositeFormat.Parse(Strings.UpdateUpToDateFormat);
     private static readonly CompositeFormat UpdateReadyFormat = CompositeFormat.Parse(Strings.UpdateReadyFormat);
     private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
+    private static readonly CompositeFormat EveryMinutesFormat = CompositeFormat.Parse(Strings.EveryMinutesFormat);
     private static readonly int[] AutoLockMinutes = [5, 15, 30, 60];
     private static readonly int[] KeepCounts = [5, 10, 20, 50];
     private static readonly CompositeFormat KeepLastFormat = CompositeFormat.Parse(Strings.KeepLastFormat);
@@ -35,6 +36,15 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         var current = shell.NetworkOptions;
         SniBypass = SniBypassChoices.Single(c => c.Value == current.SniBypass);
         EncryptedDns = EncryptedDnsChoices.Single(c => c.Value == current.EncryptedDns);
+
+        RefreshChoices = [.. ConfirmationPolicy.RefreshChoices.Select(s => new Choice<int>(s, s switch
+        {
+            30 => Strings.Every30Seconds,
+            60 => Strings.EveryMinute,
+            _ => string.Format(CultureInfo.CurrentCulture, EveryMinutesFormat, s / 60),
+        }))];
+        int refresh = shell.ConfirmationPolicy.RefreshSeconds;
+        Refresh = RefreshChoices.FirstOrDefault(c => c.Value == refresh) ?? RefreshChoices.Single(c => c.Value == ConfirmationPolicy.DefaultRefreshSeconds);
 
         AutoLockChoices = [new(0, Strings.Never), .. AutoLockMinutes.Select(m => new Choice<int>(m, string.Format(CultureInfo.CurrentCulture, MinutesFormat, m)))];
         int minutes = shell.AutoLockMinutes;
@@ -315,6 +325,19 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
                 _shell.SetAcceptTradesInBulk(value);
                 OnPropertyChanged();
             }
+        }
+    }
+
+    public IReadOnlyList<Choice<int>> RefreshChoices { get; }
+
+    [ObservableProperty]
+    public partial Choice<int> Refresh { get; set; }
+
+    partial void OnRefreshChanged(Choice<int> value)
+    {
+        if (value is not null && value.Value != _shell.ConfirmationPolicy.RefreshSeconds)
+        {
+            _shell.SetRefreshSeconds(value.Value);
         }
     }
 

@@ -19,7 +19,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     private static readonly CompositeFormat SecondsLeftFormat = CompositeFormat.Parse(Strings.SecondsLeftFormat);
 
-    private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(60);
     private static readonly CompositeFormat RemovedFormat = CompositeFormat.Parse(Strings.RemovedFormat);
     private static readonly CompositeFormat RestartToUpdateFormat = CompositeFormat.Parse(Strings.RestartToUpdateFormat);
     private int _removedSecondsLeft = 10 * 4;
@@ -358,12 +357,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     await Task.Delay(Jitter(TimeSpan.FromSeconds(10)), cancellationToken).ConfigureAwait(true);
                 }
 
-                if (DateTime.UtcNow - account.LastCheckedUtc >= PollInterval)
+                // Read each round, so a new interval from Settings applies from the next check.
+                var interval = TimeSpan.FromSeconds(_shell.ConfirmationPolicy.RefreshSeconds);
+                if (DateTime.UtcNow - account.LastCheckedUtc >= interval)
                 {
                     await LoadConfirmationsAsync(account, cancellationToken).ConfigureAwait(true);
                 }
 
-                await Task.Delay(PollInterval + Jitter(TimeSpan.FromSeconds(30)), cancellationToken).ConfigureAwait(true);
+                await Task.Delay(interval + Jitter(interval / 2), cancellationToken).ConfigureAwait(true);
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

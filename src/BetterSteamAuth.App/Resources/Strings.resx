@@ -246,6 +246,11 @@
   <data name="LinkingNotFinished" xml:space="preserve"><value>Linking not finished</value></data>
   <data name="LinkNewAuthenticatorBody" xml:space="preserve"><value>Set up Steam Guard on an account</value></data>
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
+  <data name="RefreshSetting" xml:space="preserve"><value>Check for new confirmations</value></data>
+  <data name="RefreshSettingBody" xml:space="preserve"><value>How often each account checks while confirmations are on screen. Accounts check at slightly different times.</value></data>
+  <data name="Every30Seconds" xml:space="preserve"><value>Every 30 seconds</value></data>
+  <data name="EveryMinute" xml:space="preserve"><value>Every minute</value></data>
+  <data name="EveryMinutesFormat" xml:space="preserve"><value>Every {0} minutes</value></data>
   <data name="UndoSetting" xml:space="preserve"><value>Undo after accept or reject</value></data>
   <data name="UndoSettingBody" xml:space="preserve"><value>Wait 4 seconds before sending, so you can take it back. Off: sends right away.</value></data>
   <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>

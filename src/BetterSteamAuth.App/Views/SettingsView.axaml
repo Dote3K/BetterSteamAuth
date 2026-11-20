@@ -67,6 +67,15 @@
           <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding UndoEnabled}"
                         AutomationProperties.Name="{x:Static res:Strings.UndoSetting}" />
         </Grid>
+        <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">
+          <StackPanel Spacing="2">
+            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RefreshSetting}" />
+            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RefreshSettingBody}" />
+          </StackPanel>
+          <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding RefreshChoices}" SelectedItem="{Binding Refresh}"
+                    AutomationProperties.Name="{x:Static res:Strings.RefreshSetting}" />
+        </Grid>
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
           <StackPanel Spacing="2">
             <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.CheckInBackground}" />

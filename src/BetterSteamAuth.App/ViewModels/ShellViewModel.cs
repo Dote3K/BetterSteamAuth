@@ -91,6 +91,12 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         Vault?.SetSetting(ConfirmationPolicy.BulkTradesKey, value ? "on" : "off");
     }
 
+    public void SetRefreshSeconds(int seconds)
+    {
+        ConfirmationPolicy.RefreshSeconds = seconds;
+        Vault?.SetSetting(ConfirmationPolicy.RefreshKey, seconds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+    }
+
     public void SetUndoEnabled(bool value)
     {
         ConfirmationPolicy.UndoEnabled = value;
@@ -565,6 +571,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         UpdateConfirmationChecks();
         ConfirmationPolicy.AcceptTradesInBulk = Vault?.GetSetting(ConfirmationPolicy.BulkTradesKey) == "on";
         ConfirmationPolicy.UndoEnabled = Vault?.GetSetting(ConfirmationPolicy.UndoKey) != "off";
+        ConfirmationPolicy.RefreshSeconds = ConfirmationPolicy.ParseRefreshSeconds(Vault?.GetSetting(ConfirmationPolicy.RefreshKey));
 
         var options = NetworkOptions.FromSettings(
             Vault?.GetSetting(NetworkOptions.SniBypassKey),
