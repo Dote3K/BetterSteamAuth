@@ -1,3 +1,4 @@
+<!-- Settings: sections laid out like account details; rare options under Advanced. -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
@@ -7,208 +8,297 @@
   <UserControl.KeyBindings>
     <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
   </UserControl.KeyBindings>
+  <UserControl.Styles>
+    <!-- A section: a title, then its rows in one quiet panel. Each row: name and one line about it, control on the right. -->
+    <Style Selector="TextBlock.section">
+      <Setter Property="Margin" Value="2,28,0,10" />
+    </Style>
+    <Style Selector="Border.row">
+      <Setter Property="Padding" Value="16,12" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.row.last">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Border.row.sub">
+      <Setter Property="Padding" Value="36,10,16,10" />
+    </Style>
+    <Style Selector="Border.row > Grid">
+      <Setter Property="ColumnSpacing" Value="24" />
+    </Style>
+    <Style Selector="Border.row Button.action">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,-4,0,-4" />
+    </Style>
+    <Style Selector="Border.row ComboBox">
+      <Setter Property="Width" Value="170" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.row ToggleSwitch">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
   <DockPanel>
-    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,10">
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
       <StackPanel Orientation="Horizontal" Spacing="8">
         <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
                 AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
           <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
         </Button>
-        <TextBlock Classes="title" VerticalAlignment="Center" Text="{x:Static res:Strings.Settings}" />
+        <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{x:Static res:Strings.Settings}" />
       </StackPanel>
     </Border>
 
     <ScrollViewer>
-      <StackPanel MaxWidth="640" Margin="24,20" Spacing="4" HorizontalAlignment="Stretch">
-        <TextBlock Classes="caption" Text="{x:Static res:Strings.Security}" Margin="0,0,0,8" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AppPassword}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding PasswordBody}" />
-            <TextBlock Classes="success" TextWrapping="Wrap" Text="{Binding PasswordNotice}" IsVisible="{Binding HasPasswordNotice}" />
+      <StackPanel MaxWidth="680" Margin="28,0,28,32" HorizontalAlignment="Stretch">
+
+        <!-- Security -->
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Security}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row" Classes.last="{Binding !HasPassword}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AppPassword}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding PasswordBody}" />
+                  <TextBlock Classes="caption success" TextWrapping="Wrap" Text="{Binding PasswordNotice}" IsVisible="{Binding HasPasswordNotice}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{Binding PasswordButton}" Command="{Binding OpenPasswordCommand}" />
+              </Grid>
+            </Border>
+            <Border Classes="row" IsVisible="{Binding CanRemember}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.RememberOnDevice}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RememberOnDeviceBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding RememberOnDevice}"
+                              AutomationProperties.Name="{x:Static res:Strings.RememberOnDevice}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last" IsVisible="{Binding HasPassword}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AutoLock}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoLockBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AutoLockChoices}" SelectedItem="{Binding AutoLock}"
+                          AutomationProperties.Name="{x:Static res:Strings.AutoLock}" />
+              </Grid>
+            </Border>
           </StackPanel>
-          <Button Grid.Column="1" VerticalAlignment="Top" Content="{Binding PasswordButton}" Command="{Binding OpenPasswordCommand}" />
-        </Grid>
-        <Border Height="12" IsVisible="{Binding !HasPassword}" />
-        <StackPanel Spacing="4" IsVisible="{Binding HasPassword}">
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16" IsVisible="{Binding CanRemember}">
-            <StackPanel Spacing="2">
-              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RememberOnDevice}" />
-              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RememberOnDeviceBody}" />
+        </Border>
+
+        <!-- Confirmations -->
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Confirmations}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.RefreshSetting}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RefreshSettingBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding RefreshChoices}" SelectedItem="{Binding Refresh}"
+                          AutomationProperties.Name="{x:Static res:Strings.RefreshSetting}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.UndoSetting}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.UndoSettingBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding UndoEnabled}"
+                              AutomationProperties.Name="{x:Static res:Strings.UndoSetting}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AcceptTradesInBulk}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AcceptTradesInBulkBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AcceptTradesInBulk}"
+                              AutomationProperties.Name="{x:Static res:Strings.AcceptTradesInBulk}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.CheckInBackground}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.CheckInBackgroundBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckInBackground}"
+                              AutomationProperties.Name="{x:Static res:Strings.CheckInBackground}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <!-- Backups -->
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Backups}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.BackUpTitle}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding BackupDetail}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.BackUpMenu}" Command="{Binding OpenBackupCommand}" />
+              </Grid>
+            </Border>
+            <!-- Automatic backups: optional, only with an app password, only when data changed -->
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AutoBackupTitle}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupBody}" IsVisible="{Binding AutoBackupAvailable}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupNeedsPassword}" IsVisible="{Binding AutoBackupUnavailable}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoBackupEnabled}" IsEnabled="{Binding AutoBackupAvailable}"
+                              AutomationProperties.Name="{x:Static res:Strings.AutoBackupTitle}" />
+              </Grid>
+            </Border>
+            <StackPanel IsVisible="{Binding AutoBackupEnabled}">
+              <Border Classes="row sub">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.AutoBackupWhen}" />
+                  <ComboBox Grid.Column="1" ItemsSource="{Binding FrequencyChoices}" SelectedItem="{Binding AutoBackupFrequency}"
+                            AutomationProperties.Name="{x:Static res:Strings.AutoBackupWhen}" />
+                </Grid>
+              </Border>
+              <Border Classes="row sub">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{x:Static res:Strings.AutoBackupKeep}" />
+                    <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupKeepBody}" />
+                  </StackPanel>
+                  <ComboBox Grid.Column="1" ItemsSource="{Binding KeepChoices}" SelectedItem="{Binding AutoBackupKeep}"
+                            AutomationProperties.Name="{x:Static res:Strings.AutoBackupKeep}" />
+                </Grid>
+              </Border>
+              <Border Classes="row sub">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{x:Static res:Strings.AutoBackupFolder}" />
+                    <TextBlock Classes="caption" TextTrimming="CharacterEllipsis" Text="{Binding AutoBackupFolder}" ToolTip.Tip="{Binding AutoBackupFolder}" />
+                    <TextBlock Classes="caption" Text="{Binding LastAutoBackupText}" IsVisible="{Binding HasLastAutoBackup}" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                          Content="{x:Static res:Strings.Change}" Command="{Binding ChangeAutoBackupFolderCommand}"
+                          AutomationProperties.Name="{x:Static res:Strings.ChooseBackupFolder}" />
+                </Grid>
+              </Border>
             </StackPanel>
-            <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding RememberOnDevice}"
-                          AutomationProperties.Name="{x:Static res:Strings.RememberOnDevice}" />
-          </Grid>
-          <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,28">
-            <StackPanel Spacing="2">
-              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AutoLock}" />
-              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoLockBody}" />
-            </StackPanel>
-            <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                      ItemsSource="{Binding AutoLockChoices}" SelectedItem="{Binding AutoLock}"
-                      AutomationProperties.Name="{x:Static res:Strings.AutoLock}" />
-          </Grid>
-        </StackPanel>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.RestoreFromBackup}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RestoreBody}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.RestoreMenu}" Command="{Binding OpenRestoreCommand}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
 
-        <TextBlock Classes="caption" Text="{x:Static res:Strings.Confirmations}" Margin="0,0,0,8" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AcceptTradesInBulk}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AcceptTradesInBulkBody}" />
+        <!-- Updates -->
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.Updates}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static vm:SettingsViewModel.VersionText}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{Binding UpdateStatusText}" IsVisible="{Binding HasUpdateStatus}" />
+                  <Expander Header="{x:Static res:Strings.Details}" IsVisible="{Binding HasUpdateDetails}" Margin="0,4,0,0">
+                    <SelectableTextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding UpdateDetails}" />
+                  </Expander>
+                </StackPanel>
+                <Panel Grid.Column="1" VerticalAlignment="Center">
+                  <Button Classes="action Primary" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.CheckNow}"
+                          Command="{Binding CheckForUpdatesCommand}" IsEnabled="{Binding CanCheckForUpdates}" IsVisible="{Binding !IsUpdateReady}" />
+                  <Button Classes="Primary" Theme="{DynamicResource SolidButton}" Content="{x:Static res:Strings.RestartToUpdate}"
+                          Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding IsUpdateReady}" />
+                </Panel>
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.CheckForUpdatesAuto}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.CheckForUpdatesAutoBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoCheckUpdates}"
+                              AutomationProperties.Name="{x:Static res:Strings.CheckForUpdatesAuto}" />
+              </Grid>
+            </Border>
           </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding AcceptTradesInBulk}"
-                        AutomationProperties.Name="{x:Static res:Strings.AcceptTradesInBulk}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.UndoSetting}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.UndoSettingBody}" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding UndoEnabled}"
-                        AutomationProperties.Name="{x:Static res:Strings.UndoSetting}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RefreshSetting}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RefreshSettingBody}" />
-          </StackPanel>
-          <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                    ItemsSource="{Binding RefreshChoices}" SelectedItem="{Binding Refresh}"
-                    AutomationProperties.Name="{x:Static res:Strings.RefreshSetting}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.CheckInBackground}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.CheckInBackgroundBody}" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding CheckInBackground}"
-                        AutomationProperties.Name="{x:Static res:Strings.CheckInBackground}" />
-        </Grid>
+        </Border>
 
-        <!-- Data: backups, restore, export, removed accounts. -->
-        <TextBlock Classes="caption" Text="{x:Static res:Strings.Data}" Margin="0,0,0,8" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.BackUpTitle}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding BackupDetail}" />
+        <!-- Advanced: rarely needed -->
+        <Expander Margin="0,28,0,0" HorizontalAlignment="Stretch" Header="{x:Static res:Strings.Advanced}">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.BypassSni}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding SniBypassChoices}" SelectedItem="{Binding SniBypass}"
+                          AutomationProperties.Name="{x:Static res:Strings.BypassSni}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.EncryptedDns}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
+                          AutomationProperties.Name="{x:Static res:Strings.EncryptedDns}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.IncludeBeta}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.IncludeBetaBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IncludeBetaUpdates}"
+                              AutomationProperties.Name="{x:Static res:Strings.IncludeBeta}" />
+              </Grid>
+            </Border>
+            <Border Classes="row" Classes.last="{Binding !HasRemoved}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.ExportForSda}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSettingsBody}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.ExportMenu}" Command="{Binding OpenExportCommand}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last" IsVisible="{Binding HasRemoved}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{Binding RemovedLabel}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                        Content="{x:Static res:Strings.Open}" Command="{Binding OpenRemovedCommand}"
+                        AutomationProperties.Name="{Binding RemovedLabel}" />
+              </Grid>
+            </Border>
           </StackPanel>
-          <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.BackUpMenu}" Command="{Binding OpenBackupCommand}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.RestoreFromBackup}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RestoreBody}" />
-          </StackPanel>
-          <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.RestoreMenu}" Command="{Binding OpenRestoreCommand}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.ExportForSda}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.ExportSettingsBody}" />
-          </StackPanel>
-          <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.ExportMenu}" Command="{Binding OpenExportCommand}" />
-        </Grid>
-        <!-- Automatic backups: optional, only with an app password, only when data changed -->
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AutoBackupTitle}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupBody}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupNeedsPassword}"
-                       IsVisible="{Binding AutoBackupUnavailable}" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding AutoBackupEnabled}" IsEnabled="{Binding AutoBackupAvailable}"
-                        AutomationProperties.Name="{x:Static res:Strings.AutoBackupTitle}" />
-        </Grid>
-        <StackPanel Spacing="4" Margin="20,0,0,16" IsVisible="{Binding AutoBackupEnabled}">
-          <Grid ColumnDefinitions="*,200" ColumnSpacing="24" Margin="0,0,0,12">
-            <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" Text="{x:Static res:Strings.AutoBackupWhen}" />
-            <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding FrequencyChoices}" SelectedItem="{Binding AutoBackupFrequency}"
-                      AutomationProperties.Name="{x:Static res:Strings.AutoBackupWhen}" />
-          </Grid>
-          <Grid ColumnDefinitions="*,200" ColumnSpacing="24" Margin="0,0,0,12">
-            <StackPanel Spacing="2">
-              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AutoBackupKeep}" />
-              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoBackupKeepBody}" />
-            </StackPanel>
-            <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" ItemsSource="{Binding KeepChoices}" SelectedItem="{Binding AutoBackupKeep}"
-                      AutomationProperties.Name="{x:Static res:Strings.AutoBackupKeep}" />
-          </Grid>
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
-            <StackPanel Spacing="2">
-              <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.AutoBackupFolder}" />
-              <TextBlock Classes="secondary" TextTrimming="CharacterEllipsis" Text="{Binding AutoBackupFolder}" ToolTip.Tip="{Binding AutoBackupFolder}" />
-              <TextBlock Classes="caption secondary" Text="{Binding LastAutoBackupText}" IsVisible="{Binding HasLastAutoBackup}" />
-            </StackPanel>
-            <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.Change}" Command="{Binding ChangeAutoBackupFolderCommand}"
-                    AutomationProperties.Name="{x:Static res:Strings.ChooseBackupFolder}" />
-          </Grid>
-        </StackPanel>
-
-        <StackPanel Spacing="4" IsVisible="{Binding HasRemoved}">
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-            <StackPanel Spacing="2">
-              <TextBlock FontWeight="SemiBold" Text="{Binding RemovedLabel}" />
-              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.RemovedAccountsBody}" />
-            </StackPanel>
-            <Button Grid.Column="1" VerticalAlignment="Top" Content="{x:Static res:Strings.Open}" Command="{Binding OpenRemovedCommand}"
-                    AutomationProperties.Name="{Binding RemovedLabel}" />
-          </Grid>
-        </StackPanel>
-        <Border Height="12" />
-
-        <!-- Updates. -->
-        <TextBlock Classes="caption" Text="{x:Static res:Strings.Updates}" Margin="0,0,0,8" />
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static vm:SettingsViewModel.VersionText}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding UpdateStatusText}" IsVisible="{Binding HasUpdateStatus}" />
-            <Expander Header="{x:Static res:Strings.Details}" IsVisible="{Binding HasUpdateDetails}" Margin="0,4,0,0">
-              <SelectableTextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding UpdateDetails}" />
-            </Expander>
-          </StackPanel>
-          <Panel Grid.Column="1" VerticalAlignment="Top">
-            <Button Content="{x:Static res:Strings.CheckNow}" Command="{Binding CheckForUpdatesCommand}"
-                    IsEnabled="{Binding CanCheckForUpdates}" IsVisible="{Binding !IsUpdateReady}" />
-            <Button Classes="Primary" Theme="{DynamicResource SolidButton}" Content="{x:Static res:Strings.RestartToUpdate}"
-                    Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding IsUpdateReady}" />
-          </Panel>
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.CheckForUpdatesAuto}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.CheckForUpdatesAutoBody}" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding AutoCheckUpdates}"
-                        AutomationProperties.Name="{x:Static res:Strings.CheckForUpdatesAuto}" />
-        </Grid>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24" Margin="0,0,0,28">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.IncludeBeta}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.IncludeBetaBody}" />
-          </StackPanel>
-          <ToggleSwitch Grid.Column="1" VerticalAlignment="Top" IsChecked="{Binding IncludeBetaUpdates}"
-                        AutomationProperties.Name="{x:Static res:Strings.IncludeBeta}" />
-        </Grid>
-
-        <TextBlock Classes="caption" Text="{x:Static res:Strings.AdvancedNetwork}" Margin="0,0,0,8" />
-
-        <Grid ColumnDefinitions="*,160" ColumnSpacing="24" Margin="0,0,0,16">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.BypassSni}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
-          </StackPanel>
-          <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                    ItemsSource="{Binding SniBypassChoices}" SelectedItem="{Binding SniBypass}" />
-        </Grid>
-
-        <Grid ColumnDefinitions="*,160" ColumnSpacing="24">
-          <StackPanel Spacing="2">
-            <TextBlock FontWeight="SemiBold" Text="{x:Static res:Strings.EncryptedDns}" />
-            <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
-          </StackPanel>
-          <ComboBox Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                    ItemsSource="{Binding EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}" />
-        </Grid>
+        </Expander>
       </StackPanel>
     </ScrollViewer>
   </DockPanel>

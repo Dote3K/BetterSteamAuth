@@ -52,11 +52,10 @@
   <data name="SdaPasskey" xml:space="preserve"><value>SDA passkey</value></data>
   <data name="OpenApp" xml:space="preserve"><value>Open BetterSteamAuth</value></data>
   <data name="Settings" xml:space="preserve"><value>Settings</value></data>
-  <data name="AdvancedNetwork" xml:space="preserve"><value>Advanced · Network</value></data>
   <data name="BypassSni" xml:space="preserve"><value>Bypass SNI blocking</value></data>
-  <data name="BypassSniBody" xml:space="preserve"><value>Splits the TLS handshake so network filters can't read Steam's server name. Auto turns it on for a server only after a connection to it is reset.</value></data>
+  <data name="BypassSniBody" xml:space="preserve"><value>Hides Steam's server name from network filters. Auto turns it on after a connection is reset.</value></data>
   <data name="EncryptedDns" xml:space="preserve"><value>Encrypted DNS</value></data>
-  <data name="EncryptedDnsBody" xml:space="preserve"><value>Looks up Steam's addresses over HTTPS when your network blocks them. Accounts with a proxy don't need it.</value></data>
+  <data name="EncryptedDnsBody" xml:space="preserve"><value>Looks up Steam's addresses over HTTPS when your network blocks them.</value></data>
   <data name="Auto" xml:space="preserve"><value>Auto</value></data>
   <data name="On" xml:space="preserve"><value>On</value></data>
   <data name="Off" xml:space="preserve"><value>Off</value></data>
@@ -141,7 +140,7 @@
   <data name="Accepting" xml:space="preserve"><value>Accepting…</value></data>
   <data name="Rejecting" xml:space="preserve"><value>Rejecting…</value></data>
   <data name="AcceptTradesInBulk" xml:space="preserve"><value>Accept trades in bulk</value></data>
-  <data name="AcceptTradesInBulkBody" xml:space="preserve"><value>Trades without a warning can be accepted with one click and together with market listings. Trades Steam warns about always need a separate check.</value></data>
+  <data name="AcceptTradesInBulkBody" xml:space="preserve"><value>Trades without a warning can be accepted in one click and in bulk.</value></data>
   <data name="FilterAllFormat" xml:space="preserve"><value>All {0}</value></data>
   <data name="FilterTradesFormat" xml:space="preserve"><value>Trades {0}</value></data>
   <data name="FilterMarketFormat" xml:space="preserve"><value>Market {0}</value></data>
@@ -204,6 +203,7 @@
   <data name="Finish" xml:space="preserve"><value>Finish</value></data>
   <data name="ConnectionDirect" xml:space="preserve"><value>Direct connection</value></data>
   <data name="ConnectionProxies" xml:space="preserve"><value>One proxy per account</value></data>
+  <data name="Backups" xml:space="preserve"><value>Backups</value></data>
   <data name="Security" xml:space="preserve"><value>Security</value></data>
   <data name="RememberOnDevice" xml:space="preserve"><value>Remember on this device</value></data>
   <data name="RememberOnDeviceBody" xml:space="preserve"><value>Open without the password on this Windows account. Lock app still asks for it.</value></data>
@@ -247,14 +247,14 @@
   <data name="LinkNewAuthenticatorBody" xml:space="preserve"><value>Set up Steam Guard on an account</value></data>
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
   <data name="RefreshSetting" xml:space="preserve"><value>Check for new confirmations</value></data>
-  <data name="RefreshSettingBody" xml:space="preserve"><value>How often each account checks while confirmations are on screen. Accounts check at slightly different times.</value></data>
+  <data name="RefreshSettingBody" xml:space="preserve"><value>How often each account checks while confirmations are on screen.</value></data>
   <data name="Every30Seconds" xml:space="preserve"><value>Every 30 seconds</value></data>
   <data name="EveryMinute" xml:space="preserve"><value>Every minute</value></data>
   <data name="EveryMinutesFormat" xml:space="preserve"><value>Every {0} minutes</value></data>
   <data name="UndoSetting" xml:space="preserve"><value>Undo after accept or reject</value></data>
-  <data name="UndoSettingBody" xml:space="preserve"><value>Wait 4 seconds before sending, so you can take it back. Off: sends right away.</value></data>
+  <data name="UndoSettingBody" xml:space="preserve"><value>Wait 4 seconds before sending, so you can take it back.</value></data>
   <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>
-  <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking for confirmations while the window is minimized. Otherwise checks run only while confirmations are on screen.</value></data>
+  <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking while the window is minimized.</value></data>
   <data name="SessionValidUntilFormat" xml:space="preserve"><value>Valid until {0} · {1} days left</value></data>
   <data name="HidesInFormat" xml:space="preserve"><value>Hides in {0}s</value></data>
   <data name="RemoveAccountTitleFormat" xml:space="preserve"><value>Remove {0} from BetterSteamAuth?</value></data>
@@ -359,7 +359,6 @@
   <data name="MoveRevocationBody" xml:space="preserve"><value>This is a new code. The one from your phone no longer works.</value></data>
   <data name="MovedFormat" xml:space="preserve"><value>{0} moved to BetterSteamAuth</value></data>
   <data name="MoveDoneBody" xml:space="preserve"><value>The Steam app on your phone no longer makes codes for this account.</value></data>
-  <data name="Data" xml:space="preserve"><value>Data</value></data>
   <data name="RemovedAccounts" xml:space="preserve"><value>Removed accounts</value></data>
   <data name="RemovedAccountsBody" xml:space="preserve"><value>Accounts taken out of the app. Restore brings one back with its proxy, group, and note.</value></data>
   <data name="RemovedAccountsEmpty" xml:space="preserve"><value>No removed accounts.</value></data>
