@@ -112,6 +112,37 @@ public static class TradeOffers
             IsLimited: Value("isLimitedAccount") == "1");
     }
 
+    /// <summary>
+    /// The account's Steam level from <c>IPlayerService/GetSteamLevel</c>. Null when Steam doesn't share it
+    /// (private profiles) or the request fails: the level is a hint, never a reason to fail the page.
+    /// </summary>
+    public static async Task<int?> GetSteamLevelAsync(
+        AccountConnection connection, string accessToken, ulong steamId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        var url = new Uri(string.Create(CultureInfo.InvariantCulture,
+            $"https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/?access_token={Uri.EscapeDataString(accessToken)}&steamid={steamId}"));
+
+        try
+        {
+            using var http = connection.CreateHttpClient();
+            await using var stream = await http.GetStreamAsync(url, cancellationToken).ConfigureAwait(false);
+            using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
+            return ParseSteamLevel(doc.RootElement);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or JsonException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
+        {
+            return null;
+        }
+    }
+
+    internal static int? ParseSteamLevel(JsonElement root)
+        => root.TryGetProperty("response", out var response)
+           && response.TryGetProperty("player_level", out var level)
+           && level.TryGetInt32(out int value)
+            ? value
+            : null;
+
     /// <summary>Downloads an image through the account's connection. Null if it can't be loaded.</summary>
     public static async Task<byte[]?> GetImageAsync(AccountConnection connection, string? url, CancellationToken cancellationToken = default)
     {

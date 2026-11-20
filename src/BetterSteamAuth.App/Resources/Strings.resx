@@ -152,6 +152,7 @@
   <data name="TradeOffer" xml:space="preserve"><value>Trade offer</value></data>
   <data name="MarketListing" xml:space="preserve"><value>Market listing</value></data>
   <data name="MemberSinceFormat" xml:space="preserve"><value>Steam member since {0}</value></data>
+  <data name="SteamLevelFormat" xml:space="preserve"><value>Level {0}</value></data>
   <data name="FlagNewAccountFormat" xml:space="preserve"><value>Account created {0} days ago</value></data>
   <data name="FlagVac" xml:space="preserve"><value>VAC banned</value></data>
   <data name="FlagTradeBan" xml:space="preserve"><value>Trade banned</value></data>

@@ -46,4 +46,14 @@ public class TradeOffersTests
         Assert.True(profile.IsLimited);
         Assert.False(profile.VacBanned);
     }
+
+    [Theory]
+    [InlineData("""{"response":{"player_level":27}}""", 27)]
+    [InlineData("""{"response":{}}""", null)]
+    public void ParseSteamLevel_reads_the_level_or_nothing(string json, int? expected)
+    {
+        using var doc = JsonDocument.Parse(json);
+
+        Assert.Equal(expected, TradeOffers.ParseSteamLevel(doc.RootElement));
+    }
 }

@@ -90,8 +90,8 @@
                   <PathIcon Width="12" Height="12" Classes="hint-icon" Data="{StaticResource SemiIconExternalOpen}" />
                 </StackPanel>
               </Button>
-              <TextBlock Classes="secondary" Text="{Binding PartnerSince}"
-                         IsVisible="{Binding PartnerSince, Converter={x:Static ObjectConverters.IsNotNull}}" />
+              <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding PartnerFacts}"
+                         IsVisible="{Binding PartnerFacts, Converter={x:Static ObjectConverters.IsNotNull}}" />
               <ItemsControl ItemsSource="{Binding PartnerFlags}" Margin="0,4,0,0">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="x:String">

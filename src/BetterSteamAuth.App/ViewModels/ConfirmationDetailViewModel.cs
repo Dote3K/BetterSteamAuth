@@ -29,6 +29,7 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
     private const int NewAccountDays = 30;
 
     private static readonly CompositeFormat MemberSinceFormat = CompositeFormat.Parse(Strings.MemberSinceFormat);
+    private static readonly CompositeFormat LevelFormat = CompositeFormat.Parse(Strings.SteamLevelFormat);
     private static readonly CompositeFormat NewAccountFormat = CompositeFormat.Parse(Strings.FlagNewAccountFormat);
     private static readonly CompositeFormat GiveFormat = CompositeFormat.Parse(Strings.YouGiveFormat);
     private static readonly CompositeFormat ReceiveFormat = CompositeFormat.Parse(Strings.YouReceiveFormat);
@@ -85,7 +86,8 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
     [ObservableProperty] public partial bool HasDetails { get; private set; }
     [ObservableProperty] public partial string? PartnerName { get; private set; }
     [ObservableProperty] public partial Bitmap? PartnerAvatar { get; private set; }
-    [ObservableProperty] public partial string? PartnerSince { get; private set; }
+    /// <summary>"Level 42 · Steam member since Mar 3, 2019": whichever of the two Steam shares.</summary>
+    [ObservableProperty] public partial string? PartnerFacts { get; private set; }
     [ObservableProperty] public partial string GiveHeader { get; private set; } = "";
     [ObservableProperty] public partial string ReceiveHeader { get; private set; } = "";
     [ObservableProperty] public partial bool ReceivesNothing { get; private set; }
@@ -147,9 +149,9 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
         LoadFailed = false;
         try
         {
-            var (offer, profile) = await FetchTradeAsync(connection, token).ConfigureAwait(true);
+            var (offer, profile, level) = await FetchTradeAsync(connection, token).ConfigureAwait(true);
             _partnerId = offer.PartnerSteamId;
-            ShowTrade(offer, profile);
+            ShowTrade(offer, profile, level);
             HasDetails = true;
 
             PartnerAvatar = await LoadImageAsync(connection, profile.AvatarUrl, token).ConfigureAwait(true);
@@ -170,13 +172,14 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
         }
     }
 
-    private async Task<(TradeOfferDetails Offer, PartnerProfile Profile)> FetchTradeAsync(AccountConnection connection, CancellationToken token)
+    private async Task<(TradeOfferDetails Offer, PartnerProfile Profile, int? Level)> FetchTradeAsync(AccountConnection connection, CancellationToken token)
     {
 #if DEBUG
         if (Environment.GetEnvironmentVariable("BSA_SAMPLE_CONFIRMATIONS") == "1")
         {
             await Task.Delay(400, token).ConfigureAwait(true);
-            return SampleConfirmations.TradeDetails(Item.Confirmation);
+            var (sampleOffer, sampleProfile) = SampleConfirmations.TradeDetails(Item.Confirmation);
+            return (sampleOffer, sampleProfile, SampleConfirmations.PartnerLevel(Item.Confirmation));
         }
 #endif
 
@@ -187,17 +190,25 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
             vault.Save(maFile);
         }
 
-        var offer = await TradeOffers.GetAsync(connection, maFile.Session!.AccessToken!, Item.Confirmation.CreatorId, token).ConfigureAwait(true);
-        var profile = await TradeOffers.GetProfileAsync(connection, offer.PartnerSteamId, token).ConfigureAwait(true);
-        return (offer, profile);
+        string accessToken = maFile.Session!.AccessToken!;
+        var offer = await TradeOffers.GetAsync(connection, accessToken, Item.Confirmation.CreatorId, token).ConfigureAwait(true);
+        var profile = TradeOffers.GetProfileAsync(connection, offer.PartnerSteamId, token);
+        var level = TradeOffers.GetSteamLevelAsync(connection, accessToken, offer.PartnerSteamId, token);
+        await Task.WhenAll(profile, level).ConfigureAwait(true);
+        return (offer, await profile.ConfigureAwait(true), await level.ConfigureAwait(true));
     }
 
-    private void ShowTrade(TradeOfferDetails offer, PartnerProfile profile)
+    private void ShowTrade(TradeOfferDetails offer, PartnerProfile profile, int? level)
     {
         PartnerName = profile.Name;
-        PartnerSince = profile.MemberSince is { } since
-            ? string.Format(CultureInfo.CurrentCulture, MemberSinceFormat, since.ToString("MMM d, yyyy", CultureInfo.CurrentCulture))
-            : null;
+        string?[] facts =
+        [
+            level is { } l ? string.Format(CultureInfo.CurrentCulture, LevelFormat, l) : null,
+            profile.MemberSince is { } since
+                ? string.Format(CultureInfo.CurrentCulture, MemberSinceFormat, since.ToString("MMM d, yyyy", CultureInfo.CurrentCulture))
+                : null,
+        ];
+        PartnerFacts = facts.Any(f => f is not null) ? string.Join(" · ", facts.Where(f => f is not null)) : null;
 
         PartnerFlags.Clear();
         if (profile.MemberSince is { } created

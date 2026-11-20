@@ -20,6 +20,9 @@ internal static class SampleConfirmations
     }
 
     /// <summary>A fake trade offer and partner for the detail screen.</summary>
+    /// <summary>A sample partner level: a fresh account has none to speak of.</summary>
+    public static int? PartnerLevel(MobileConfirmation confirmation) => confirmation.Headline == "buyer_88" ? 0 : 42;
+
     public static (TradeOfferDetails, PartnerProfile) TradeDetails(MobileConfirmation confirmation)
     {
         var created = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(confirmation.Headline == "buyer_88" ? -4 : -2900));
