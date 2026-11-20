@@ -246,6 +246,8 @@
   <data name="LinkingNotFinished" xml:space="preserve"><value>Linking not finished</value></data>
   <data name="LinkNewAuthenticatorBody" xml:space="preserve"><value>Set up Steam Guard on an account</value></data>
   <data name="LinkNewAuthenticatorMenu" xml:space="preserve"><value>Link new authenticator</value></data>
+  <data name="UndoSetting" xml:space="preserve"><value>Undo after accept or reject</value></data>
+  <data name="UndoSettingBody" xml:space="preserve"><value>Wait 4 seconds before sending, so you can take it back. Off: sends right away.</value></data>
   <data name="CheckInBackground" xml:space="preserve"><value>Check in the background</value></data>
   <data name="CheckInBackgroundBody" xml:space="preserve"><value>Keep checking for confirmations while the window is minimized. Otherwise checks run only while confirmations are on screen.</value></data>
   <data name="SessionValidUntilFormat" xml:space="preserve"><value>Valid until {0} · {1} days left</value></data>

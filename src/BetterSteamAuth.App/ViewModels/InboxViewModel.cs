@@ -50,6 +50,7 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
     private readonly Func<AccountItemViewModel, IReadOnlyList<ConfirmationItemViewModel>, bool, Task> _sendBatch;
     private readonly Func<Task> _refreshAll;
     private readonly Action _close;
+    private readonly ConfirmationPolicy _policy;
     private DispatcherTimer? _batchTimer;
     private List<InboxEntryViewModel> _batch = [];
     private bool _batchAccept;
@@ -60,9 +61,11 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
         IReadOnlyList<AccountItemViewModel> accounts,
         Func<AccountItemViewModel, IReadOnlyList<ConfirmationItemViewModel>, bool, Task> sendBatch,
         Func<Task> refreshAll,
-        Action close)
+        Action close,
+        ConfirmationPolicy policy)
     {
         _accounts = accounts;
+        _policy = policy;
         _sendBatch = sendBatch;
         _refreshAll = refreshAll;
         _close = close;
@@ -208,6 +211,12 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
             entry.Item.JoinBatch(accept);
         }
 
+        if (!_policy.UndoEnabled)
+        {
+            _ = SendBatchAsync();
+            return;
+        }
+
         IsBatchPending = true;
         UpdateBatchText();
         _batchTimer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, async (_, _) => await TickAsync().ConfigureAwait(true));
@@ -225,7 +234,11 @@ public sealed partial class InboxViewModel : ObservableObject, IDisposable
 
         StopBatchTimer();
         IsBatchPending = false;
+        await SendBatchAsync().ConfigureAwait(true);
+    }
 
+    private async Task SendBatchAsync()
+    {
         // Rows undone one by one during the window are no longer in the batch.
         var groups = _batch.Where(e => e.Item.InBatch).GroupBy(e => e.Account).ToList();
         _batch = [];

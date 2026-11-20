@@ -91,6 +91,12 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         Vault?.SetSetting(ConfirmationPolicy.BulkTradesKey, value ? "on" : "off");
     }
 
+    public void SetUndoEnabled(bool value)
+    {
+        ConfirmationPolicy.UndoEnabled = value;
+        Vault?.SetSetting(ConfirmationPolicy.UndoKey, value ? "on" : "off");
+    }
+
     public NetworkPolicy Network => _network;
 
     /// <summary>Raised on the UI thread after proxy health was rechecked.</summary>
@@ -558,6 +564,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _checkInBackground = Vault?.GetSetting(BackgroundCheckKey) == "on";
         UpdateConfirmationChecks();
         ConfirmationPolicy.AcceptTradesInBulk = Vault?.GetSetting(ConfirmationPolicy.BulkTradesKey) == "on";
+        ConfirmationPolicy.UndoEnabled = Vault?.GetSetting(ConfirmationPolicy.UndoKey) != "off";
 
         var options = NetworkOptions.FromSettings(
             Vault?.GetSetting(NetworkOptions.SniBypassKey),

@@ -318,6 +318,19 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    public bool UndoEnabled
+    {
+        get => _shell.ConfirmationPolicy.UndoEnabled;
+        set
+        {
+            if (value != _shell.ConfirmationPolicy.UndoEnabled)
+            {
+                _shell.SetUndoEnabled(value);
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public bool CheckInBackground
     {
         get => _shell.CheckInBackground;

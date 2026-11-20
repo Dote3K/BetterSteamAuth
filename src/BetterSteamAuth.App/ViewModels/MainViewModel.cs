@@ -67,7 +67,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(250), DispatcherPriority.Normal, (_, _) => Tick());
         _timer.Start();
 
-        Inbox = new InboxViewModel(_all, RespondBatchAsync, RefreshAllAsync, () => IsInboxOpen = false);
+        Inbox = new InboxViewModel(_all, RespondBatchAsync, RefreshAllAsync, () => IsInboxOpen = false, shell.ConfirmationPolicy);
 
         // Each account polls on its own jittered schedule.
         foreach (var account in _all)
@@ -120,7 +120,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         // Kept for the page's lifetime, so a batch's undo window keeps running when another account is selected.
         if (value is { Selection: null })
         {
-            value.Selection = new InboxViewModel([value], RespondBatchAsync, () => LoadConfirmationsAsync(value, _polling.Token), () => { });
+            value.Selection = new InboxViewModel(
+                [value], RespondBatchAsync, () => LoadConfirmationsAsync(value, _polling.Token), () => { }, _shell.ConfirmationPolicy);
         }
     }
 

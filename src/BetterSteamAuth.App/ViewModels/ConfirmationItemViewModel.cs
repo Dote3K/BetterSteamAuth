@@ -13,9 +13,13 @@ namespace BetterSteamAuth.App.ViewModels;
 public sealed class ConfirmationPolicy
 {
     public const string BulkTradesKey = "confirmations.bulk_trades";
+    public const string UndoKey = "confirmations.undo";
 
     /// <summary>Trades without warnings behave like market listings: quick accept and bulk accept.</summary>
     public bool AcceptTradesInBulk { get; set; }
+
+    /// <summary>Wait a few seconds before sending so the action can be undone. On by default; off sends right away.</summary>
+    public bool UndoEnabled { get; set; } = true;
 }
 
 public enum ConfirmationState
@@ -248,8 +252,15 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
     {
         Error = null;
         _accepting = accept;
-        _secondsLeft = UndoSeconds;
         InBatch = false;
+        if (!_policy.UndoEnabled)
+        {
+            StopCountdown();
+            _ = SendAsync();
+            return;
+        }
+
+        _secondsLeft = UndoSeconds;
         State = ConfirmationState.Pending;
         UpdatePendingText();
 
@@ -268,6 +279,11 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
         }
 
         StopCountdown();
+        await SendAsync().ConfigureAwait(true);
+    }
+
+    private async Task SendAsync()
+    {
         State = ConfirmationState.Sending;
         await _send(this, _accepting).ConfigureAwait(true);
         if (State == ConfirmationState.Sending)
