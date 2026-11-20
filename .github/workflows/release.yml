@@ -100,11 +100,11 @@ jobs:
             --token $env:GH_TOKEN --tag $env:TAG --releaseName "BetterSteamAuth $env:VERSION" @pre # stays a draft until it is signed
 
           # SHA256SUMS lists every asset of the draft; it is signed offline, outside CI.
-          $assets = gh release view $env:TAG --json assets --jq '.assets[].name'
-          $lines = foreach ($name in ($assets | Sort-Object)) {
-            $file = Join-Path Releases $name
-            if (-not (Test-Path $file)) { throw "Asset $name isn't in Releases/." }
-            "{0}  {1}" -f (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant(), $name
+          # Hash what was uploaded, not Releases/: vpk uploads a releases.win.json and RELEASES that list only
+          # this version, while the local copies also list the previous release downloaded for deltas.
+          gh release download $env:TAG --dir uploaded
+          $lines = foreach ($file in (Get-ChildItem uploaded -File | Sort-Object Name)) {
+            "{0}  {1}" -f (Get-FileHash $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $file.Name
           }
           [IO.File]::WriteAllText("$PWD/SHA256SUMS", ($lines -join "`n") + "`n")
           gh release upload $env:TAG SHA256SUMS
