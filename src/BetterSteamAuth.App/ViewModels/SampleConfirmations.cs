@@ -1,4 +1,8 @@
 #if DEBUG
+using System.Runtime.InteropServices;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using BetterSteamAuth.Steam;
 
 namespace BetterSteamAuth.App.ViewModels;
@@ -19,10 +23,40 @@ internal static class SampleConfirmations
         ];
     }
 
-    /// <summary>A fake trade offer and partner for the detail screen.</summary>
+    /// <summary>
+    /// A stand-in picture (a two-tone square) for some sample rows, so the layout can be reviewed offline; buyer_88
+    /// keeps the type icon to show the fallback.
+    /// </summary>
+    public static Bitmap? Picture(MobileConfirmation confirmation)
+    {
+        (uint top, uint bottom) = confirmation.Headline switch
+        {
+            "skinswap_bot" => (0xFF4F7CACu, 0xFF2B4A6Fu),
+            "AK-47 | Redline (Field-Tested)" => (0xFFB33A3Au, 0xFF5C1E1Eu),
+            _ => (0u, 0u),
+        };
+        if (top == 0)
+        {
+            return null;
+        }
+
+        const int size = 64;
+        var bitmap = new WriteableBitmap(new PixelSize(size, size), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
+        using var buffer = bitmap.Lock();
+        var pixels = new int[size * size];
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            pixels[i] = unchecked((int)(i < pixels.Length / 2 ? top : bottom));
+        }
+
+        Marshal.Copy(pixels, 0, buffer.Address, pixels.Length);
+        return bitmap;
+    }
+
     /// <summary>A sample partner level: a fresh account has none to speak of.</summary>
     public static int? PartnerLevel(MobileConfirmation confirmation) => confirmation.Headline == "buyer_88" ? 0 : 42;
 
+    /// <summary>A fake trade offer and partner for the detail screen.</summary>
     public static (TradeOfferDetails, PartnerProfile) TradeDetails(MobileConfirmation confirmation)
     {
         var created = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(confirmation.Headline == "buyer_88" ? -4 : -2900));

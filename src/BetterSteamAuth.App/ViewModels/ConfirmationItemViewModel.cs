@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Steam;
@@ -117,6 +118,21 @@ public sealed partial class ConfirmationItemViewModel : ObservableObject
 
     [ObservableProperty]
     public partial string? Error { get; set; }
+
+    /// <summary>
+    /// The partner's avatar (trade) or the item (market), from the list's <c>icon</c>; the type icon shows until it
+    /// loads or if it can't. Account-level changes never get one: their red key is the point.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPicture))]
+    public partial Bitmap? Picture { get; set; }
+
+    public bool HasPicture => Picture is not null;
+
+    /// <summary>The picture was asked for once already; a failed load isn't retried on every poll.</summary>
+    internal bool PictureRequested { get; set; }
+
+    public bool WantsPicture => !IsDangerous && !string.IsNullOrEmpty(Confirmation.Icon);
 
     private string TypeLabel => Confirmation.Kind switch
     {

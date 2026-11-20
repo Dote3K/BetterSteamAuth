@@ -396,7 +396,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                     await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
                     account.Remove(item);
                 })
-            { Open = i => OpenDetail(account, i) });
+            { Open = i => OpenDetail(account, i), Picture = SampleConfirmations.Picture(c) });
             return;
         }
 #endif
@@ -422,6 +422,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             account.SetConfirmations(list, c => new ConfirmationItemViewModel(
                 c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept))
             { Open = i => OpenDetail(account, i) });
+            await LoadPicturesAsync(account, connection, cancellationToken).ConfigureAwait(true);
         }
         catch (SessionExpiredException)
         {
@@ -440,6 +441,16 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             bool proxyDead = vault.GetAccountProxyId(account.SteamId) is { } proxyId
                              && vault.ListProxies().FirstOrDefault(p => p.Id == proxyId)?.Status == Storage.ProxyStatus.Dead;
             SetProblem(account, proxyDead ? Strings.ProxyNotResponding : Strings.CantReachSteam, needsLogin: false);
+        }
+    }
+
+    /// <summary>Avatars and item images for new rows, one at a time through the account's connection.</summary>
+    private static async Task LoadPicturesAsync(AccountItemViewModel account, AccountConnection connection, CancellationToken cancellationToken)
+    {
+        foreach (var item in account.Confirmations.Where(c => c.WantsPicture && !c.PictureRequested).ToList())
+        {
+            item.PictureRequested = true;
+            item.Picture = await Services.SteamImages.LoadAsync(connection, item.Confirmation.Icon, cancellationToken).ConfigureAwait(true);
         }
     }
 

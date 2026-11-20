@@ -8,11 +8,14 @@
              x:DataType="vm:ConfirmationItemViewModel">
   <Border Classes.danger-row="{Binding IsDangerous}" Background="Transparent" Cursor="Hand">
     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-      <Border Classes="conf-icon" VerticalAlignment="Center">
+      <Border Classes="conf-icon" VerticalAlignment="Center" ClipToBounds="True">
         <Panel>
-          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
-          <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
-          <PathIcon Width="16" Height="16" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
+          <Image Source="{Binding Picture}" Stretch="UniformToFill" IsVisible="{Binding HasPicture}" />
+          <Panel IsVisible="{Binding !HasPicture}">
+            <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
+            <PathIcon Width="16" Height="16" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
+            <PathIcon Width="16" Height="16" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
+          </Panel>
         </Panel>
       </Border>
 

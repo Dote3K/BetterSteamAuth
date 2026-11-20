@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using Avalonia.Media.Imaging;
 using BetterSteamAuth.App.Resources;
+using BetterSteamAuth.App.Services;
 using BetterSteamAuth.Steam;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -141,7 +142,7 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
         var connection = _shell.ConnectionFor(_account.SteamId);
         if (Item.IsMarket || Item.IsDangerous)
         {
-            MarketImage = await LoadImageAsync(connection, Item.Confirmation.Icon, token).ConfigureAwait(true);
+            MarketImage = await SteamImages.LoadAsync(connection, Item.Confirmation.Icon, token).ConfigureAwait(true);
             return;
         }
 
@@ -154,10 +155,10 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
             ShowTrade(offer, profile, level);
             HasDetails = true;
 
-            PartnerAvatar = await LoadImageAsync(connection, profile.AvatarUrl, token).ConfigureAwait(true);
+            PartnerAvatar = await SteamImages.LoadAsync(connection, profile.AvatarUrl, token).ConfigureAwait(true);
             foreach (var tile in Give.Concat(Receive))
             {
-                tile.Image = await LoadImageAsync(connection, tile.Item.ImageUrl, token).ConfigureAwait(true);
+                tile.Image = await SteamImages.LoadAsync(connection, tile.Item.ImageUrl, token).ConfigureAwait(true);
             }
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SessionExpiredException
@@ -262,24 +263,5 @@ public sealed partial class ConfirmationDetailViewModel : ObservableObject, IDis
             _ => string.Format(CultureInfo.CurrentCulture, ReceiveFormat, Receive.Count),
         };
         ReceivesNothing = Receive.Count == 0 && Give.Count > 0;
-    }
-
-    private static async Task<Bitmap?> LoadImageAsync(AccountConnection connection, string? url, CancellationToken token)
-    {
-        byte[]? bytes = await TradeOffers.GetImageAsync(connection, url, token).ConfigureAwait(true);
-        if (bytes is null)
-        {
-            return null;
-        }
-
-        try
-        {
-            using var stream = new MemoryStream(bytes);
-            return new Bitmap(stream);
-        }
-        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or NotSupportedException)
-        {
-            return null;
-        }
     }
 }
