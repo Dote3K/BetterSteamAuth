@@ -40,7 +40,9 @@
           <Button.Flyout>
             <MenuFlyout Placement="BottomEdgeAlignedRight">
               <MenuItem Header="{Binding UpdateReadyText}" Command="{Binding RestartToUpdateCommand}" IsVisible="{Binding HasUpdateReady}" />
+              <MenuItem Header="{Binding DownloadingText}" IsEnabled="False" IsVisible="{Binding IsDownloadingUpdate}" />
               <Separator IsVisible="{Binding HasUpdateReady}" />
+              <Separator IsVisible="{Binding IsDownloadingUpdate}" />
               <MenuItem Header="{x:Static res:Strings.ImportFromSda}" Command="{Binding ImportFromSdaCommand}" />
               <MenuItem Header="{x:Static res:Strings.ImportMaFiles}" Command="{Binding ImportMaFilesCommand}" />
               <MenuItem Header="{x:Static res:Strings.LinkNewAuthenticatorMenu}" Command="{Binding LinkNewCommand}" />

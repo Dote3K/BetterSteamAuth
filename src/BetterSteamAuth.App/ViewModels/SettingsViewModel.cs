@@ -20,6 +20,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat VersionFormat = CompositeFormat.Parse(Strings.VersionFormat);
     private static readonly CompositeFormat UpToDateFormat = CompositeFormat.Parse(Strings.UpdateUpToDateFormat);
     private static readonly CompositeFormat UpdateReadyFormat = CompositeFormat.Parse(Strings.UpdateReadyFormat);
+    private static readonly CompositeFormat DownloadingFormat = CompositeFormat.Parse(Strings.UpdateDownloadingFormat);
     private static readonly CompositeFormat MinutesFormat = CompositeFormat.Parse(Strings.MinutesFormat);
     private static readonly CompositeFormat EveryMinutesFormat = CompositeFormat.Parse(Strings.EveryMinutesFormat);
     private static readonly int[] AutoLockMinutes = [5, 15, 30, 60];
@@ -82,7 +83,7 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         {
             UpdateState.NotInstalled => Strings.UpdatesNotInstalled,
             UpdateState.Checking => Strings.UpdateChecking,
-            UpdateState.Downloading => Strings.UpdateDownloading,
+            UpdateState.Downloading => string.Format(CultureInfo.CurrentCulture, DownloadingFormat, updater.DownloadProgress),
             UpdateState.Ready => string.Format(CultureInfo.CurrentCulture, UpdateReadyFormat, updater.ReadyVersion),
             UpdateState.Rejected => Strings.UpdateRejected,
             UpdateState.CheckFailed => Strings.UpdateCheckFailed,

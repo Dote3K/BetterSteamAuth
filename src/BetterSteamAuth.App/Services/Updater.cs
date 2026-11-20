@@ -61,6 +61,9 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
 
     public DateTimeOffset? LastCheckedAt { get; private set; }
 
+    /// <summary>0–100 while <see cref="State"/> is <see cref="UpdateState.Downloading"/>.</summary>
+    public int DownloadProgress { get; private set; }
+
     /// <summary>The version waiting to be applied, when <see cref="State"/> is <see cref="UpdateState.Ready"/>.</summary>
     public string? ReadyVersion => _ready?.Version.ToString();
 
@@ -138,8 +141,9 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
             // released full package byte for byte. Each delta is checked by Velopack against the feed's hash (which
             // matched the signed list above) before it's applied; only a full download can be re-hashed here.
             bool mayUseDeltas = info.BaseRelease is not null && info.DeltasToTarget.Length > 0;
+            DownloadProgress = 0;
             Set(UpdateState.Downloading);
-            await manager.DownloadUpdatesAsync(info).ConfigureAwait(false);
+            await manager.DownloadUpdatesAsync(info, ReportProgress).ConfigureAwait(false);
             if (!mayUseDeltas)
             {
                 await CheckDownloadedAsync(target).ConfigureAwait(false);
@@ -249,6 +253,16 @@ public sealed class Updater(Func<Vault?> vault) : IDisposable
     private static string Format(CompositeFormat format, object? arg) => string.Format(CultureInfo.CurrentCulture, format, arg);
 
     private static bool IsPrerelease(string? version) => version?.Contains('-', StringComparison.Ordinal) == true;
+
+    private void ReportProgress(int percent)
+    {
+        percent = Math.Clamp(percent, 0, 100);
+        if (percent != DownloadProgress)
+        {
+            DownloadProgress = percent;
+            StatusChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
     private void Set(UpdateState state)
     {

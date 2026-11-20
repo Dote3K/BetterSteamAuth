@@ -455,7 +455,7 @@
   <data name="UpdateUpToDateFormat" xml:space="preserve"><value>Up to date · checked {0} ago</value></data>
   <data name="UpdateUpToDate" xml:space="preserve"><value>Up to date</value></data>
   <data name="UpdateChecking" xml:space="preserve"><value>Checking for updates…</value></data>
-  <data name="UpdateDownloading" xml:space="preserve"><value>Downloading the update…</value></data>
+  <data name="UpdateDownloadingFormat" xml:space="preserve"><value>Downloading the update… {0}%</value></data>
   <data name="UpdateReadyFormat" xml:space="preserve"><value>{0} is ready. It installs when you close the app.</value></data>
   <data name="UpdateRejected" xml:space="preserve"><value>Couldn't verify the update. It wasn't installed.</value></data>
   <data name="UpdateCheckFailed" xml:space="preserve"><value>Couldn't check for updates. It will try again within the hour.</value></data>

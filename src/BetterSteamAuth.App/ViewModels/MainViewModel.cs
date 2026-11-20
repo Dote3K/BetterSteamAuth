@@ -211,6 +211,13 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool HasUpdateReady => UpdateReadyText is not null;
 
+    /// <summary>"Downloading the update… 42%" as a disabled item at the top of the ⋯ menu while it downloads.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDownloadingUpdate))]
+    public partial string? DownloadingText { get; private set; }
+
+    public bool IsDownloadingUpdate => DownloadingText is not null;
+
     public string MoreName => HasUpdateReady ? Strings.MoreUpdateReady : Strings.More;
 
     /// <summary>An update didn't verify: one quiet bar until Settings has shown the details.</summary>
@@ -509,6 +516,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         AutoBackupFailed = _shell.AutoBackup.LastFailed;
         var updater = _shell.Updater;
+        DownloadingText = updater.State == Services.UpdateState.Downloading
+            ? SettingsViewModel.StatusText(updater)
+            : null;
         UpdateReadyText = updater.State == Services.UpdateState.Ready
             ? string.Format(CultureInfo.CurrentCulture, RestartToUpdateFormat, updater.ReadyVersion)
             : null;
