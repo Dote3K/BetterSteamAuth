@@ -130,6 +130,9 @@
                     <MenuItem Header="{x:Static res:Strings.OpenDetails}"
                               Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenDetailsCommand}"
                               CommandParameter="{Binding}" />
+                    <MenuItem Header="{x:Static res:Strings.ViewHistory}"
+                              Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).OpenHistoryCommand}"
+                              CommandParameter="{Binding}" />
                     <MenuItem Header="{x:Static res:Strings.CopyCode}"
                               Command="{Binding $parent[UserControl].((vm:MainViewModel)DataContext).CopyCodeCommand}"
                               CommandParameter="{Binding}" />

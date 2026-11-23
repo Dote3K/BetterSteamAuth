@@ -455,6 +455,10 @@
   <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
   <data name="Later" xml:space="preserve"><value>Later</value></data>
   <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="HistoryTradeFormat" xml:space="preserve"><value>Give {0}, receive {1}</value></data>
+  <data name="HistoryDayTimeFormat" xml:space="preserve"><value>{0} {1}</value></data>
+  <data name="AccountChange" xml:space="preserve"><value>Account change</value></data>
+  <data name="ViewHistory" xml:space="preserve"><value>View history</value></data>
   <data name="NotifySetting" xml:space="preserve"><value>Notify about new confirmations</value></data>
   <data name="NotifySettingBody" xml:space="preserve"><value>A Windows notification for new confirmations and anything accepted automatically.</value></data>
   <data name="KeepInTray" xml:space="preserve"><value>Keep running in the tray</value></data>
@@ -500,7 +504,7 @@
   <data name="HistoryAccepted" xml:space="preserve"><value>Accepted</value></data>
   <data name="HistoryRejected" xml:space="preserve"><value>Rejected</value></data>
   <data name="HistoryFailed" xml:space="preserve"><value>Failed</value></data>
-  <data name="HistoryAutoFormat" xml:space="preserve"><value>{0} · auto</value></data>
+  <data name="HistoryAutoFormat" xml:space="preserve"><value>{0} automatically</value></data>
   <data name="HistoryFailedTip" xml:space="preserve"><value>Steam didn't confirm this. It may still be waiting in the list.</value></data>
   <data name="Today" xml:space="preserve"><value>Today</value></data>
   <data name="Yesterday" xml:space="preserve"><value>Yesterday</value></data>

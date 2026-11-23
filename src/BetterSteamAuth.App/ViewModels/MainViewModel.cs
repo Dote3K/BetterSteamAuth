@@ -298,6 +298,15 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private void OpenHistory(AccountItemViewModel? account)
+    {
+        if ((account ?? SelectedAccount) is { } target)
+        {
+            _shell.ShowHistory(target.SteamId, target.Name, back: () => _shell.ShowMain(target.SteamId));
+        }
+    }
+
+    [RelayCommand]
     private void FinishLink(AccountItemViewModel? account)
     {
         if ((account ?? SelectedAccount) is { } target)

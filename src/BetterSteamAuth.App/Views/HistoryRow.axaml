@@ -1,20 +1,21 @@
-<!-- One history entry: type icon, headline, what happened, when. -->
+<!-- One history entry: what it was and what happened, then its type and Steam's details, and when. -->
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
              x:Class="BetterSteamAuth.App.Views.HistoryRow"
              x:DataType="vm:HistoryItemViewModel">
-  <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
-    <Panel Width="16" Height="16" VerticalAlignment="Center">
+  <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="2">
+    <Panel Grid.RowSpan="2" Width="16" Height="16" VerticalAlignment="Top" Margin="0,2,0,0">
       <PathIcon Width="14" Height="14" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
       <PathIcon Width="14" Height="14" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
       <PathIcon Width="14" Height="14" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
     </Panel>
-    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Headline}"
-               ToolTip.Tip="{Binding Headline}" />
-    <TextBlock Grid.Column="2" VerticalAlignment="Center" Classes="secondary" Classes.danger="{Binding Failed}"
+    <TextBlock Grid.Column="1" TextTrimming="CharacterEllipsis" Text="{Binding Headline}" ToolTip.Tip="{Binding Headline}" />
+    <TextBlock Grid.Column="2" HorizontalAlignment="Right" Classes="secondary" Classes.danger="{Binding Failed}"
                Text="{Binding Status}" ToolTip.Tip="{Binding StatusTip}" />
-    <TextBlock Grid.Column="3" VerticalAlignment="Center" MinWidth="72" TextAlignment="Right" Classes="caption"
+    <TextBlock Grid.Row="1" Grid.Column="1" Classes="caption" TextTrimming="CharacterEllipsis"
+               Text="{Binding DetailLine}" ToolTip.Tip="{Binding DetailLine}" />
+    <TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Classes="caption"
                Text="{Binding When}" ToolTip.Tip="{Binding WhenFull}" />
   </Grid>
 </UserControl>

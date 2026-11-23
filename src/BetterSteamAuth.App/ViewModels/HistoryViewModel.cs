@@ -23,12 +23,14 @@ public sealed partial class HistoryViewModel : ObservableObject
 
     private readonly ShellViewModel _shell;
     private readonly ulong _steamId;
+    private readonly Action _back;
     private Storage.HistoryEntry? _oldest;
 
-    public HistoryViewModel(ShellViewModel shell, ulong steamId, string accountName)
+    public HistoryViewModel(ShellViewModel shell, ulong steamId, string accountName, Action back)
     {
         _shell = shell;
         _steamId = steamId;
+        _back = back;
         Title = string.Format(CultureInfo.CurrentCulture, TitleFormat, accountName);
         LoadPage();
         IsEmpty = Days.Count == 0;
@@ -47,7 +49,7 @@ public sealed partial class HistoryViewModel : ObservableObject
     private void ShowMore() => LoadPage();
 
     [RelayCommand]
-    private void Back() => _shell.ShowAccountDetails(_steamId);
+    private void Back() => _back();
 
     private void LoadPage()
     {
@@ -58,7 +60,7 @@ public sealed partial class HistoryViewModel : ObservableObject
 
         var page = vault.ListHistory(_steamId, PageSize + 1, _oldest);
         HasMore = page.Count > PageSize;
-        var items = page.Take(PageSize).Select(e => new HistoryItemViewModel(e)).ToList();
+        var items = page.Take(PageSize).Select(e => new HistoryItemViewModel(e, withDay: false)).ToList();
         if (items.Count == 0)
         {
             return;

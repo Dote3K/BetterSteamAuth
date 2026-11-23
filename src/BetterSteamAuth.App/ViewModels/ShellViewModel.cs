@@ -442,7 +442,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowAutomation(ulong steamId, string accountName) => SwitchTo(new AutomationViewModel(this, steamId, accountName));
 
-    public void ShowHistory(ulong steamId, string accountName) => SwitchTo(new HistoryViewModel(this, steamId, accountName));
+    /// <summary>An account's full history; Back returns to its details unless <paramref name="back"/> says otherwise.</summary>
+    public void ShowHistory(ulong steamId, string accountName, Action? back = null)
+        => SwitchTo(new HistoryViewModel(this, steamId, accountName, back ?? (() => ShowAccountDetails(steamId))));
 
     public void ShowRemoveAuthenticator(ulong steamId, GuardAfterRemoval after = GuardAfterRemoval.Email, string? typedCode = null)
         => SwitchTo(new RemoveAuthenticatorViewModel(this, steamId, after, typedCode));
