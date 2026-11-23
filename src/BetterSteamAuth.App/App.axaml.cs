@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.App.ViewModels;
 
 namespace BetterSteamAuth.App;
@@ -27,6 +28,18 @@ public partial class App : Application
             window.DataContext = shell;
             desktop.MainWindow = window;
             desktop.ShutdownRequested += (_, _) => shell.Dispose();
+            shell.BringToFront = window.ShowFromTray;
+            if (OperatingSystem.IsWindows())
+            {
+                var tray = new Services.WindowsTray(Strings.AppName, window.ShowFromTray, () =>
+                [
+                    (Strings.OpenApp, window.ShowFromTray),
+                    .. shell.CanLockNow ? new[] { (Strings.LockApp, (Action)shell.LockApp) } : [],
+                    (Strings.Quit, () => desktop.Shutdown()),
+                ]);
+                shell.Tray = tray;
+                desktop.ShutdownRequested += (_, _) => ((IDisposable)tray).Dispose();
+            }
 
             // A failed command or timer would otherwise close the app (and an authenticator that vanishes mid-task is
             // worse than one that says something went wrong).

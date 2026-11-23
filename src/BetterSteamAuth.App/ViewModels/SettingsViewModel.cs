@@ -377,6 +377,28 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    public bool NotifyEnabled
+    {
+        get => _shell.NotifyEnabled;
+        set
+        {
+            _shell.NotifyEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool HasTray => _shell.Tray is not null;
+
+    public bool KeepInTray
+    {
+        get => _shell.KeepInTray;
+        set
+        {
+            _shell.KeepInTray = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool CheckInBackground
     {
         get => _shell.CheckInBackground;

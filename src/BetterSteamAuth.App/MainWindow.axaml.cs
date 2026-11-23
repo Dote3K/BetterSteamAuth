@@ -26,6 +26,33 @@ public partial class MainWindow : Window, IPlatformServices
 
     private void OnInput(object? sender, RoutedEventArgs e) => (DataContext as ShellViewModel)?.NoteActivity();
 
+    /// <summary>With Keep running in the tray on, closing the window hides it; quitting and Windows shutting down still close.</summary>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (e.CloseReason == WindowCloseReason.WindowClosing && DataContext is ShellViewModel { KeepInTray: true } shell)
+        {
+            e.Cancel = true;
+            Hide();
+            shell.HiddenToTray();
+        }
+
+        base.OnClosing(e);
+    }
+
+    /// <summary>Back from the tray or minimized, in front.</summary>
+    public void ShowFromTray()
+    {
+        Show();
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+
+        Activate();
+        (DataContext as ShellViewModel)?.SetMinimized(false);
+    }
+
     protected override void OnPropertyChanged(Avalonia.AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);

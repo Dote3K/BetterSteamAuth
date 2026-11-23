@@ -139,6 +139,26 @@
                               AutomationProperties.Name="{x:Static res:Strings.CheckInBackground}" />
               </Grid>
             </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.NotifySetting}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.NotifySettingBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding NotifyEnabled}"
+                              AutomationProperties.Name="{x:Static res:Strings.NotifySetting}" />
+              </Grid>
+            </Border>
+            <Border Classes="row" IsVisible="{Binding HasTray}">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.KeepInTray}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.KeepInTrayBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding KeepInTray}"
+                              AutomationProperties.Name="{x:Static res:Strings.KeepInTray}" />
+              </Grid>
+            </Border>
             <Border Classes="row last">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="2">

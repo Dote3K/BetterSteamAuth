@@ -39,6 +39,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _idleTimer.Start();
         AutoBackup = new AutoBackup(() => Vault);
         Monitor = new ConfirmationMonitor(this);
+        _ = new ConfirmationNotifier(Monitor, () => NotifyEnabled, () => Tray, OpenAccountFromNotification);
         Updater = new Updater(() => Vault);
         _autoBackupTimer.Tick += (_, _) =>
         {
@@ -182,6 +183,53 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         finally
         {
             System.Security.Cryptography.CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    public const string NotifyKey = "confirmations.notify";
+    public const string TrayKey = "app.tray";
+    private const string TrayNoticeKey = "app.tray_notice_shown";
+
+    /// <summary>The notification-area icon (Windows), which also shows notifications. Set by the app at startup.</summary>
+    public ITrayIcon? Tray { get; set; }
+
+    /// <summary>Set by the window: shows it again from the tray or minimized, and brings it to the front.</summary>
+    public Action? BringToFront { get; set; }
+
+    /// <summary>Windows notifications for new confirmations and automatic actions. Off by default.</summary>
+    public bool NotifyEnabled
+    {
+        get => Vault?.GetSetting(NotifyKey) == "on";
+        set => Vault?.SetSetting(NotifyKey, value ? "on" : "off");
+    }
+
+    /// <summary>Closing the window hides it to the tray instead of quitting. Off by default.</summary>
+    public bool KeepInTray
+    {
+        get => Tray is not null && Vault?.GetSetting(TrayKey) == "on";
+        set => Vault?.SetSetting(TrayKey, value ? "on" : "off");
+    }
+
+    public bool CanLockNow => Vault is { IsEncrypted: true, IsUnlocked: true };
+
+    /// <summary>The window was closed to the tray. The first time ever, a notification says the app is still running.</summary>
+    public void HiddenToTray()
+    {
+        SetMinimized(true);
+        if (Vault?.GetSetting(TrayNoticeKey) != "on")
+        {
+            Vault?.SetSetting(TrayNoticeKey, "on");
+            Tray?.Notify(Strings.AppName, Strings.TrayStillRunning);
+        }
+    }
+
+    /// <summary>A notification was clicked: show the window and, on the main page, select the account.</summary>
+    private void OpenAccountFromNotification(ulong steamId)
+    {
+        BringToFront?.Invoke();
+        if (CurrentPage is MainViewModel main)
+        {
+            main.SelectAccount(steamId);
         }
     }
 

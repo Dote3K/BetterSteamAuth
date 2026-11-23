@@ -88,6 +88,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     public bool CanLock { get; }
 
+    /// <summary>Selects an account (from a notification), clearing a search that hides it.</summary>
+    public void SelectAccount(ulong steamId)
+    {
+        CloseDetail();
+        IsInboxOpen = false;
+        if (Accounts.All(a => a.SteamId != steamId))
+        {
+            SearchText = "";
+        }
+
+        SelectedAccount = Accounts.FirstOrDefault(a => a.SteamId == steamId) ?? SelectedAccount;
+    }
+
     private static bool AutoAcceptsNow(ShellViewModel shell, ulong steamId)
     {
         var automation = shell.Monitor.AutomationFor(steamId);

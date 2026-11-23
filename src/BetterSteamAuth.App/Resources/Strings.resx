@@ -455,6 +455,18 @@
   <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
   <data name="Later" xml:space="preserve"><value>Later</value></data>
   <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="NotifySetting" xml:space="preserve"><value>Notify about new confirmations</value></data>
+  <data name="NotifySettingBody" xml:space="preserve"><value>A Windows notification for new confirmations and anything accepted automatically.</value></data>
+  <data name="KeepInTray" xml:space="preserve"><value>Keep running in the tray</value></data>
+  <data name="KeepInTrayBody" xml:space="preserve"><value>Closing the window leaves the app running, so checks and automation continue.</value></data>
+  <data name="Quit" xml:space="preserve"><value>Quit</value></data>
+  <data name="TrayStillRunning" xml:space="preserve"><value>BetterSteamAuth is still running in the tray.</value></data>
+  <data name="NotifyNewOneFormat" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="NotifyNewManyFormat" xml:space="preserve"><value>{0} new confirmations</value></data>
+  <data name="NotifyAutoOneFormat" xml:space="preserve"><value>Accepted automatically: {0}</value></data>
+  <data name="NotifyAutoManyFormat" xml:space="preserve"><value>Accepted {0} confirmations automatically</value></data>
+  <data name="NotifyAutoFailedOneFormat" xml:space="preserve"><value>Couldn't accept automatically: {0}</value></data>
+  <data name="NotifyAutoFailedManyFormat" xml:space="preserve"><value>Couldn't accept {0} confirmations automatically</value></data>
   <data name="Automation" xml:space="preserve"><value>Automation</value></data>
   <data name="AutomationTitleFormat" xml:space="preserve"><value>Automation · {0}</value></data>
   <data name="AutomationOff" xml:space="preserve"><value>Off</value></data>
