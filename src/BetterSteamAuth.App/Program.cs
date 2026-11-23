@@ -11,7 +11,15 @@ internal static class Program
     public static void Main(string[] args)
     {
         // Must run first: handles Velopack's install, update, and uninstall hooks, which exit right away.
-        VelopackApp.Build().Run();
+        VelopackApp.Build()
+            .OnBeforeUninstallFastCallback(_ =>
+            {
+                if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+                {
+                    Services.WindowsToasts.Unregister();
+                }
+            })
+            .Run();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

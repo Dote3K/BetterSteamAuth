@@ -12,9 +12,9 @@ public interface ITrayIcon
 }
 
 /// <summary>
-/// A notification-area icon through <c>Shell_NotifyIcon</c>, with a small menu. Its balloons are what Windows 10 and
-/// 11 show as toast notifications, credited to the app, so no WinRT projection or AppUserModelID registration is
-/// needed. Messages arrive through a message-only window on the UI thread, which Avalonia's message loop dispatches.
+/// A notification-area icon through <c>Shell_NotifyIcon</c>, with a small menu, and toast notifications. (Balloons
+/// from the icon don't reliably reach the notification center on Windows 11, so notifications are toasts.) Messages
+/// arrive through a message-only window on the UI thread, which Avalonia's message loop dispatches.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class WindowsTray : ITrayIcon, IDisposable
@@ -25,7 +25,6 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
     private const int WmNull = 0x0000;
     private const int NinSelect = 0x0400;
     private const int NinKeySelect = 0x0401;
-    private const int NinBalloonUserClick = 0x0405;
     private const int NimAdd = 0;
     private const int NimModify = 1;
     private const int NimDelete = 2;
@@ -33,23 +32,19 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
     private const int NifMessage = 0x01;
     private const int NifIcon = 0x02;
     private const int NifTip = 0x04;
-    private const int NifInfo = 0x10;
     private const int NifShowTip = 0x80;
     private const int NotifyIconVersion4 = 4;
-    private const int NiifUser = 0x04;
-    private const int NiifLargeIcon = 0x20;
     private static readonly IntPtr MessageOnlyParent = new(-3);
 
     private readonly WndProc _wndProc;
     private readonly string _className = "BetterSteamAuth.Tray." + Guid.NewGuid().ToString("N");
     private readonly IntPtr _window;
     private readonly IntPtr _icon;
-    private readonly IntPtr _largeIcon;
     private readonly int _taskbarCreated;
     private readonly string _tooltip;
     private readonly Func<IReadOnlyList<(string Label, Action Run)>> _menuSource;
     private readonly Action _open;
-    private Action? _balloonClick;
+    private readonly WindowsToasts? _toasts;
     private bool _disposed;
 
     /// <param name="open">Clicking the icon.</param>
@@ -78,30 +73,24 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
             throw new Win32Exception();
         }
 
-        // The exe's own icon: small for the notification area, large for notifications.
-        IntPtr[] large = [IntPtr.Zero];
+        // The exe's own icon, small for the notification area.
         IntPtr[] small = [IntPtr.Zero];
-        _ = ExtractIconExW(Environment.ProcessPath ?? "", 0, large, small, 1);
+        _ = ExtractIconExW(Environment.ProcessPath ?? "", 0, null, small, 1);
         _icon = small[0];
-        _largeIcon = large[0];
         _taskbarCreated = RegisterWindowMessageW("TaskbarCreated");
         Add();
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+        {
+            _toasts = new WindowsToasts(tooltip);
+        }
     }
 
     public void Notify(string title, string text, Action? onClick = null)
     {
-        if (_disposed)
+        if (!_disposed && _toasts is not null && OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
         {
-            return;
+            _toasts.Show(title, text, onClick);
         }
-
-        _balloonClick = onClick;
-        var data = NewData(NifInfo);
-        data.szInfoTitle = Truncate(title, 63);
-        data.szInfo = Truncate(text, 255);
-        data.dwInfoFlags = _largeIcon != IntPtr.Zero ? NiifUser | NiifLargeIcon : 0;
-        data.hBalloonIcon = _largeIcon;
-        _ = ShellNotifyIconW(NimModify, ref data);
     }
 
     public void Dispose()
@@ -116,9 +105,9 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
         _ = ShellNotifyIconW(NimDelete, ref data);
         _ = DestroyWindow(_window);
         _ = UnregisterClassW(_className, GetModuleHandleW(null));
-        foreach (var icon in new[] { _icon, _largeIcon }.Where(i => i != IntPtr.Zero))
+        if (_icon != IntPtr.Zero)
         {
-            _ = DestroyIcon(icon);
+            _ = DestroyIcon(_icon);
         }
     }
 
@@ -144,10 +133,6 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
                     break;
                 case WmContextMenu:
                     ShowMenu();
-                    break;
-                case NinBalloonUserClick:
-                    (_balloonClick ?? _open)();
-                    _balloonClick = null;
                     break;
             }
 
@@ -256,7 +241,7 @@ public sealed class WindowsTray : ITrayIcon, IDisposable
     private static extern bool ShellNotifyIconW(int message, ref NotifyIconData data);
 
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    private static extern uint ExtractIconExW(string file, int index, IntPtr[] large, IntPtr[] small, uint count);
+    private static extern uint ExtractIconExW(string file, int index, IntPtr[]? large, IntPtr[] small, uint count);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern ushort RegisterClassExW(ref WndClassEx windowClass);

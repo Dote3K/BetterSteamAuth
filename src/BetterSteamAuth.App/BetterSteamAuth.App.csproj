@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <!-- Windows SDK projection for toast notifications (Windows.UI.Notifications). -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <AssemblyName>BetterSteamAuth</AssemblyName>
     <RootNamespace>BetterSteamAuth.App</RootNamespace>
     <ApplicationIcon>Assets/app.ico</ApplicationIcon>
@@ -28,6 +31,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets/app.ico" />
+    <!-- On disk next to the exe: Windows shows it on notifications. -->
+    <Content Include="Assets/app.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
