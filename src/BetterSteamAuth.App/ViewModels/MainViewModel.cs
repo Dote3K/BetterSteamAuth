@@ -70,10 +70,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         Inbox = new InboxViewModel(_all, RespondBatchAsync, RefreshAllAsync, () => IsInboxOpen = false, shell.ConfirmationPolicy);
 
-        // Each account polls on its own jittered schedule.
+        // The shell's monitor checks every account on its own schedule; this page shows the results.
+        shell.Monitor.Checked += OnChecked;
         foreach (var account in _all)
         {
-            _ = PollConfirmationsAsync(account, _polling.Token);
+            if (shell.Monitor.Latest(account.SteamId) is { } latest)
+            {
+                Apply(account, latest);
+            }
         }
     }
 
@@ -122,7 +126,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (value is { Selection: null })
         {
             value.Selection = new InboxViewModel(
-                [value], RespondBatchAsync, () => LoadConfirmationsAsync(value, _polling.Token), () => { }, _shell.ConfirmationPolicy);
+                [value], RespondBatchAsync, () => _shell.Monitor.CheckNowAsync(value.SteamId), () => { }, _shell.ConfirmationPolicy);
         }
     }
 
@@ -290,12 +294,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private Task RefreshConfirmationsAsync(AccountItemViewModel? account)
-        => (account ?? SelectedAccount) is { } target ? LoadConfirmationsAsync(target, _polling.Token) : Task.CompletedTask;
+        => (account ?? SelectedAccount) is { } target ? _shell.Monitor.CheckNowAsync(target.SteamId) : Task.CompletedTask;
 
     [RelayCommand]
     private void OpenInbox() => IsInboxOpen = true;
 
-    private Task RefreshAllAsync() => Task.WhenAll(_all.Select(a => LoadConfirmationsAsync(a, _polling.Token)));
+    private Task RefreshAllAsync() => _shell.Monitor.CheckAllNowAsync();
 
     /// <summary>Sends one account's part of a batch in a single request through its own connection.</summary>
     private async Task RespondBatchAsync(AccountItemViewModel account, IReadOnlyList<ConfirmationItemViewModel> items, bool accept)
@@ -314,6 +318,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 account.Remove(item);
             }
 
+            _shell.Monitor.Forget(account.SteamId, [.. items.Select(i => i.Id)]);
             return;
         }
 #endif
@@ -340,6 +345,11 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             // Reported on each row below.
         }
 
+        if (ok)
+        {
+            _shell.Monitor.Forget(account.SteamId, [.. items.Select(i => i.Id)]);
+        }
+
         foreach (var item in items)
         {
             vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok);
@@ -364,6 +374,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             account.Selection?.Dispose();
         }
 
+        _shell.Monitor.Checked -= OnChecked;
         _polling.Cancel();
         _polling.Dispose();
         _timer.Stop();
@@ -373,116 +384,61 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    private async Task PollConfirmationsAsync(AccountItemViewModel account, CancellationToken cancellationToken)
+    private void OnChecked(object? sender, Services.AccountCheck check)
     {
-        try
+        if (_all.FirstOrDefault(a => a.SteamId == check.SteamId) is { } account)
         {
-            await Task.Delay(Jitter(TimeSpan.FromSeconds(5)), cancellationToken).ConfigureAwait(true);
-            while (true)
-            {
-                // Only while confirmations are on screen.
-                if (await _shell.WaitForConfirmationChecksAsync(cancellationToken).ConfigureAwait(true))
-                {
-                    // Coming back: don't let every account fire at once.
-                    await Task.Delay(Jitter(TimeSpan.FromSeconds(10)), cancellationToken).ConfigureAwait(true);
-                }
-
-                // Read each round, so a new interval from Settings applies from the next check.
-                var interval = TimeSpan.FromSeconds(_shell.ConfirmationPolicy.RefreshSeconds);
-                if (DateTime.UtcNow - account.LastCheckedUtc >= interval)
-                {
-                    await LoadConfirmationsAsync(account, cancellationToken).ConfigureAwait(true);
-                }
-
-                await Task.Delay(interval + Jitter(interval / 2), cancellationToken).ConfigureAwait(true);
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            // Page closed or app locked.
+            Apply(account, check);
         }
     }
 
-    private async Task LoadConfirmationsAsync(AccountItemViewModel account, CancellationToken cancellationToken, bool mayAutoSignIn = true)
+    /// <summary>Shows an account's latest check: its confirmations, or why they couldn't be loaded.</summary>
+    private void Apply(AccountItemViewModel account, Services.AccountCheck check)
     {
-        if (_shell.Vault is not { IsUnlocked: true } vault)
+        account.LastCheckedUtc = check.CheckedUtc;
+        if (check.Problem is not null)
         {
+            SetProblem(account, check.Problem, check.ProblemNeedsLogin);
             return;
         }
 
-        account.LastCheckedUtc = DateTime.UtcNow;
-        if (account.IsLinkPending)
-        {
-            // Not active on Steam yet: nothing to load until the link is finished.
-            SetProblem(account, Strings.LinkingNotFinished, needsLogin: false);
-            return;
-        }
-
+        account.Problem = null;
 #if DEBUG
-        // UI review without a real account: BSA_SAMPLE_CONFIRMATIONS=1 shows sample rows. Sending is simulated.
-        if (Environment.GetEnvironmentVariable("BSA_SAMPLE_CONFIRMATIONS") == "1")
+        if (SampleMode.IsOn)
         {
-            account.SetConfirmations(SampleConfirmations.Create(), c => new ConfirmationItemViewModel(
+            // Sending is simulated in sample mode.
+            account.SetConfirmations(check.Confirmations, c => new ConfirmationItemViewModel(
                 c, account.Name, _shell.ConfirmationPolicy, async (item, _) =>
                 {
                     await Task.Delay(500, CancellationToken.None).ConfigureAwait(true);
                     account.Remove(item);
+                    _shell.Monitor.Forget(account.SteamId, [item.Id]);
                 })
             { Open = i => OpenDetail(account, i), Picture = SampleConfirmations.Picture(c) });
             return;
         }
 #endif
 
-        try
-        {
-            var maFile = vault.Load(account.SteamId);
-            if (string.IsNullOrEmpty(maFile.IdentitySecret) || string.IsNullOrEmpty(maFile.DeviceId))
-            {
-                SetProblem(account, Strings.NoConfirmationSecret, needsLogin: false);
-                return;
-            }
-
-            var connection = _shell.ConnectionFor(account.SteamId);
-            if (await WebSession.EnsureAsync(connection, maFile.Session, cancellationToken).ConfigureAwait(true))
-            {
-                vault.Save(maFile);
-            }
-
-            var list = await Confirmations.GetAsync(connection, maFile.IdentitySecret, maFile.DeviceId, cancellationToken)
-                .ConfigureAwait(true);
-            account.Problem = null;
-            account.SetConfirmations(list, c => new ConfirmationItemViewModel(
-                c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept))
-            { Open = i => OpenDetail(account, i) });
-            await LoadPicturesAsync(account, connection, cancellationToken).ConfigureAwait(true);
-        }
-        catch (SessionExpiredException)
-        {
-            // A saved password renews the session by itself.
-            if (mayAutoSignIn && await _shell.TryAutoSignInAsync(account.SteamId, cancellationToken).ConfigureAwait(true))
-            {
-                await LoadConfirmationsAsync(account, cancellationToken, mayAutoSignIn: false).ConfigureAwait(true);
-                return;
-            }
-
-            SetProblem(account, Strings.SignInToLoadConfirmations, needsLogin: true);
-        }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !cancellationToken.IsCancellationRequested)
-        {
-            // Fail-closed: a dead proxy stops the account; say so instead of a generic network error.
-            bool proxyDead = vault.GetAccountProxyId(account.SteamId) is { } proxyId
-                             && vault.ListProxies().FirstOrDefault(p => p.Id == proxyId)?.Status == Storage.ProxyStatus.Dead;
-            SetProblem(account, proxyDead ? Strings.ProxyNotResponding : Strings.CantReachSteam, needsLogin: false);
-        }
+        account.SetConfirmations(check.Confirmations, c => new ConfirmationItemViewModel(
+            c, account.Name, _shell.ConfirmationPolicy, (item, accept) => RespondAsync(account, item, accept))
+        { Open = i => OpenDetail(account, i) });
+        _ = LoadPicturesAsync(account, _shell.ConnectionFor(account.SteamId), _polling.Token);
     }
 
     /// <summary>Avatars and item images for new rows, one at a time through the account's connection.</summary>
     private static async Task LoadPicturesAsync(AccountItemViewModel account, AccountConnection connection, CancellationToken cancellationToken)
     {
-        foreach (var item in account.Confirmations.Where(c => c.WantsPicture && !c.PictureRequested).ToList())
+        try
         {
-            item.PictureRequested = true;
-            item.Picture = await Services.SteamImages.LoadAsync(connection, item.Confirmation.Icon, cancellationToken).ConfigureAwait(true);
+            foreach (var item in account.Confirmations.Where(c => c.WantsPicture && !c.PictureRequested).ToList())
+            {
+                item.PictureRequested = true;
+                item.Picture = await Services.SteamImages.LoadAsync(connection, item.Confirmation.Icon, cancellationToken).ConfigureAwait(true);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Page closed.
         }
     }
 
@@ -519,6 +475,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         if (ok)
         {
             account.Remove(item);
+            _shell.Monitor.Forget(account.SteamId, [item.Id]);
         }
         else
         {
@@ -531,9 +488,6 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         account.Problem = problem;
         account.ProblemNeedsLogin = needsLogin;
     }
-
-    private static TimeSpan Jitter(TimeSpan max)
-        => TimeSpan.FromMilliseconds(System.Security.Cryptography.RandomNumberGenerator.GetInt32((int)max.TotalMilliseconds));
 
     private void Tick()
     {

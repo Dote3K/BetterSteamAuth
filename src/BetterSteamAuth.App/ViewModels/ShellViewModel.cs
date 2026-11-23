@@ -27,8 +27,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     private readonly Avalonia.Threading.DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(30) };
     private readonly Avalonia.Threading.DispatcherTimer _autoBackupTimer = new() { Interval = TimeSpan.FromHours(1) };
     private DateTime _lastActivity = DateTime.UtcNow;
-    private TaskCompletionSource _checksAllowed = Allowed();
     private bool _minimized;
+    private bool _historyMaintained;
     private bool _checkInBackground;
 
     public ShellViewModel(string dataFolder, IPlatformServices platform)
@@ -38,6 +38,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _idleTimer.Tick += (_, _) => LockIfIdle();
         _idleTimer.Start();
         AutoBackup = new AutoBackup(() => Vault);
+        Monitor = new ConfirmationMonitor(this);
         Updater = new Updater(() => Vault);
         _autoBackupTimer.Tick += (_, _) =>
         {
@@ -105,6 +106,11 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public NetworkOptions NetworkOptions => _network.Options;
 
     public ConfirmationPolicy ConfirmationPolicy { get; } = new();
+
+    /// <summary>Checks every account for confirmations while unlocked, whichever page is open.</summary>
+    public ConfirmationMonitor Monitor { get; }
+
+    partial void OnCurrentPageChanged(ObservableObject? value) => UpdateConfirmationChecks();
 
     public void SetAcceptTradesInBulk(bool value)
     {
@@ -179,6 +185,23 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
     }
 
+    public const string HistoryDaysKey = "confirmations.history_days";
+
+    public static IReadOnlyList<int> HistoryDayChoices { get; } = [30, 90, 365];
+
+    public const int DefaultHistoryDays = 90;
+
+    /// <summary>How long confirmation history is kept. Lowering it deletes older entries right away.</summary>
+    public int HistoryDays
+    {
+        get => int.TryParse(Vault?.GetSetting(HistoryDaysKey), out int days) && HistoryDayChoices.Contains(days) ? days : DefaultHistoryDays;
+        set
+        {
+            Vault?.SetSetting(HistoryDaysKey, value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Vault?.MaintainHistory(value);
+        }
+    }
+
     /// <summary>Keep checking confirmations while the window is minimized. Off by default.</summary>
     public bool CheckInBackground
     {
@@ -196,22 +219,6 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     {
         _minimized = minimized;
         UpdateConfirmationChecks();
-    }
-
-    /// <summary>
-    /// Waits while confirmation checks are paused (window minimized, unless checking in the background).
-    /// Returns true if it had to wait.
-    /// </summary>
-    public async Task<bool> WaitForConfirmationChecksAsync(CancellationToken cancellationToken)
-    {
-        var gate = _checksAllowed.Task;
-        if (gate.IsCompleted)
-        {
-            return false;
-        }
-
-        await gate.WaitAsync(cancellationToken).ConfigureAwait(true);
-        return true;
     }
 
     /// <summary>Called on any keyboard or mouse input; resets the auto-lock countdown.</summary>
@@ -354,7 +361,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void ShowMain()
     {
         SwitchTo(new MainViewModel(this));
-        StartProxyChecks();
+        StartBackgroundWork();
         CheckAutoBackup();
         Updater.CheckIfDue();
     }
@@ -363,7 +370,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void ShowMain(ulong selectSteamId)
     {
         SwitchTo(new MainViewModel(this, selectSteamId));
-        StartProxyChecks();
+        StartBackgroundWork();
         CheckAutoBackup();
     }
 
@@ -371,7 +378,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void ShowMainAfterRemove(RemovedAccount removed, string name)
     {
         SwitchTo(new MainViewModel(this, removed: (removed, name)));
-        StartProxyChecks();
+        StartBackgroundWork();
         CheckAutoBackup();
     }
 
@@ -379,7 +386,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public void ShowMainWithNotice(string notice)
     {
         SwitchTo(new MainViewModel(this, notice: notice));
-        StartProxyChecks();
+        StartBackgroundWork();
         CheckAutoBackup();
     }
 
@@ -524,6 +531,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
             return;
         }
 
+        Monitor.Stop();
+        _historyMaintained = false;
         Vault.Lock();
         CloseConnections();
         ShowUnlock();
@@ -540,6 +549,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         _idleTimer.Stop();
         _autoBackupTimer.Stop();
         (CurrentPage as IDisposable)?.Dispose();
+        Monitor.Dispose();
         CloseConnections();
         _background.Dispose();
         _network.Dispose();
@@ -579,23 +589,11 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         }
     }
 
-    private static TaskCompletionSource Allowed()
-    {
-        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        gate.SetResult();
-        return gate;
-    }
-
+    /// <summary>Confirmations are on screen on the main page while the window isn't minimized.</summary>
     private void UpdateConfirmationChecks()
     {
-        if (!_minimized || _checkInBackground)
-        {
-            _checksAllowed.TrySetResult();
-        }
-        else if (_checksAllowed.Task.IsCompleted)
-        {
-            _checksAllowed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        }
+        Monitor.OnScreen = CurrentPage is MainViewModel && !_minimized;
+        Monitor.Wake();
     }
 
     private void LoadNetworkOptions()
@@ -650,9 +648,19 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     /// </summary>
     public void CheckAutoBackup() => _ = AutoBackup.RunIfDueAsync(AppVersion);
 
-    /// <summary>Background proxy checks about every 15 minutes, with jitter, while unlocked.</summary>
-    private void StartProxyChecks()
+    /// <summary>
+    /// Work that runs while unlocked: confirmation checks for the current accounts, history cleanup once per unlock,
+    /// and proxy checks about every 15 minutes, with jitter.
+    /// </summary>
+    private void StartBackgroundWork()
     {
+        Monitor.Sync();
+        if (!_historyMaintained && Vault is { IsUnlocked: true } vault)
+        {
+            _historyMaintained = true;
+            vault.MaintainHistory(HistoryDays);
+        }
+
         if (_proxyChecksRunning)
         {
             return;
