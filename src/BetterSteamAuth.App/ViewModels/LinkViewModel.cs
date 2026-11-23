@@ -292,7 +292,17 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
 
             var tokens = await SampleMode.Or(
                 () => SteamLogin.LoginAsync(_connection, AccountName.Trim(), Password, null, AskEmailCodeAsync, _profile),
-                () => new LoginTokens(76561198000000777, AccountName.Trim(), "sample-access", "sample-refresh")).ConfigureAwait(true);
+                async () =>
+                {
+                    // An account name starting with "email" asks for a code, from a background thread like Steam.
+                    if (AccountName.Trim().StartsWith("email", StringComparison.OrdinalIgnoreCase)
+                        && await Task.Run(() => AskEmailCodeAsync(GuardChallenge.EmailCode)).ConfigureAwait(true) is null)
+                    {
+                        throw new OperationCanceledException();
+                    }
+
+                    return new LoginTokens(76561198000000777, AccountName.Trim(), "sample-access", "sample-refresh");
+                }).ConfigureAwait(true);
             Password = "";
 
             // Approving on the phone finishes sign-in without the code prompt being answered.
@@ -861,22 +871,20 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
         return ProxyParser.TryParse(NewProxy, out settings) && settings is not null;
     }
 
-    private Task<string?> AskEmailCodeAsync(GuardChallenge challenge)
-    {
-        GuardIsPhone = challenge == GuardChallenge.PhoneCode;
-        _emailCode = new TaskCompletionSource<string?>();
-        EmailCode = "";
-        Step = LinkStep.EmailCode;
-        IsBusy = false;
-        return _emailCode.Task.ContinueWith(
-            t =>
-            {
-                Step = LinkStep.SignIn;
-                IsBusy = true;
-                return t.Result;
-            },
-            TaskScheduler.FromCurrentSynchronizationContext());
-    }
+    // Steam calls this from a background thread, so the prompt runs on the UI thread.
+    private Task<string?> AskEmailCodeAsync(GuardChallenge challenge) =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            GuardIsPhone = challenge == GuardChallenge.PhoneCode;
+            _emailCode = new TaskCompletionSource<string?>();
+            EmailCode = "";
+            Step = LinkStep.EmailCode;
+            IsBusy = false;
+            string? code = await _emailCode.Task.ConfigureAwait(true);
+            Step = LinkStep.SignIn;
+            IsBusy = true;
+            return code;
+        });
 
     // Sample mode: an account name starting with "phone" already has an authenticator elsewhere.
     private static AddResult SampleAdd(string deviceId, string accountName) =>

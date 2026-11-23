@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Avalonia.Threading;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Core.Accounts;
 using BetterSteamAuth.Steam;
@@ -146,21 +147,19 @@ public sealed partial class LoginViewModel : ObservableObject
         _done();
     }
 
-    private Task<string?> AskEmailCodeAsync(GuardChallenge challenge)
-    {
-        _emailCode = new TaskCompletionSource<string?>();
-        EmailCode = "";
-        NeedsEmailCode = true;
-        IsBusy = false;
-        return _emailCode.Task.ContinueWith(
-            t =>
-            {
-                NeedsEmailCode = false;
-                IsBusy = true;
-                return t.Result;
-            },
-            TaskScheduler.FromCurrentSynchronizationContext());
-    }
+    // Steam calls this from a background thread, so the prompt runs on the UI thread.
+    private Task<string?> AskEmailCodeAsync(GuardChallenge challenge) =>
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            _emailCode = new TaskCompletionSource<string?>();
+            EmailCode = "";
+            NeedsEmailCode = true;
+            IsBusy = false;
+            string? code = await _emailCode.Task.ConfigureAwait(true);
+            NeedsEmailCode = false;
+            IsBusy = true;
+            return code;
+        });
 
     /// <summary>Puts new sign-in tokens into the maFile's session (the caller saves it).</summary>
     internal static void ApplyTokens(MaFile maFile, LoginTokens tokens)

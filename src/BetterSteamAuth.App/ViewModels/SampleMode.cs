@@ -23,4 +23,16 @@ internal static class SampleMode
 
         return await real().ConfigureAwait(true);
     }
+
+    /// <summary>Like the other overload, for a sample that has to await something.</summary>
+    public static async Task<T> Or<T>(Func<Task<T>> real, Func<Task<T>> sample)
+    {
+        if (IsOn)
+        {
+            await Task.Delay(600).ConfigureAwait(true);
+            return await sample().ConfigureAwait(true);
+        }
+
+        return await real().ConfigureAwait(true);
+    }
 }
