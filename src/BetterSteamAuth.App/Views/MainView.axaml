@@ -141,7 +141,11 @@
                               CommandParameter="{Binding}" />
                   </ContextMenu>
                 </Grid.ContextMenu>
-                <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <TextBlock VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                  <PathIcon Width="12" Height="12" VerticalAlignment="Center" Classes="secondary" Data="{StaticResource SemiIconBolt}"
+                            IsVisible="{Binding AutoAccepts}" ToolTip.Tip="{Binding AutomationTip}" />
+                </StackPanel>
                 <PathIcon Grid.Column="1" Width="14" Height="14" Classes="warning" Data="{StaticResource SemiIconAlertCircle}"
                           IsVisible="{Binding HasProblem}" ToolTip.Tip="{Binding Problem}" />
                 <Border Grid.Column="2" Classes="count-pill" VerticalAlignment="Center" IsVisible="{Binding HasPending}">

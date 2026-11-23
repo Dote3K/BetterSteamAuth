@@ -23,6 +23,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private static readonly CompositeFormat RestartToUpdateFormat = CompositeFormat.Parse(Strings.RestartToUpdateFormat);
     private static readonly CompositeFormat UpdateBarDownloadingFormat = CompositeFormat.Parse(Strings.UpdateBarDownloadingFormat);
     private static readonly CompositeFormat UpdateBarReadyFormat = CompositeFormat.Parse(Strings.UpdateReadyFormat);
+    private static readonly CompositeFormat AutoAcceptsTipFormat = CompositeFormat.Parse(Strings.AutoAcceptsTip);
     private int _removedSecondsLeft = 10 * 4;
 
     private readonly List<AccountItemViewModel> _all = [];
@@ -56,6 +57,10 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
                 // Only accounts linked here (they have a device profile) can be unfinished; imported
                 // maFiles from other tools may lack fully_enrolled.
                 IsLinkPending = !maFile.FullyEnrolled && vault.GetDeviceProfile(entry.SteamId) is not null,
+                AutoAccepts = AutoAcceptsNow(shell, entry.SteamId),
+                AutomationTip = string.Format(
+                    CultureInfo.CurrentCulture, AutoAcceptsTipFormat,
+                    AutomationViewModel.Summary(shell.Monitor.AutomationFor(entry.SteamId), checksInBackground: true)),
             });
         }
 
@@ -82,6 +87,12 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     }
 
     public bool CanLock { get; }
+
+    private static bool AutoAcceptsNow(ShellViewModel shell, ulong steamId)
+    {
+        var automation = shell.Monitor.AutomationFor(steamId);
+        return automation.AcceptsAny && shell.Monitor.ChecksInBackground(automation);
+    }
 
     public ObservableCollection<AccountItemViewModel> Accounts { get; } = [];
 

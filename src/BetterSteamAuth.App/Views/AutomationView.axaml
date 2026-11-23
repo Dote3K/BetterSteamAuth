@@ -1,0 +1,133 @@
+<!-- One account's automation: checking, notifications, and what it accepts on its own. Laid out like Settings. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.AutomationView"
+             x:DataType="vm:AutomationViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <UserControl.Styles>
+    <Style Selector="TextBlock.section">
+      <Setter Property="Margin" Value="2,28,0,10" />
+    </Style>
+    <Style Selector="TextBlock.section.first">
+      <Setter Property="Margin" Value="2,4,0,10" />
+    </Style>
+    <Style Selector="Border.row">
+      <Setter Property="Padding" Value="16,12" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.row.last">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Border.row > Grid">
+      <Setter Property="ColumnSpacing" Value="24" />
+    </Style>
+    <Style Selector="Border.row ComboBox">
+      <Setter Property="Width" Value="170" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.row ToggleSwitch">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{Binding Title}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel MaxWidth="680" Margin="28,24,28,32" HorizontalAlignment="Stretch">
+
+        <!-- Checking -->
+        <TextBlock Classes="title section first" Text="{x:Static res:Strings.CheckingSection}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AccountCheckSetting}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AccountCheckSettingBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:AutomationViewModel.CheckChoices}" SelectedItem="{Binding Checks}"
+                          AutomationProperties.Name="{x:Static res:Strings.AccountCheckSetting}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.NotifyAccount}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.NotifyAccountBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Notify}" AutomationProperties.Name="{x:Static res:Strings.NotifyAccount}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <!-- Accept automatically -->
+        <TextBlock Classes="title section" Text="{x:Static res:Strings.AcceptAutomatically}" />
+        <Border Classes="banner-warning" Margin="0,0,0,10" Padding="16,10" IsVisible="{Binding ShowNeedsBackground}">
+          <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.AutoAcceptNeedsBackground}" />
+        </Border>
+
+        <!-- Turning Trades on asks first -->
+        <Border Classes="banner-danger" Margin="0,0,0,10" Padding="16,14" IsVisible="{Binding IsConfirmingTrades}">
+          <StackPanel Spacing="6">
+            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{x:Static res:Strings.ConfirmAutoTradesTitle}" />
+            <TextBlock TextWrapping="Wrap" Text="{x:Static res:Strings.ConfirmAutoTradesBody}" />
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+              <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelTradesCommand}" />
+              <Button Theme="{DynamicResource SolidButton}" Classes="Danger" Content="{x:Static res:Strings.AcceptTrades}"
+                      Command="{Binding ConfirmTradesCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="panel" IsEnabled="{Binding CanAutoAccept}">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AutoTrades}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoTradesBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Trades}" AutomationProperties.Name="{x:Static res:Strings.AutoTrades}" />
+              </Grid>
+            </Border>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AutoMarketListings}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoMarketListingsBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Market}" AutomationProperties.Name="{x:Static res:Strings.AutoMarketListings}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.AutoMarketPurchases}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoMarketPurchasesBody}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Purchases}" AutomationProperties.Name="{x:Static res:Strings.AutoMarketPurchases}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+        <TextBlock Classes="caption" Margin="2,10,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.AutoAcceptNeverAccountChanges}" />
+        <TextBlock Classes="caption" Margin="2,4,0,0" TextWrapping="Wrap" Text="{Binding LockNote}" IsVisible="{Binding HasLockNote}" />
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

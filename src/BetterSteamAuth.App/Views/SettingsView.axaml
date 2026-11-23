@@ -129,7 +129,7 @@
                               AutomationProperties.Name="{x:Static res:Strings.AcceptTradesInBulk}" />
               </Grid>
             </Border>
-            <Border Classes="row last">
+            <Border Classes="row">
               <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="2">
                   <TextBlock Text="{x:Static res:Strings.CheckInBackground}" />
@@ -137,6 +137,16 @@
                 </StackPanel>
                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckInBackground}"
                               AutomationProperties.Name="{x:Static res:Strings.CheckInBackground}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.KeepHistory}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.KeepHistoryBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SettingsViewModel.HistoryChoices}" SelectedItem="{Binding KeepHistory}"
+                          AutomationProperties.Name="{x:Static res:Strings.KeepHistory}" />
               </Grid>
             </Border>
           </StackPanel>

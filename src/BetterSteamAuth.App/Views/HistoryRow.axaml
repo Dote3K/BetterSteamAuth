@@ -1,0 +1,20 @@
+<!-- One history entry: type icon, headline, what happened, when. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             x:Class="BetterSteamAuth.App.Views.HistoryRow"
+             x:DataType="vm:HistoryItemViewModel">
+  <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+    <Panel Width="16" Height="16" VerticalAlignment="Center">
+      <PathIcon Width="14" Height="14" Classes="secondary" Data="{StaticResource SemiIconSync}" IsVisible="{Binding IsTrade}" />
+      <PathIcon Width="14" Height="14" Classes="secondary" Data="{StaticResource SemiIconShoppingBag}" IsVisible="{Binding IsMarket}" />
+      <PathIcon Width="14" Height="14" Classes="danger" Data="{StaticResource SemiIconKey}" IsVisible="{Binding IsDangerous}" />
+    </Panel>
+    <TextBlock Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Headline}"
+               ToolTip.Tip="{Binding Headline}" />
+    <TextBlock Grid.Column="2" VerticalAlignment="Center" Classes="secondary" Classes.danger="{Binding Failed}"
+               Text="{Binding Status}" ToolTip.Tip="{Binding StatusTip}" />
+    <TextBlock Grid.Column="3" VerticalAlignment="Center" MinWidth="72" TextAlignment="Right" Classes="caption"
+               Text="{Binding When}" ToolTip.Tip="{Binding WhenFull}" />
+  </Grid>
+</UserControl>

@@ -40,15 +40,16 @@ public sealed partial class Vault
             });
     }
 
-    /// <summary>An account's history, newest first: up to <paramref name="limit"/> entries older than <paramref name="beforeId"/>.</summary>
-    public IReadOnlyList<HistoryEntry> ListHistory(ulong steamId, int limit, long? beforeId = null)
+    /// <summary>An account's history, newest first: up to <paramref name="limit"/> entries after <paramref name="after"/>.</summary>
+    public IReadOnlyList<HistoryEntry> ListHistory(ulong steamId, int limit, HistoryEntry? after = null)
     {
         using var connection = _db.Open();
         return connection.Query<HistoryRow>(
                 "SELECT id AS Id, steam_id AS SteamId, conf_type AS Type, summary AS Summary, summary_enc AS Secret, " +
                 "summary_nonce AS Nonce, action AS Action, source AS Source, ok AS Ok, at AS At FROM confirmation_log " +
-                "WHERE steam_id = @id AND (@before IS NULL OR id < @before) ORDER BY id DESC LIMIT @limit",
-                new { id = (long)steamId, before = beforeId, limit })
+                "WHERE steam_id = @id AND (@afterId IS NULL OR at < @afterAt OR (at = @afterAt AND id < @afterId)) " +
+                "ORDER BY at DESC, id DESC LIMIT @limit",
+                new { id = (long)steamId, afterId = after?.Id, afterAt = after?.At.ToUnixTimeSeconds(), limit })
             .Select(r => new HistoryEntry(
                 r.Id, (ulong)r.SteamId, (int)r.Type, r.Summary ?? OpenSummary((ulong)r.SteamId, r.Secret, r.Nonce),
                 r.Action == "accept", r.Source == "auto", r.Ok != 0, DateTimeOffset.FromUnixTimeSeconds(r.At)))

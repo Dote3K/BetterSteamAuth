@@ -18,6 +18,7 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
     private const int RevealSeconds = 30;
     private const int CopyNextThreshold = 5;
     private const int ExpiringDays = 14;
+    private const int RecentHistoryCount = 5;
 
     private static readonly CompositeFormat ExpiresInFormat = CompositeFormat.Parse(Strings.ExpiresInFormat);
 
@@ -66,6 +67,11 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
 
         UpdateSession();
         UpdateConnection();
+        AutomationText = AutomationViewModel.Summary(
+            shell.Monitor.AutomationFor(steamId), shell.Monitor.ChecksInBackground(shell.Monitor.AutomationFor(steamId)));
+        var history = _vault.ListHistory(steamId, RecentHistoryCount + 1);
+        RecentHistory = [.. history.Take(RecentHistoryCount).Select(e => new HistoryItemViewModel(e))];
+        HasMoreHistory = history.Count > RecentHistoryCount;
         _loading = false;
 
         _timer = new DispatcherTimer(TimeSpan.FromSeconds(1), DispatcherPriority.Normal, (_, _) => Tick());
@@ -118,6 +124,22 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
 
     // Steam Guard
     public bool HasRevocationCode { get; }
+
+    /// <summary>"Off", the switched-on types, or "Paused: not checked in the background".</summary>
+    public string AutomationText { get; }
+
+    [RelayCommand]
+    private void EditAutomation() => _shell.ShowAutomation(_steamId, Name);
+
+    // History
+    public IReadOnlyList<HistoryItemViewModel> RecentHistory { get; }
+
+    public bool HasHistory => RecentHistory.Count > 0;
+
+    public bool HasMoreHistory { get; }
+
+    [RelayCommand]
+    private void ShowAllHistory() => _shell.ShowHistory(_steamId, Name);
 
     public bool CanRemoveAuthenticator { get; }
 

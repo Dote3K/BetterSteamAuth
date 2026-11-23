@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:BetterSteamAuth.App.ViewModels"
              xmlns:res="using:BetterSteamAuth.App.Resources"
+             xmlns:views="using:BetterSteamAuth.App.Views"
              x:Class="BetterSteamAuth.App.Views.AccountDetailsView"
              x:DataType="vm:AccountDetailsViewModel">
   <UserControl.KeyBindings>
@@ -179,7 +180,8 @@
         <!-- Steam Guard -->
         <TextBlock Classes="title section" Text="{x:Static res:Strings.SteamGuard}" />
         <Border Classes="panel">
-          <Border Classes="row last">
+          <StackPanel>
+          <Border Classes="row">
             <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
               <TextBlock Classes="label secondary" Text="{x:Static res:Strings.RevocationCode}" />
               <!-- Hidden -->
@@ -217,6 +219,34 @@
               </StackPanel>
             </Grid>
           </Border>
+          <Border Classes="row last">
+            <Grid ColumnDefinitions="170,*,Auto" ColumnSpacing="12">
+              <TextBlock Classes="label secondary" Text="{x:Static res:Strings.Automation}" />
+              <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding AutomationText}" />
+              <Button Grid.Column="2" Classes="action Primary" Theme="{DynamicResource BorderlessButton}"
+                      Content="{x:Static res:Strings.Edit}" Command="{Binding EditAutomationCommand}" />
+            </Grid>
+          </Border>
+          </StackPanel>
+        </Border>
+
+        <!-- History -->
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="title section" Text="{x:Static res:Strings.History}" />
+          <Button Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,4" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                  Content="{x:Static res:Strings.ShowAll}" Command="{Binding ShowAllHistoryCommand}" IsVisible="{Binding HasMoreHistory}" />
+        </Grid>
+        <TextBlock Classes="hint" Margin="2,0,0,0" Text="{x:Static res:Strings.HistoryEmpty}" IsVisible="{Binding !HasHistory}" />
+        <Border Classes="panel" IsVisible="{Binding HasHistory}">
+          <ItemsControl ItemsSource="{Binding RecentHistory}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:HistoryItemViewModel">
+                <Border Padding="16,10" BorderBrush="{DynamicResource SemiColorBorder}" BorderThickness="0,0,0,1">
+                  <views:HistoryRow />
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </Border>
 
         <!-- Organize -->

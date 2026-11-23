@@ -53,7 +53,7 @@ public sealed class VaultHistoryTests : IDisposable
         Assert.Equal(["Sell AK-47", "Trade with buyer_88"], history.Select(e => e.Summary));
         Assert.True(history[1] is { Accepted: true, Automatic: true, Ok: true, Type: 2 });
         Assert.True(history[0] is { Accepted: false, Automatic: false, Ok: false });
-        Assert.Single(reopened.ListHistory(SteamId, 10, beforeId: history[0].Id));
+        Assert.Single(reopened.ListHistory(SteamId, 10, after: history[0]));
     }
 
     [Fact]

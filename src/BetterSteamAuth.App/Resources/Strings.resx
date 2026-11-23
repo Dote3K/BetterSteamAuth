@@ -455,6 +455,48 @@
   <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
   <data name="Later" xml:space="preserve"><value>Later</value></data>
   <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="Automation" xml:space="preserve"><value>Automation</value></data>
+  <data name="AutomationTitleFormat" xml:space="preserve"><value>Automation · {0}</value></data>
+  <data name="AutomationOff" xml:space="preserve"><value>Off</value></data>
+  <data name="AutomationPaused" xml:space="preserve"><value>Paused: not checked in the background</value></data>
+  <data name="CheckingSection" xml:space="preserve"><value>Checking</value></data>
+  <data name="AccountCheckSetting" xml:space="preserve"><value>Check for new confirmations</value></data>
+  <data name="AccountCheckSettingBody" xml:space="preserve"><value>Like Settings follows Settings → Confirmations → Check in the background.</value></data>
+  <data name="LikeSettings" xml:space="preserve"><value>Like Settings</value></data>
+  <data name="Always" xml:space="preserve"><value>Always</value></data>
+  <data name="NotifyAccount" xml:space="preserve"><value>Notify about new confirmations</value></data>
+  <data name="NotifyAccountBody" xml:space="preserve"><value>Only when notifications are on in Settings.</value></data>
+  <data name="AcceptAutomatically" xml:space="preserve"><value>Accept automatically</value></data>
+  <data name="AutoTrades" xml:space="preserve"><value>Trades</value></data>
+  <data name="AutoTradesBody" xml:space="preserve"><value>Not trades Steam warns about, or where you give items and get nothing.</value></data>
+  <data name="AutoMarketListings" xml:space="preserve"><value>Market listings</value></data>
+  <data name="AutoMarketListingsBody" xml:space="preserve"><value>Selling on the Community Market.</value></data>
+  <data name="AutoMarketPurchases" xml:space="preserve"><value>Market purchases</value></data>
+  <data name="AutoMarketPurchasesBody" xml:space="preserve"><value>Buying on the Community Market.</value></data>
+  <data name="AutoAcceptNeedsBackground" xml:space="preserve"><value>Needs this account checked in the background: set Checking to Always.</value></data>
+  <data name="AutoAcceptNeverAccountChanges" xml:space="preserve"><value>Account changes (phone, recovery, API key, …) are never accepted automatically.</value></data>
+  <data name="AutoAcceptStopsWhenLocked" xml:space="preserve"><value>Automation stops while the app is locked.</value></data>
+  <data name="AutoAcceptAutoLockFormat" xml:space="preserve"><value>Auto-lock after {0} minutes stops it. Set Auto-lock to Never in Settings to keep it running.</value></data>
+  <data name="ConfirmAutoTradesTitle" xml:space="preserve"><value>Accept trades on this account without asking?</value></data>
+  <data name="ConfirmAutoTradesBody" xml:space="preserve"><value>Anyone whose trade offer this account accepts can take its items. Use this only for bot accounts.</value></data>
+  <data name="AcceptTrades" xml:space="preserve"><value>Accept trades</value></data>
+  <data name="History" xml:space="preserve"><value>History</value></data>
+  <data name="HistoryTitleFormat" xml:space="preserve"><value>History · {0}</value></data>
+  <data name="HistoryEmpty" xml:space="preserve"><value>Nothing accepted or rejected yet.</value></data>
+  <data name="ShowAll" xml:space="preserve"><value>Show all</value></data>
+  <data name="ShowMore" xml:space="preserve"><value>Show more</value></data>
+  <data name="HistoryAccepted" xml:space="preserve"><value>Accepted</value></data>
+  <data name="HistoryRejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="HistoryFailed" xml:space="preserve"><value>Failed</value></data>
+  <data name="HistoryAutoFormat" xml:space="preserve"><value>{0} · auto</value></data>
+  <data name="HistoryFailedTip" xml:space="preserve"><value>Steam didn't confirm this. It may still be waiting in the list.</value></data>
+  <data name="Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Yesterday" xml:space="preserve"><value>Yesterday</value></data>
+  <data name="KeepHistory" xml:space="preserve"><value>Keep history</value></data>
+  <data name="KeepHistoryBody" xml:space="preserve"><value>Older accepts and rejects are deleted.</value></data>
+  <data name="DaysFormat" xml:space="preserve"><value>{0} days</value></data>
+  <data name="OneYear" xml:space="preserve"><value>1 year</value></data>
+  <data name="AutoAcceptsTip" xml:space="preserve"><value>Accepts automatically: {0}</value></data>
   <data name="SetupSettingsBody" xml:space="preserve"><value>If Steam is blocked or slow here, change these before adding an account. The rest of the settings are available after setup.</value></data>
   <data name="DataFolderFailedFormat" xml:space="preserve"><value>Couldn't save to {0}. Check that this folder can be written to.</value></data>
   <data name="ExportFileFailed" xml:space="preserve"><value>Couldn't save the file. Choose another folder.</value></data>

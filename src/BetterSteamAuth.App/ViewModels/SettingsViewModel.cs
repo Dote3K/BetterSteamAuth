@@ -356,6 +356,27 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    public static IReadOnlyList<Choice<int>> HistoryChoices { get; } =
+    [
+        .. ShellViewModel.HistoryDayChoices.Select(d => new Choice<int>(d, d == 365
+            ? Strings.OneYear
+            : string.Format(CultureInfo.CurrentCulture, CompositeFormat.Parse(Strings.DaysFormat), d))),
+    ];
+
+    /// <summary>How long confirmation history is kept; lowering it deletes older entries at once.</summary>
+    public Choice<int> KeepHistory
+    {
+        get => HistoryChoices.FirstOrDefault(c => c.Value == _shell.HistoryDays) ?? HistoryChoices.Single(c => c.Value == ShellViewModel.DefaultHistoryDays);
+        set
+        {
+            if (value is not null && value.Value != _shell.HistoryDays)
+            {
+                _shell.HistoryDays = value.Value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public bool CheckInBackground
     {
         get => _shell.CheckInBackground;

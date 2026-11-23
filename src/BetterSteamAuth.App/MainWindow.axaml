@@ -29,6 +29,8 @@
     <DataTemplate DataType="vm:RemovedAccountsViewModel"><views:RemovedAccountsView /></DataTemplate>
     <DataTemplate DataType="vm:RemoveAuthenticatorViewModel"><views:RemoveAuthenticatorView /></DataTemplate>
     <DataTemplate DataType="vm:AccountDetailsViewModel"><views:AccountDetailsView /></DataTemplate>
+    <DataTemplate DataType="vm:AutomationViewModel"><views:AutomationView /></DataTemplate>
+    <DataTemplate DataType="vm:HistoryViewModel"><views:HistoryView /></DataTemplate>
   </Window.DataTemplates>
   <DockPanel>
     <!-- Our own title bar: the app's background instead of the system's, with Windows' own caption buttons

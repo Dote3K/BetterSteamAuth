@@ -1,0 +1,52 @@
+<!-- One account's full history, by day, newest first. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:views="using:BetterSteamAuth.App.Views"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.HistoryView"
+             x:DataType="vm:HistoryViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{Binding Title}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel MaxWidth="680" Margin="28,12,28,32" HorizontalAlignment="Stretch">
+        <TextBlock Classes="hint" Margin="2,16,0,0" Text="{x:Static res:Strings.HistoryEmpty}" IsVisible="{Binding IsEmpty}" />
+        <ItemsControl ItemsSource="{Binding Days}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="vm:HistoryDay">
+              <StackPanel>
+                <TextBlock Classes="title" Margin="2,20,0,10" Text="{Binding Title}" />
+                <Border Classes="panel">
+                  <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate DataType="vm:HistoryItemViewModel">
+                        <Border Padding="16,10" BorderBrush="{DynamicResource SemiColorBorder}" BorderThickness="0,0,0,1">
+                          <views:HistoryRow />
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Border>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button HorizontalAlignment="Center" Margin="0,16,0,0" Theme="{DynamicResource BorderlessButton}" Classes="Primary"
+                Content="{x:Static res:Strings.ShowMore}" Command="{Binding ShowMoreCommand}" IsVisible="{Binding HasMore}" />
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

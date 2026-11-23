@@ -17,6 +17,12 @@ public sealed partial class AccountItemViewModel(ulong steamId, string name, byt
 
     public SteamClock Clock { get; } = clock;
 
+    /// <summary>Automation accepts some confirmations on this account by itself (shown as a small bolt).</summary>
+    public bool AutoAccepts { get; init; }
+
+    /// <summary>"Accepts automatically: Trades · Market listings".</summary>
+    public string? AutomationTip { get; init; }
+
     [ObservableProperty]
     public partial string Code { get; private set; } = "";
 
