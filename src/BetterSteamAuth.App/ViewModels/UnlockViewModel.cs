@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.Text;
 using BetterSteamAuth.App.Resources;
 using BetterSteamAuth.Core.Security;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,11 +8,6 @@ namespace BetterSteamAuth.App.ViewModels;
 /// <summary>Unlock page shown on launch when the data has a password.</summary>
 public sealed partial class UnlockViewModel(ShellViewModel shell) : ObservableObject
 {
-    private static readonly CompositeFormat AccountCountFormat = CompositeFormat.Parse(Strings.AccountCountFormat);
-
-    public string Subtitle { get; } = string.Format(
-        CultureInfo.CurrentCulture, AccountCountFormat, shell.Vault?.ListAccounts().Count ?? 0);
-
     [ObservableProperty]
     public partial string Password { get; set; } = "";
 

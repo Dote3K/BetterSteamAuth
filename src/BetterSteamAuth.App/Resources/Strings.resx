@@ -19,7 +19,7 @@
   <data name="LockApp" xml:space="preserve"><value>Lock app</value></data>
   <data name="EmptyTitle" xml:space="preserve"><value>Add your first Steam account</value></data>
   <data name="EmptyBody" xml:space="preserve"><value>Codes and confirmations will show up here.</value></data>
-  <data name="AccountCountFormat" xml:space="preserve"><value>{0} accounts</value></data>
+  <data name="UnlockSubtitle" xml:space="preserve"><value>Enter your password to continue.</value></data>
   <data name="WrongPassword" xml:space="preserve"><value>Wrong password</value></data>
   <data name="PasswordTooShort" xml:space="preserve"><value>Use at least 8 characters</value></data>
   <data name="PasswordsDontMatch" xml:space="preserve"><value>Passwords don't match</value></data>

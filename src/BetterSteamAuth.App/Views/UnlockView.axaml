@@ -7,7 +7,7 @@
   <StackPanel Width="300" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
     <PathIcon Width="32" Height="32" Classes="secondary" Data="{StaticResource SemiIconLock}" />
     <TextBlock Classes="heading" HorizontalAlignment="Center" Text="{x:Static res:Strings.UnlockTitle}" />
-    <TextBlock Classes="secondary" HorizontalAlignment="Center" Margin="0,0,0,12" Text="{Binding Subtitle}" />
+    <TextBlock Classes="secondary" HorizontalAlignment="Center" Margin="0,0,0,12" Text="{x:Static res:Strings.UnlockSubtitle}" />
     <TextBox x:Name="PasswordBox" Classes="revealPasswordButton" PasswordChar="•"
              PlaceholderText="{x:Static res:Strings.Password}" Text="{Binding Password}" />
     <TextBlock Classes="danger" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
