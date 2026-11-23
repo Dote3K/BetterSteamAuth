@@ -27,6 +27,7 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
     private const int MinPasswordLength = 8;
 
     private static readonly CompositeFormat DataFolderFormat = CompositeFormat.Parse(Strings.DataFolderFormat);
+    private static readonly CompositeFormat DataFolderFailedFormat = CompositeFormat.Parse(Strings.DataFolderFailedFormat);
 
     public string DataFolder => shell.DataFolder;
 
@@ -145,6 +146,11 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
             {
                 shell.SetRemembered(true);
             }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or Microsoft.Data.Sqlite.SqliteException)
+        {
+            Error = string.Format(CultureInfo.CurrentCulture, DataFolderFailedFormat, shell.DataFolder);
+            return;
         }
         finally
         {

@@ -305,8 +305,15 @@ public sealed partial class AccountDetailsViewModel : ObservableObject, IDisposa
             return;
         }
 
-        await File.WriteAllTextAsync(path, _vault.Load(_steamId).ToJson()).ConfigureAwait(true);
-        ExportMessage = Strings.ExportedPlain;
+        try
+        {
+            await File.WriteAllTextAsync(path, _vault.Load(_steamId).ToJson()).ConfigureAwait(true);
+            ExportMessage = Strings.ExportedPlain;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ExportMessage = Strings.ExportFileFailed;
+        }
     }
 
     [RelayCommand]

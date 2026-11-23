@@ -36,7 +36,27 @@ public partial class MainWindow : Window, IPlatformServices
         }
     }
 
-    public Task CopyTextAsync(string text) => Clipboard?.SetTextAsync(text) ?? Task.CompletedTask;
+    /// <summary>Another app can hold the Windows clipboard for a moment, so a failed copy is tried a few more times.</summary>
+    public async Task CopyTextAsync(string text)
+    {
+        if (Clipboard is not { } clipboard)
+        {
+            return;
+        }
+
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                await clipboard.SetTextAsync(text);
+                return;
+            }
+            catch (System.Runtime.InteropServices.COMException) when (attempt < 5)
+            {
+                await Task.Delay(50 * attempt);
+            }
+        }
+    }
 
     public Task OpenUriAsync(Uri uri) => Launcher.LaunchUriAsync(uri);
 
