@@ -408,8 +408,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void ShowMain()
     {
-        SwitchTo(new MainViewModel(this));
         StartBackgroundWork();
+        SwitchTo(new MainViewModel(this));
         CheckAutoBackup();
         Updater.CheckIfDue();
     }
@@ -417,24 +417,24 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     /// <summary>Main window with this account selected.</summary>
     public void ShowMain(ulong selectSteamId)
     {
-        SwitchTo(new MainViewModel(this, selectSteamId));
         StartBackgroundWork();
+        SwitchTo(new MainViewModel(this, selectSteamId));
         CheckAutoBackup();
     }
 
     /// <summary>Main window right after an account was removed, offering Undo.</summary>
     public void ShowMainAfterRemove(RemovedAccount removed, string name)
     {
-        SwitchTo(new MainViewModel(this, removed: (removed, name)));
         StartBackgroundWork();
+        SwitchTo(new MainViewModel(this, removed: (removed, name)));
         CheckAutoBackup();
     }
 
     /// <summary>Main window with a short notice and no Undo (e.g. after removing the authenticator).</summary>
     public void ShowMainWithNotice(string notice)
     {
-        SwitchTo(new MainViewModel(this, notice: notice));
         StartBackgroundWork();
+        SwitchTo(new MainViewModel(this, notice: notice));
         CheckAutoBackup();
     }
 
