@@ -39,6 +39,15 @@
         <TextBlock Classes="caption" VerticalAlignment="Center" Text="{x:Static res:Strings.AppName}" />
       </StackPanel>
     </Border>
+    <!-- Something went wrong: {message} · Close -->
+    <Border DockPanel.Dock="Bottom" Classes="divider-top bar" Padding="16,8" IsVisible="{Binding HasUnexpectedError}">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+        <PathIcon Width="14" Height="14" VerticalAlignment="Center" Classes="danger" Data="{StaticResource SemiIconAlertCircle}" />
+        <SelectableTextBlock Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding UnexpectedError}" />
+        <Button Grid.Column="2" Theme="{DynamicResource BorderlessButton}" Content="{x:Static res:Strings.Dismiss}"
+                Command="{Binding DismissUnexpectedErrorCommand}" />
+      </Grid>
+    </Border>
     <ContentControl Content="{Binding CurrentPage}" />
   </DockPanel>
 </Window>

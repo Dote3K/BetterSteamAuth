@@ -4,7 +4,9 @@ using BetterSteamAuth.App.Services;
 using BetterSteamAuth.Steam;
 using BetterSteamAuth.Steam.Network;
 using BetterSteamAuth.Storage;
+using BetterSteamAuth.App.Resources;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace BetterSteamAuth.App.ViewModels;
 
@@ -80,6 +82,25 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     public partial ObservableObject? CurrentPage { get; private set; }
+
+    private static readonly System.Text.CompositeFormat UnexpectedErrorFormat = System.Text.CompositeFormat.Parse(Strings.UnexpectedErrorFormat);
+
+    /// <summary>An error nothing else handled, shown in a bar at the bottom of the window until dismissed.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUnexpectedError))]
+    public partial string? UnexpectedError { get; private set; }
+
+    public bool HasUnexpectedError => UnexpectedError is not null;
+
+    /// <summary>Keeps the app running after an unhandled error on the UI thread, and says so instead of closing.</summary>
+    public void ReportUnexpected(Exception exception)
+    {
+        Trace.WriteLine($"Unhandled: {exception}");
+        UnexpectedError = string.Format(System.Globalization.CultureInfo.CurrentCulture, UnexpectedErrorFormat, exception.Message);
+    }
+
+    [RelayCommand]
+    private void DismissUnexpectedError() => UnexpectedError = null;
 
     public NetworkOptions NetworkOptions => _network.Options;
 

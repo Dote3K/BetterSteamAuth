@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using BetterSteamAuth.App.ViewModels;
 
 namespace BetterSteamAuth.App;
@@ -26,6 +27,17 @@ public partial class App : Application
             window.DataContext = shell;
             desktop.MainWindow = window;
             desktop.ShutdownRequested += (_, _) => shell.Dispose();
+
+            // A failed command or timer would otherwise close the app (and an authenticator that vanishes mid-task is
+            // worse than one that says something went wrong).
+            Dispatcher.UIThread.UnhandledException += (_, e) =>
+            {
+                if (e.Exception is not (OutOfMemoryException or StackOverflowException))
+                {
+                    shell.ReportUnexpected(e.Exception);
+                    e.Handled = true;
+                }
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

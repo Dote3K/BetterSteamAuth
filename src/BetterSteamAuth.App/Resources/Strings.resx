@@ -454,6 +454,10 @@
   <data name="RestartToUpdate" xml:space="preserve"><value>Restart to update</value></data>
   <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
   <data name="Later" xml:space="preserve"><value>Later</value></data>
+  <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="DataFolderFailedFormat" xml:space="preserve"><value>Couldn't save to {0}. Check that this folder can be written to.</value></data>
+  <data name="ExportFileFailed" xml:space="preserve"><value>Couldn't save the file. Choose another folder.</value></data>
+  <data name="UnexpectedErrorFormat" xml:space="preserve"><value>Something went wrong: {0} You can keep using the app; restart it if something looks stuck.</value></data>
   <data name="UpdateBarDownloadingFormat" xml:space="preserve"><value>Downloading {0}… {1}%</value></data>
   <data name="RestartToUpdateFormat" xml:space="preserve"><value>Restart to update ({0})</value></data>
   <data name="UpdateUpToDateFormat" xml:space="preserve"><value>Up to date · checked {0} ago</value></data>

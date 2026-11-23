@@ -294,6 +294,12 @@ public sealed partial class LinkViewModel : ObservableObject, IDisposable
                 () => SteamLogin.LoginAsync(_connection, AccountName.Trim(), Password, null, AskEmailCodeAsync, _profile),
                 async () =>
                 {
+                    // An account name starting with "crash" fails in a way nothing handles.
+                    if (AccountName.Trim().StartsWith("crash", StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException("Sample failure.");
+                    }
+
                     // An account name starting with "email" asks for a code, from a background thread like Steam.
                     if (AccountName.Trim().StartsWith("email", StringComparison.OrdinalIgnoreCase)
                         && await Task.Run(() => AskEmailCodeAsync(GuardChallenge.EmailCode)).ConfigureAwait(true) is null)
