@@ -131,7 +131,16 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
 
     public void UseVault(Vault vault)
     {
+        // Network settings chosen during setup, before there was a vault to keep them in.
+        var chosenBefore = Vault is null ? _network.Options : null;
         Vault = vault;
+        if (chosenBefore is not null && chosenBefore != new NetworkOptions()
+            && vault.GetSetting(NetworkOptions.SniBypassKey) is null && vault.GetSetting(NetworkOptions.EncryptedDnsKey) is null)
+        {
+            vault.SetSetting(NetworkOptions.SniBypassKey, chosenBefore.SniBypass.ToString().ToLowerInvariant());
+            vault.SetSetting(NetworkOptions.EncryptedDnsKey, chosenBefore.EncryptedDns.ToString().ToLowerInvariant());
+        }
+
         LoadNetworkOptions();
         _lastActivity = DateTime.UtcNow;
     }
@@ -446,6 +455,9 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         => SwitchTo(new RestoreViewModel(this, fromFirstRun ? ShowFirstRun : ShowUnlock, replace: true));
 
     public void ShowFirstRun() => SwitchTo(new FirstRunViewModel(this));
+
+    /// <summary>Settings that work before the first account (network), then back to the same welcome page.</summary>
+    public void ShowSetupSettings(FirstRunViewModel firstRun) => SwitchTo(new SetupSettingsViewModel(this, () => SwitchTo(firstRun)));
 
     public void ShowExport() => SwitchTo(new ExportViewModel(this));
 

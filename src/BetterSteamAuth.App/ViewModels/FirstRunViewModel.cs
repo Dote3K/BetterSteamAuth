@@ -122,6 +122,9 @@ public sealed partial class FirstRunViewModel(ShellViewModel shell) : Observable
         await CreateVaultAsync(Password).ConfigureAwait(true);
     }
 
+    [RelayCommand]
+    private void OpenSettings() => shell.ShowSetupSettings(this);
+
     /// <summary>First click shows the warning; the second click continues.</summary>
     [RelayCommand]
     private async Task ContinueWithoutPasswordAsync()

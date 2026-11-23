@@ -455,6 +455,7 @@
   <data name="RestartNow" xml:space="preserve"><value>Restart now</value></data>
   <data name="Later" xml:space="preserve"><value>Later</value></data>
   <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="SetupSettingsBody" xml:space="preserve"><value>If Steam is blocked or slow here, change these before adding an account. The rest of the settings are available after setup.</value></data>
   <data name="DataFolderFailedFormat" xml:space="preserve"><value>Couldn't save to {0}. Check that this folder can be written to.</value></data>
   <data name="ExportFileFailed" xml:space="preserve"><value>Couldn't save the file. Choose another folder.</value></data>
   <data name="UnexpectedErrorFormat" xml:space="preserve"><value>Something went wrong: {0} You can keep using the app; restart it if something looks stuck.</value></data>

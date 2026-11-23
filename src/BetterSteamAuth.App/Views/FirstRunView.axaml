@@ -8,7 +8,15 @@
   <Grid Width="460" Margin="24" VerticalAlignment="Center">
     <!-- Step 1: Welcome -->
     <StackPanel Spacing="8" IsVisible="{Binding IsWelcome}">
-      <TextBlock Classes="heading" Text="{x:Static res:Strings.WelcomeTitle}" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="heading" VerticalAlignment="Center" Text="{x:Static res:Strings.WelcomeTitle}" />
+        <!-- Network settings before the first account, e.g. when Steam is blocked here. -->
+        <Button Grid.Column="1" Theme="{DynamicResource BorderlessButton}" Padding="8" Margin="0,-8,-8,-8"
+                Command="{Binding OpenSettingsCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Settings}" ToolTip.Tip="{x:Static res:Strings.Settings}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconSettingStroked}" />
+        </Button>
+      </Grid>
       <TextBlock Classes="secondary" Margin="0,0,0,12" Text="{x:Static res:Strings.WelcomeSubtitle}" />
 
       <RadioButton Theme="{DynamicResource CardRadioButton}" HorizontalAlignment="Stretch" GroupName="start"

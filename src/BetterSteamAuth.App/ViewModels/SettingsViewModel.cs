@@ -292,14 +292,15 @@ public sealed partial class SettingsViewModel : ObservableObject, IDisposable
         }
     }
 
-    public IReadOnlyList<Choice<SniBypass>> SniBypassChoices { get; } =
+    // Static: the setup settings page shows the same choices.
+    public static IReadOnlyList<Choice<SniBypass>> SniBypassChoices { get; } =
     [
         new(Steam.Network.SniBypass.Auto, Strings.Auto),
         new(Steam.Network.SniBypass.On, Strings.On),
         new(Steam.Network.SniBypass.Off, Strings.Off),
     ];
 
-    public IReadOnlyList<Choice<EncryptedDns>> EncryptedDnsChoices { get; } =
+    public static IReadOnlyList<Choice<EncryptedDns>> EncryptedDnsChoices { get; } =
     [
         new(Steam.Network.EncryptedDns.Off, Strings.Off),
         new(Steam.Network.EncryptedDns.Cloudflare, "Cloudflare"),

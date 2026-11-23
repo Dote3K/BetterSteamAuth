@@ -17,6 +17,7 @@
     <DataTemplate DataType="vm:ImportViewModel"><views:ImportView /></DataTemplate>
     <DataTemplate DataType="vm:MainViewModel"><views:MainView /></DataTemplate>
     <DataTemplate DataType="vm:SettingsViewModel"><views:SettingsView /></DataTemplate>
+    <DataTemplate DataType="vm:SetupSettingsViewModel"><views:SetupSettingsView /></DataTemplate>
     <DataTemplate DataType="vm:PasswordViewModel"><views:PasswordView /></DataTemplate>
     <DataTemplate DataType="vm:LoginViewModel"><views:LoginView /></DataTemplate>
     <DataTemplate DataType="vm:ProxiesViewModel"><views:ProxiesView /></DataTemplate>

@@ -1,0 +1,72 @@
+<!-- Settings from the welcome page, before any account exists: only what is needed to reach Steam. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:BetterSteamAuth.App.ViewModels"
+             xmlns:res="using:BetterSteamAuth.App.Resources"
+             x:Class="BetterSteamAuth.App.Views.SetupSettingsView"
+             x:DataType="vm:SetupSettingsViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+  </UserControl.KeyBindings>
+  <UserControl.Styles>
+    <!-- Same rows as Settings: name and one line about it, control on the right. -->
+    <Style Selector="Border.row">
+      <Setter Property="Padding" Value="16,12" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.row.last">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Border.row > Grid">
+      <Setter Property="ColumnSpacing" Value="24" />
+    </Style>
+    <Style Selector="Border.row ComboBox">
+      <Setter Property="Width" Value="170" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Classes="divider-bottom" Padding="16,8">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Theme="{DynamicResource BorderlessButton}" Padding="8" Command="{Binding BackCommand}"
+                AutomationProperties.Name="{x:Static res:Strings.Back}" ToolTip.Tip="{x:Static res:Strings.Back}">
+          <PathIcon Width="16" Height="16" Data="{StaticResource SemiIconArrowLeft}" />
+        </Button>
+        <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{x:Static res:Strings.Settings}" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer>
+      <StackPanel MaxWidth="680" Margin="28,0,28,32" HorizontalAlignment="Stretch">
+        <TextBlock Classes="title" Margin="2,28,0,4" Text="{x:Static res:Strings.Network}" />
+        <TextBlock Classes="caption" Margin="2,0,0,10" TextWrapping="Wrap" Text="{x:Static res:Strings.SetupSettingsBody}" />
+        <Border Classes="panel">
+          <StackPanel>
+            <Border Classes="row">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.BypassSni}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SettingsViewModel.SniBypassChoices}" SelectedItem="{Binding SniBypass}"
+                          AutomationProperties.Name="{x:Static res:Strings.BypassSni}" />
+              </Grid>
+            </Border>
+            <Border Classes="row last">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{x:Static res:Strings.EncryptedDns}" />
+                  <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SettingsViewModel.EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
+                          AutomationProperties.Name="{x:Static res:Strings.EncryptedDns}" />
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

@@ -258,7 +258,7 @@
                       <TextBlock Text="{x:Static res:Strings.BypassSni}" />
                       <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.BypassSniBody}" />
                     </StackPanel>
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding SniBypassChoices}" SelectedItem="{Binding SniBypass}"
+                    <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SettingsViewModel.SniBypassChoices}" SelectedItem="{Binding SniBypass}"
                               AutomationProperties.Name="{x:Static res:Strings.BypassSni}" />
                   </Grid>
                 </Border>
@@ -268,7 +268,7 @@
                       <TextBlock Text="{x:Static res:Strings.EncryptedDns}" />
                       <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static res:Strings.EncryptedDnsBody}" />
                     </StackPanel>
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
+                    <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SettingsViewModel.EncryptedDnsChoices}" SelectedItem="{Binding EncryptedDns}"
                               AutomationProperties.Name="{x:Static res:Strings.EncryptedDns}" />
                   </Grid>
                 </Border>
