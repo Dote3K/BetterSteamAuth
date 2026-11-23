@@ -139,20 +139,19 @@ public sealed class VaultTests : IDisposable
             created.Add(FakeMaFile());
         }
 
-        // Turn it back into a schema-3 database, as an app from before migration 004 left it.
-        Sql("DROP TABLE account_automation; " +
-            "CREATE TABLE auto_confirm_rules (steam_id INTEGER PRIMARY KEY, trades INTEGER NOT NULL DEFAULT 0, " +
-            "market INTEGER NOT NULL DEFAULT 0, whitelist TEXT); PRAGMA user_version = 3;");
+        // Turn it back into a schema-4 database, as an app from before migration 005 left it.
+        Sql("ALTER TABLE confirmation_log DROP COLUMN details; ALTER TABLE confirmation_log DROP COLUMN details_enc; " +
+            "ALTER TABLE confirmation_log DROP COLUMN details_nonce; PRAGMA user_version = 4;");
 
         using (var opened = Vault.Open(_folder))
         {
             Assert.Single(opened.ListAccounts());
         }
 
-        string copy = Path.Combine(_folder, ".backup", "vault.db.before-004");
+        string copy = Path.Combine(_folder, ".backup", "vault.db.before-005");
         Assert.True(File.Exists(copy));
-        Assert.Equal(3L, UserVersion(copy));
-        Assert.Equal(4L, UserVersion(Path.Combine(_folder, "vault.db")));
+        Assert.Equal(4L, UserVersion(copy));
+        Assert.Equal(5L, UserVersion(Path.Combine(_folder, "vault.db")));
     }
 
     // Data from a newer version: refused, and left exactly as it was.

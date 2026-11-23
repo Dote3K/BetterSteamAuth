@@ -376,7 +376,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
         foreach (var item in items)
         {
-            vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok);
+            vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok, string.Join('\n', item.Confirmation.Summary));
             if (ok)
             {
                 account.Remove(item);
@@ -495,7 +495,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
             // Reported on the row below.
         }
 
-        vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok);
+        vault.LogConfirmation(account.SteamId, item.Id, item.Confirmation.Type, item.Headline, accept, automatic: false, ok, string.Join('\n', item.Confirmation.Summary));
         if (ok)
         {
             account.Remove(item);

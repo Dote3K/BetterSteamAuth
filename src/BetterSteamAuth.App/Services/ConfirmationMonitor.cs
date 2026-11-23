@@ -349,7 +349,7 @@ public sealed class ConfirmationMonitor(ShellViewModel shell) : IDisposable
         foreach (var confirmation in picked)
         {
             vault.LogConfirmation(steamId, confirmation.Id, confirmation.Type, confirmation.Headline ?? confirmation.TypeName,
-                accepted: true, automatic: true, ok);
+                accepted: true, automatic: true, ok, string.Join('\n', confirmation.Summary));
             if (!ok)
             {
                 _autoAttempts[confirmation.Id] = _autoAttempts.GetValueOrDefault(confirmation.Id) + 1;

@@ -8,6 +8,7 @@ namespace BetterSteamAuth.Tests.Storage;
 public sealed class VaultHistoryTests : IDisposable
 {
     private const ulong SteamId = 76561198000000001;
+    private const string TradeLines = "You will give 1 item\nYou will receive 2 items";
     private static readonly KdfParameters FastKdf = new(MemoryKiB: 1024, Iterations: 1, Parallelism: 1);
     private readonly string _folder = Path.Combine(Path.GetTempPath(), "bsa-tests", Guid.NewGuid().ToString("N"));
 
@@ -39,11 +40,13 @@ public sealed class VaultHistoryTests : IDisposable
         using (var vault = Vault.Create(_folder, "pw", FastKdf))
         {
             vault.Add(FakeMaFile());
-            vault.LogConfirmation(SteamId, 1, 2, "Trade with buyer_88", accepted: true, automatic: true, ok: true);
+            vault.LogConfirmation(SteamId, 1, 2, "Trade with buyer_88", accepted: true, automatic: true, ok: true,
+                details: TradeLines);
             vault.LogConfirmation(SteamId, 2, 3, "Sell AK-47", accepted: false, automatic: false, ok: false);
         }
 
         Assert.DoesNotContain("buyer_88", ReadRawSummaries());
+        Assert.DoesNotContain("receive", ReadRawSummaries());
 
         using var reopened = Vault.Open(_folder);
         Assert.All(reopened.ListHistory(SteamId, 10), e => Assert.Null(e.Summary));
@@ -52,6 +55,8 @@ public sealed class VaultHistoryTests : IDisposable
         var history = reopened.ListHistory(SteamId, 10);
         Assert.Equal(["Sell AK-47", "Trade with buyer_88"], history.Select(e => e.Summary));
         Assert.True(history[1] is { Accepted: true, Automatic: true, Ok: true, Type: 2 });
+        Assert.Equal(TradeLines, history[1].Details);
+        Assert.Null(history[0].Details);
         Assert.True(history[0] is { Accepted: false, Automatic: false, Ok: false });
         Assert.Single(reopened.ListHistory(SteamId, 10, after: history[0]));
     }
@@ -80,7 +85,7 @@ public sealed class VaultHistoryTests : IDisposable
     private string ReadRawSummaries()
     {
         using var connection = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={Path.Combine(_folder, "vault.db")}");
-        return string.Join("|", connection.Query<string?>("SELECT summary FROM confirmation_log"));
+        return string.Join("|", connection.Query<string?>("SELECT coalesce(summary, '') || coalesce(details, '') FROM confirmation_log"));
     }
 
     private static MaFile FakeMaFile() => new()
