@@ -146,6 +146,12 @@ public sealed partial class Vault
         File.Delete(trashPath);
         using var connection = _db.Open();
         connection.Execute("DELETE FROM removed_accounts WHERE trash_file = @file", new { file = removed.TrashFile });
+
+        // History stays while the account can be restored; once it's gone for good (and not back), so is its history.
+        connection.Execute(
+            "DELETE FROM confirmation_log WHERE steam_id = @id AND NOT EXISTS (SELECT 1 FROM accounts WHERE steam_id = @id) " +
+            "AND NOT EXISTS (SELECT 1 FROM removed_accounts WHERE steam_id = @id)",
+            new { id = (long)removed.SteamId });
     }
 
     /// <summary>Saves what Restore needs, next to the trash file. Called by <see cref="Remove"/>.</summary>
