@@ -82,9 +82,9 @@
       },
       "Semi.Avalonia": {
         "type": "Direct",
-        "requested": "[12.1.0.1, )",
-        "resolved": "12.1.0.1",
-        "contentHash": "8wSI5jaGOpnWRurYGyaPjccnimVUa2xAsuKqYjJBLXSMbAiYB3QkCtJ/zrWnOVh/wXY4nSKQA1sWqZpcF7pE3g==",
+        "requested": "[12.1.0.2, )",
+        "resolved": "12.1.0.2",
+        "contentHash": "7NY8BLM6pBImILMiTQnTKspuqAsyOEqCYvLx9zntwjRLfV2O1kFU6SAfN4CRsEhg0getR+cljcMZkaRUMWWNqQ==",
         "dependencies": {
           "Avalonia": "12.1.0",
           "Irihi.Avalonia.Shared": "0.5.0"
